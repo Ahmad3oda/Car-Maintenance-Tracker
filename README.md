@@ -33,6 +33,10 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 
 > **Note:** The Angular frontend currently uses **in-memory mock data** in its services. Backend API integration is planned.
 
+### UI Draft
+
+<img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/1e366ad6-1049-4502-b4d3-5ab106469576" />
+
 ---
 
 ## Tech Stack
