@@ -1,0 +1,41 @@
+<div class="py-4 text-purple-200 dark:text-gray-400">
+  <a class="ml-6 text-xl font-bold tracking-tight text-white dark:text-gray-200 flex items-center gap-2 hover:no-underline" routerLink="/dashboard">
+    <svg class="w-6 h-6 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+    </svg>
+    {{ appName }}
+  </a>
+  <ul class="mt-6">
+    <li class="relative px-6 py-3" *ngFor="let link of links">
+      <span
+        *ngIf="isMainLink(link.url)"
+        class="absolute inset-y-0 left-0 w-1.5 bg-purple-300 rounded-tr-lg rounded-br-lg shadow-[0_0_8px_rgba(216,180,254,0.6)]"
+        aria-hidden="true"
+      ></span>
+
+      <a
+        [routerLink]="link.url"
+        [ngClass]="{
+          'text-white bg-purple-800/50 shadow-sm': isMainLink(link.url),
+          'text-purple-200 hover:text-white hover:bg-purple-800/30': !isMainLink(link.url)
+        }"
+        class="inline-flex items-center w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-lg hover:no-underline"
+      >
+        <svg
+          class="w-5 h-5"
+          aria-hidden="true"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path *ngFor="let s of link.svg" [attr.d]="s"></path>
+        </svg>
+        <span class="ml-4">{{ link.name }}</span>
+      </a>
+    </li>
+  </ul>
+</div>

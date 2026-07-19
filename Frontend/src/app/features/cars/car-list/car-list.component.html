@@ -1,0 +1,77 @@
+<div class="container px-6 mx-auto grid">
+  <div class="flex items-center justify-between my-6">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Cars</h2>
+    <a
+      routerLink="/cars/add"
+      class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 shadow-sm"
+    >
+      <span>Add Car</span>
+      <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+      </svg>
+    </a>
+  </div>
+
+  <ng-container *ngIf="cars.length > 0; else emptyState">
+    <!-- Cards grid -->
+    <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3">
+      <div *ngFor="let car of cars" class="relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition-shadow">
+        
+        <!-- Make the entire card clickable to navigate to Car Details -->
+        <a [routerLink]="['/cars', car.id]" class="block absolute inset-0 z-10" aria-label="View Car Details"></a>
+
+        <ng-container *ngIf="car.photoPath; else noPhoto">
+          <img class="object-cover w-full h-48 rounded-t-xl" [src]="car.photoPath" [alt]="car.brand + ' ' + car.model" />
+        </ng-container>
+        <ng-template #noPhoto>
+          <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-t-xl dark:bg-gray-700">
+            <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </ng-template>
+        
+        <div class="p-5">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h4 class="text-xl font-bold text-gray-800 dark:text-gray-200">
+                {{ car.brand }} {{ car.model }}
+              </h4>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ car.year }}</p>
+            </div>
+            
+            <!-- Actions placed on top-right of the card info area, z-index higher to be clickable independently of the card wrapper -->
+            <div class="flex space-x-1 relative z-20">
+              <!-- Edit action -->
+              <a [routerLink]="['/cars', car.id, 'edit']" class="p-1.5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 hover:bg-purple-100 dark:hover:bg-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer" aria-label="Edit">
+                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-sm">
+            <span class="inline-flex items-center px-2 py-1 font-semibold leading-tight text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
+              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+              {{ car.plateNumber }}
+            </span>
+            <span class="inline-flex items-center font-semibold text-gray-700 dark:text-gray-300">
+              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              {{ car.currentKm | number }} KM
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-template #emptyState>
+    <app-empty-state 
+      title="No cars found" 
+      message="You haven't added any cars to track yet. Get started by adding your first vehicle."
+      actionLabel="Add your first Car"
+      (action)="navigateToAddCar()"
+    >
+      <svg icon class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 17v2c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2v-2m14-8V7c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2m14 8h-2m-8 0H7m12-8h-2M7 9H5m14 8a2 2 0 10-4 0 2 2 0 004 0zM9 17a2 2 0 10-4 0 2 2 0 004 0z" /></svg>
+    </app-empty-state>
+  </ng-template>
+</div>
