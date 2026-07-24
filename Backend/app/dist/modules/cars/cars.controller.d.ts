@@ -7,9 +7,9 @@ import { PageDto } from '../../common/dtos/page.dto';
 export declare class CarsController {
     private readonly carsService;
     constructor(carsService: CarsService);
-    create(createCarDto: CreateCarDto): Promise<CarSerializer>;
+    create(createCarDto: CreateCarDto, photo?: Express.Multer.File): Promise<CarSerializer>;
     findAll(query: QueryCarDto): Promise<PageDto<CarSerializer>>;
     findOne(id: number): Promise<CarSerializer>;
-    update(id: number, updateCarDto: UpdateCarDto): Promise<CarSerializer>;
+    update(id: number, updateCarDto: UpdateCarDto, photo?: Express.Multer.File): Promise<CarSerializer>;
     remove(id: number): Promise<void>;
 }

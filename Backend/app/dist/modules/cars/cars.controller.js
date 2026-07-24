@@ -21,13 +21,16 @@ const update_car_dto_1 = require("./dtos/update-car.dto");
 const query_car_dto_1 = require("./dtos/query-car.dto");
 const car_serializer_1 = require("./serializers/car.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
+const multer_1 = require("multer");
+const platform_express_1 = require("@nestjs/platform-express");
+const path_1 = require("path");
 let CarsController = class CarsController {
     carsService;
     constructor(carsService) {
         this.carsService = carsService;
     }
-    create(createCarDto) {
-        return this.carsService.create(createCarDto);
+    create(createCarDto, photo) {
+        return this.carsService.create(createCarDto, photo);
     }
     findAll(query) {
         return this.carsService.findAll(query);
@@ -35,8 +38,8 @@ let CarsController = class CarsController {
     findOne(id) {
         return this.carsService.findOne(id);
     }
-    update(id, updateCarDto) {
-        return this.carsService.update(id, updateCarDto);
+    update(id, updateCarDto, photo) {
+        return this.carsService.update(id, updateCarDto, photo);
     }
     remove(id) {
         return this.carsService.remove(id);
@@ -51,9 +54,21 @@ __decorate([
         description: 'The car has been successfully created.',
         type: car_serializer_1.CarSerializer,
     }),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photoPath', {
+        storage: (0, multer_1.diskStorage)({
+            destination: 'uploads/cars/',
+            filename: (req, file, cb) => {
+                const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+                cb(null, `${unique}${(0, path_1.extname)(file.originalname)}`);
+            },
+        }),
+    })),
+    (0, common_1.SerializeOptions)({ type: car_serializer_1.CarSerializer }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_car_dto_1.CreateCarDto]),
+    __metadata("design:paramtypes", [create_car_dto_1.CreateCarDto, Object]),
     __metadata("design:returntype", Promise)
 ], CarsController.prototype, "create", null);
 __decorate([
@@ -77,6 +92,7 @@ __decorate([
             ],
         },
     }),
+    (0, common_1.SerializeOptions)({ type: (page_dto_1.PageDto) }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [query_car_dto_1.QueryCarDto]),
@@ -87,6 +103,7 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get a car by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'The car.', type: car_serializer_1.CarSerializer }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
+    (0, common_1.SerializeOptions)({ type: car_serializer_1.CarSerializer }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -100,11 +117,23 @@ __decorate([
         description: 'The car has been successfully updated.',
         type: car_serializer_1.CarSerializer,
     }),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photoPath', {
+        storage: (0, multer_1.diskStorage)({
+            destination: 'uploads/cars/',
+            filename: (req, file, cb) => {
+                const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+                cb(null, `${unique}${(0, path_1.extname)(file.originalname)}`);
+            },
+        }),
+    })),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
+    (0, common_1.SerializeOptions)({ type: car_serializer_1.CarSerializer }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, update_car_dto_1.UpdateCarDto]),
+    __metadata("design:paramtypes", [Number, update_car_dto_1.UpdateCarDto, Object]),
     __metadata("design:returntype", Promise)
 ], CarsController.prototype, "update", null);
 __decorate([

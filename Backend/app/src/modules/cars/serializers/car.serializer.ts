@@ -26,7 +26,7 @@ export class CarSerializer {
 
   @ApiPropertyOptional()
   @Expose()
-  photoPath: string;
+  photoPath: string | null;
 
   @ApiProperty()
   @Expose()

@@ -53,7 +53,7 @@ __decorate([
 ], Car.prototype, "currentKm", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], Car.prototype, "photoPath", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),

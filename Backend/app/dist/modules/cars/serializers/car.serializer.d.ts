@@ -4,7 +4,7 @@ export declare class CarSerializer {
     brand: string;
     model: string;
     year: number;
-    photoPath: string;
+    photoPath: string | null;
     currentKm: number;
     createdAt: Date;
     updatedAt: Date;

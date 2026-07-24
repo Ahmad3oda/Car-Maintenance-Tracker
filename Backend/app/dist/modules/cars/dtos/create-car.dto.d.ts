@@ -4,4 +4,5 @@ export declare class CreateCarDto {
     model: string;
     year: number;
     currentKm?: number;
+    photoPath?: any;
 }

@@ -16,14 +16,26 @@ const car_serializer_1 = require("./serializers/car.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
 const page_meta_dto_1 = require("../../common/dtos/page-meta.dto");
 const class_transformer_1 = require("class-transformer");
+const fs_1 = require("fs");
 let CarsService = class CarsService {
     carsRepo;
     constructor(carsRepo) {
         this.carsRepo = carsRepo;
     }
-    async create(dto) {
-        const car = await this.carsRepo.create(dto);
-        return (0, class_transformer_1.plainToInstance)(car_serializer_1.CarSerializer, car);
+    async create(dto, photo) {
+        console.log(photo);
+        const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber);
+        if (dbCar) {
+            if (photo) {
+                await fs_1.promises.unlink(`uploads\\cars\\${photo.filename}`).catch(() => { });
+            }
+            throw new common_1.BadRequestException(`Car with plate number ${dto.plateNumber} is already registered`);
+        }
+        const car = await this.carsRepo.create({
+            ...dto,
+            photoPath: photo?.filename ?? null,
+        });
+        return car;
     }
     async findAll(query) {
         const [cars, itemCount] = await this.carsRepo.findAll(query.page, query.limit, query.search, query.sortBy, query.order);
@@ -36,20 +48,32 @@ let CarsService = class CarsService {
         if (!car) {
             throw new common_1.NotFoundException(`Car with ID ${id} not found`);
         }
-        return (0, class_transformer_1.plainToInstance)(car_serializer_1.CarSerializer, car);
+        return car;
     }
-    async update(id, dto) {
+    async update(id, dto, photo) {
         const car = await this.carsRepo.findOne(id);
         if (!car) {
             throw new common_1.NotFoundException(`Car with ID ${id} not found`);
         }
-        const updatedCar = await this.carsRepo.update(id, dto);
-        return (0, class_transformer_1.plainToInstance)(car_serializer_1.CarSerializer, updatedCar);
+        if (photo && car.photoPath) {
+            await fs_1.promises.unlink(`uploads\\cars\\${car.photoPath}`).catch(() => { });
+        }
+        const updatedCar = await this.carsRepo.update(id, {
+            ...dto,
+            photoPath: photo?.filename ?? null,
+        });
+        if (!updatedCar) {
+            throw new common_1.BadRequestException(`Failed to update car with ID ${id}`);
+        }
+        return updatedCar;
     }
     async remove(id) {
         const car = await this.carsRepo.findOne(id);
         if (!car) {
             throw new common_1.NotFoundException(`Car with ID ${id} not found`);
+        }
+        if (car.photoPath) {
+            await fs_1.promises.unlink(`uploads\\cars\\${car.photoPath}`).catch(() => { });
         }
         await this.carsRepo.remove(id);
     }

@@ -48,6 +48,11 @@ let CarsRepository = class CarsRepository {
             relations: ['items', 'maintenanceRecords'],
         });
     }
+    async findOneByPlate(plateNumber) {
+        return this.repo.findOne({
+            where: { plateNumber },
+        });
+    }
     async update(id, car) {
         await this.repo.update(id, car);
         return this.findOne(id);

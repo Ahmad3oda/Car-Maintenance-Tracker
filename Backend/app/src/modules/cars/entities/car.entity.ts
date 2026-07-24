@@ -30,7 +30,7 @@ export class Car {
   currentKm: number;
 
   @Column({ type: 'varchar', nullable: true })
-  photoPath: string;
+  photoPath: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
