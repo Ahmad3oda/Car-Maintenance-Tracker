@@ -27,7 +27,9 @@ export class CarsService {
     );
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: query });
-    const serializedCars = cars.map(car => plainToInstance(CarSerializer, car));
+    const serializedCars = cars.map((car) =>
+      plainToInstance(CarSerializer, car),
+    );
 
     return new PageDto(serializedCars, pageMetaDto);
   }

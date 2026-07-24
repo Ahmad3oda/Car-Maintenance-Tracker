@@ -28,7 +28,7 @@ let CarsService = class CarsService {
     async findAll(query) {
         const [cars, itemCount] = await this.carsRepo.findAll(query.page, query.limit, query.search, query.sortBy, query.order);
         const pageMetaDto = new page_meta_dto_1.PageMetaDto({ itemCount, pageOptionsDto: query });
-        const serializedCars = cars.map(car => (0, class_transformer_1.plainToInstance)(car_serializer_1.CarSerializer, car));
+        const serializedCars = cars.map((car) => (0, class_transformer_1.plainToInstance)(car_serializer_1.CarSerializer, car));
         return new page_dto_1.PageDto(serializedCars, pageMetaDto);
     }
     async findOne(id) {

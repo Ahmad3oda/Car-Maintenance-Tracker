@@ -1,45 +1,32 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { MaintenanceEvent } from '../../shared/models/models';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { CreateMaintenanceRecordDto, MaintenanceRecordDto, Page, PageQuery } from '../../shared/models/api.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class MaintenanceService {
-  private mockEvents: MaintenanceEvent[] = [
-    { id: 1, itemId: 1, maintenanceDate: '2023-10-15', kmCounter: 54000, itemCost: 150.00, extraCosts: [{ name: 'Labor', cost: 50.00 }], notes: 'Regular oil change' },
-    { id: 2, itemId: 1, maintenanceDate: '2023-05-10', kmCounter: 48000, itemCost: 140.00, extraCosts: [{ name: 'Labor', cost: 50.00 }], notes: 'Previous oil change' },
-  ];
+  private readonly http = inject(HttpClient);
+  private readonly base = '/maintenance-records';
 
-  private eventsSubject = new BehaviorSubject<MaintenanceEvent[]>(this.mockEvents);
-
-  getEventsForItem(itemId: number): Observable<MaintenanceEvent[]> {
-    const events = this.mockEvents.filter(e => e.itemId === itemId);
-    return of(events);
+  getEventsForItem(itemId: number, query: PageQuery = {}): Observable<MaintenanceRecordDto[]> {
+    return this.http
+      .get<Page<MaintenanceRecordDto>>(this.base, { params: { ...query, itemId } as any })
+      .pipe(map(page => page.data));
   }
 
-  addEvent(event: Partial<MaintenanceEvent>): Observable<MaintenanceEvent> {
-    const newEvent: MaintenanceEvent = {
-      ...event,
-      id: this.mockEvents.length + 1
-    } as MaintenanceEvent;
-    this.mockEvents.push(newEvent);
-    this.eventsSubject.next([...this.mockEvents]);
-    return of(newEvent);
+  getEvent(id: number): Observable<MaintenanceRecordDto> {
+    return this.http.get<MaintenanceRecordDto>(`${this.base}/${id}`);
   }
 
-  getEvent(id: number): Observable<MaintenanceEvent | undefined> {
-    const event = this.mockEvents.find(e => e.id === id);
-    return of(event);
+  createEvent(dto: CreateMaintenanceRecordDto): Observable<MaintenanceRecordDto> {
+    return this.http.post<MaintenanceRecordDto>(this.base, dto);
   }
 
-  updateEvent(id: number, updates: Partial<MaintenanceEvent>): Observable<MaintenanceEvent> {
-    const index = this.mockEvents.findIndex(e => e.id === id);
-    if (index !== -1) {
-      this.mockEvents[index] = { ...this.mockEvents[index], ...updates };
-      this.eventsSubject.next([...this.mockEvents]);
-      return of(this.mockEvents[index]);
-    }
-    throw new Error('Event not found');
+  updateEvent(id: number, dto: Partial<CreateMaintenanceRecordDto>): Observable<MaintenanceRecordDto> {
+    return this.http.patch<MaintenanceRecordDto>(`${this.base}/${id}`, dto);
+  }
+
+  deleteEvent(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
   }
 }

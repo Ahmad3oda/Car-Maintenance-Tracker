@@ -1,24 +1,36 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { DashboardStats, MaintenanceEvent } from '../../shared/models/models';
+import { Injectable, inject } from '@angular/core';
+import { forkJoin, map, Observable } from 'rxjs';
+import { CarService } from './car.service';
+import { ItemService } from './item.service';
+import { MaintenanceService } from './maintenance.service';
+import { DashboardStats, MaintenanceRecordDto } from '../../shared/models/api.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DashboardService {
+  private cars = inject(CarService);
+  private items = inject(ItemService);
+  private maintenance = inject(MaintenanceService);
+
   getStats(): Observable<DashboardStats> {
-    return of({
-      totalCars: 3,
-      totalItems: 12,
-      maintenanceThisMonth: 2,
-      upcomingMaintenance: 5
-    });
+    return forkJoin({
+      cars: this.cars.getCars({ limit: 1 }),
+      items: this.items.getItemsForCar(0, { limit: 1 }), // or a dedicated count endpoint later
+    }).pipe(
+      map(({ cars }) => ({
+        totalCars: cars.meta.totalItems,
+        totalItems: 0,              // fetch separately or add backend /stats endpoint
+        maintenanceThisMonth: 0,
+        upcomingMaintenance: 0,
+      }))
+    );
   }
 
-  getRecentMaintenance(): Observable<(MaintenanceEvent & { carName: string; itemName: string })[]> {
-    return of([
-      { id: 1, itemId: 1, maintenanceDate: '2023-10-15', kmCounter: 54000, itemCost: 150.00, extraCosts: [{ name: 'Labor', cost: 50.00 }], notes: 'Regular oil change', carName: 'Toyota Camry (ABC-123)', itemName: 'Engine Oil' },
-      { id: 2, itemId: 2, maintenanceDate: '2023-10-10', kmCounter: 35000, itemCost: 200.00, extraCosts: [], notes: '', carName: 'Toyota Camry (ABC-123)', itemName: 'Brake Pads' },
-    ]);
+  getRecentEvents(): Observable<MaintenanceRecordDto[]> {
+    return this.maintenance.getEventsForItem(0, { limit: 5, order: 'DESC', sortBy: 'createdAt' });
   }
+
+  //TODO: Implement this
+  // getUpcomingMaintenance(): Observable<MaintenanceRecordDto[]> {
+  //   return this.maintenance.getEventsForItem(0, { limit: 5});
+  // }
 }

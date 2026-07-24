@@ -1,14 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../../../core/services/car.service';
+import { CarDto, CreateCarDto } from '../../../shared/models/api.models';
 
 @Component({
   selector: 'app-car-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './car-form.component.html'
+  templateUrl: './car-form.component.html',
 })
 export class CarFormComponent implements OnInit {
   carForm: FormGroup;
@@ -17,27 +23,30 @@ export class CarFormComponent implements OnInit {
   carId?: number;
 
   constructor(
-    private fb: FormBuilder, 
-    private carService: CarService, 
+    private fb: FormBuilder,
+    private carService: CarService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     this.carForm = this.fb.group({
       plateNumber: ['', Validators.required],
       brand: ['', Validators.required],
       model: ['', Validators.required],
-      year: ['', [Validators.required, Validators.min(1886), Validators.max(2100)]],
-      currentKm: ['', [Validators.required, Validators.min(0)]]
+      year: [
+        '',
+        [Validators.required, Validators.min(1886), Validators.max(2100)],
+      ],
+      currentKm: ['', [Validators.required, Validators.min(0)]],
     });
   }
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.isEditMode = true;
         this.carId = Number(id);
-        this.carService.getCar(this.carId).subscribe(car => {
+        this.carService.getCar(this.carId).subscribe((car: CarDto) => {
           if (car) {
             this.carForm.patchValue(car);
             this.photoPreview = car.photoPath || null;
@@ -57,23 +66,14 @@ export class CarFormComponent implements OnInit {
     }
   }
 
+  // car-form.component.ts
   onSubmit() {
-    if (this.carForm.valid) {
-      const formValue = this.carForm.value;
-      const carData = {
-        ...formValue,
-        photoPath: this.photoPreview || undefined
-      };
+    const dto: CreateCarDto = this.carForm.value;
 
-      if (this.isEditMode && this.carId) {
-        this.carService.updateCar(this.carId, carData).subscribe(() => {
-          this.router.navigate(['/cars', this.carId]);
-        });
-      } else {
-        this.carService.addCar(carData).subscribe(() => {
-          this.router.navigate(['/cars']);
-        });
-      }
-    }
+    const request$ = this.carId
+      ? this.carService.updateCar(this.carId, dto)
+      : this.carService.createCar(dto);
+
+    request$.subscribe(() => this.router.navigate(['/cars']));
   }
 }

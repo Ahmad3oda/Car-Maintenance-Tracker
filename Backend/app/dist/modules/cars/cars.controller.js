@@ -46,7 +46,11 @@ exports.CarsController = CarsController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new car' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'The car has been successfully created.', type: car_serializer_1.CarSerializer }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'The car has been successfully created.',
+        type: car_serializer_1.CarSerializer,
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_car_dto_1.CreateCarDto]),
@@ -91,7 +95,11 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Update a car' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'The car has been successfully updated.', type: car_serializer_1.CarSerializer }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The car has been successfully updated.',
+        type: car_serializer_1.CarSerializer,
+    }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
@@ -103,7 +111,10 @@ __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Delete a car' }),
-    (0, swagger_1.ApiResponse)({ status: 204, description: 'The car has been successfully deleted.' }),
+    (0, swagger_1.ApiResponse)({
+        status: 204,
+        description: 'The car has been successfully deleted.',
+    }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),

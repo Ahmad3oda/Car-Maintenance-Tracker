@@ -1,45 +1,51 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { Car } from '../../shared/models/models';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { CarDto, CreateCarDto, Page, PageQuery } from '../../shared/models/api.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class CarService {
-  private mockCars: Car[] = [
-    { id: 1, plateNumber: 'ABC-123', brand: 'Toyota', model: 'Camry', year: 2018, currentKm: 54000, photoPath: 'https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=200&auto=format&fit=crop' },
-    { id: 2, plateNumber: 'XYZ-987', brand: 'Honda', model: 'Civic', year: 2020, currentKm: 32000, photoPath: 'https://images.unsplash.com/photo-1590362891991-f702315fa418?q=80&w=200&auto=format&fit=crop' },
-    { id: 3, plateNumber: 'DEF-456', brand: 'Ford', model: 'Focus', year: 2015, currentKm: 85000, photoPath: 'https://images.unsplash.com/photo-1611016186353-9af58c69a533?q=80&w=200&auto=format&fit=crop' },
-  ];
+  private readonly http = inject(HttpClient);
+  private readonly base = '/cars';  // apiInterceptor prepends environment.apiUrl
 
-  private carsSubject = new BehaviorSubject<Car[]>(this.mockCars);
-
-  getCars(): Observable<Car[]> {
-    return this.carsSubject.asObservable();
+  /** GET /cars?page=1&limit=10&search=... */
+  getCars(query: PageQuery & Record<string, unknown>): Observable<Page<CarDto>> {
+    const params = this.toParams(query);
+    return this.http.get<Page<CarDto>>(this.base, { params });
   }
 
-  getCar(id: number): Observable<Car | undefined> {
-    const car = this.mockCars.find(c => c.id === id);
-    return of(car);
+  /** Convenience: returns just the data array */
+  getCarsList(query: PageQuery & Record<string, unknown> = {}): Observable<CarDto[]> {
+    return this.getCars(query).pipe(map(page => page.data));
   }
 
-  addCar(car: Partial<Car>): Observable<Car> {
-    const newCar: Car = {
-      ...car,
-      id: this.mockCars.length + 1
-    } as Car;
-    this.mockCars.push(newCar);
-    this.carsSubject.next([...this.mockCars]);
-    return of(newCar);
+  /** GET /cars/:id */
+  getCar(id: number): Observable<CarDto> {
+    return this.http.get<CarDto>(`${this.base}/${id}`);
   }
 
-  updateCar(id: number, updates: Partial<Car>): Observable<Car> {
-    const index = this.mockCars.findIndex(c => c.id === id);
-    if (index !== -1) {
-      this.mockCars[index] = { ...this.mockCars[index], ...updates };
-      this.carsSubject.next([...this.mockCars]);
-      return of(this.mockCars[index]);
+  /** POST /cars */
+  createCar(dto: CreateCarDto): Observable<CarDto> {
+    return this.http.post<CarDto>(this.base, dto);
+  }
+
+  /** PATCH /cars/:id */
+  updateCar(id: number, dto: Partial<CreateCarDto>): Observable<CarDto> {
+    return this.http.patch<CarDto>(`${this.base}/${id}`, dto);
+  }
+
+  /** DELETE /cars/:id */
+  deleteCar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  private toParams(query: PageQuery & Record<string, unknown>): HttpParams {
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
     }
-    throw new Error('Car not found');
+    return params;
   }
 }

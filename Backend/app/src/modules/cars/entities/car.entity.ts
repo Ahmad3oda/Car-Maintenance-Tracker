@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Item } from '../../items/entities/item.entity';
 import { MaintenanceRecord } from '../../maintenance-records/entities/maintenance-record.entity';
 
@@ -21,6 +28,9 @@ export class Car {
 
   @Column({ type: 'int', default: 0 })
   currentKm: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  photoPath: string;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,5 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiExtraModels,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { CarsService } from './cars.service';
 import { CreateCarDto } from './dtos/create-car.dto';
 import { UpdateCarDto } from './dtos/update-car.dto';
@@ -14,7 +32,11 @@ export class CarsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new car' })
-  @ApiResponse({ status: 201, description: 'The car has been successfully created.', type: CarSerializer })
+  @ApiResponse({
+    status: 201,
+    description: 'The car has been successfully created.',
+    type: CarSerializer,
+  })
   create(@Body() createCarDto: CreateCarDto): Promise<CarSerializer> {
     return this.carsService.create(createCarDto);
   }
@@ -53,16 +75,26 @@ export class CarsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a car' })
-  @ApiResponse({ status: 200, description: 'The car has been successfully updated.', type: CarSerializer })
+  @ApiResponse({
+    status: 200,
+    description: 'The car has been successfully updated.',
+    type: CarSerializer,
+  })
   @ApiResponse({ status: 404, description: 'Car not found.' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateCarDto: UpdateCarDto): Promise<CarSerializer> {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCarDto: UpdateCarDto,
+  ): Promise<CarSerializer> {
     return this.carsService.update(id, updateCarDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a car' })
-  @ApiResponse({ status: 204, description: 'The car has been successfully deleted.' })
+  @ApiResponse({
+    status: 204,
+    description: 'The car has been successfully deleted.',
+  })
   @ApiResponse({ status: 404, description: 'Car not found.' })
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.carsService.remove(id);
