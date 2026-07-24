@@ -13,7 +13,11 @@ const typeorm_1 = require("@nestjs/typeorm");
 const items_module_1 = require("./modules/items/items.module");
 const maintenance_records_module_1 = require("./modules/maintenance-records/maintenance-records.module");
 const cars_module_1 = require("./modules/cars/cars.module");
+const request_logger_middleware_1 = require("./common/middlewares/request-logger.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(request_logger_middleware_1.RequestLoggerMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
