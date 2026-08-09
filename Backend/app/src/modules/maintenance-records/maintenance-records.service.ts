@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MaintenanceRecordsRepository } from './maintenance-records.repository';
 import { ItemsRepository } from '../items/items.repository';
+import { CarsRepository } from '../cars/cars.repository';
 import { CreateMaintenanceRecordDto } from './dtos/create-maintenance-record.dto';
 import { UpdateMaintenanceRecordDto } from './dtos/update-maintenance-record.dto';
 import { QueryMaintenanceRecordDto } from './dtos/query-maintenance-record.dto';
@@ -8,41 +9,54 @@ import { MaintenanceRecordSerializer } from './serializers/maintenance-record.se
 import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
+import { deleteUploadedFile } from '../../common/utils/multer.util';
 
 @Injectable()
 export class MaintenanceRecordsService {
   constructor(
     private readonly recordsRepo: MaintenanceRecordsRepository,
     private readonly itemsRepo: ItemsRepository,
+    private readonly carsRepo: CarsRepository,
   ) {}
 
-  async create(dto: CreateMaintenanceRecordDto): Promise<MaintenanceRecordSerializer> {
+  async create(
+    dto: CreateMaintenanceRecordDto,
+    photo?: string,
+  ): Promise<MaintenanceRecordSerializer> {
     const item = await this.itemsRepo.findOne(dto.itemId);
     if (!item) {
+      if (photo) {
+        await deleteUploadedFile('maintenance-records', photo);
+      }
       throw new NotFoundException(`Item with ID ${dto.itemId} not found`);
     }
 
-    const record = await this.recordsRepo.create(dto);
-
-    // Update Item's lastMaintenanceId and next maintenance calculations
-    item.lastMaintenanceId = record.id;
-    
-    if (item.expectedMaintenanceKm) {
-      item.nextMaintenanceKm = dto.kmCounter + item.expectedMaintenanceKm;
+    const carId = dto.carId || item.carId;
+    const car = await this.carsRepo.findOne(carId);
+    if (!car) {
+      if (photo) {
+        await deleteUploadedFile('maintenance-records', photo);
+      }
+      throw new NotFoundException(`Car with ID ${carId} not found`);
     }
 
-    if (item.expectedMaintenanceMonths) {
-      const nextDate = new Date(dto.maintenanceDate);
-      nextDate.setMonth(nextDate.getMonth() + item.expectedMaintenanceMonths);
-      item.nextMaintenanceDate = nextDate;
-    }
+    const recordData = {
+      ...dto,
+      carId,
+      photoPath: photo ?? null,
+    };
 
-    await this.itemsRepo.save(item);
+    const record = await this.recordsRepo.create(recordData);
+
+    // Recalculate item maintenance status
+    await this.updateItemMaintenanceStatus(item.id);
 
     return plainToInstance(MaintenanceRecordSerializer, record);
   }
 
-  async findAll(query: QueryMaintenanceRecordDto): Promise<PageDto<MaintenanceRecordSerializer>> {
+  async findAll(
+    query: QueryMaintenanceRecordDto,
+  ): Promise<PageDto<MaintenanceRecordSerializer>> {
     const [records, itemCount] = await this.recordsRepo.findAll(
       query.page,
       query.limit,
@@ -54,7 +68,9 @@ export class MaintenanceRecordsService {
     );
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: query });
-    const serializedRecords = records.map((r) => plainToInstance(MaintenanceRecordSerializer, r));
+    const serializedRecords = records.map((r) =>
+      plainToInstance(MaintenanceRecordSerializer, r),
+    );
 
     return new PageDto(serializedRecords, pageMetaDto);
   }
@@ -67,16 +83,54 @@ export class MaintenanceRecordsService {
     return plainToInstance(MaintenanceRecordSerializer, record);
   }
 
-  async update(id: number, dto: UpdateMaintenanceRecordDto): Promise<MaintenanceRecordSerializer> {
+  async update(
+    id: number,
+    dto: UpdateMaintenanceRecordDto,
+    photo?: string,
+  ): Promise<MaintenanceRecordSerializer> {
     const record = await this.recordsRepo.findOne(id);
     if (!record) {
+      if (photo) {
+        await deleteUploadedFile('maintenance-records', photo);
+      }
       throw new NotFoundException(`MaintenanceRecord with ID ${id} not found`);
     }
-    const updatedRecord = await this.recordsRepo.update(id, dto);
-    
-    // We optionally recalculate Item's next maintenance if dates/kms were changed
-    // For simplicity, we just update the record here. Full recalculation could be complex
-    // if this is the "latest" record.
+
+    if (dto.itemId && dto.itemId !== record.itemId) {
+      const item = await this.itemsRepo.findOne(dto.itemId);
+      if (!item) {
+        if (photo) {
+          await deleteUploadedFile('maintenance-records', photo);
+        }
+        throw new NotFoundException(`Item with ID ${dto.itemId} not found`);
+      }
+    }
+
+    if (dto.carId && dto.carId !== record.carId) {
+      const car = await this.carsRepo.findOne(dto.carId);
+      if (!car) {
+        if (photo) {
+          await deleteUploadedFile('maintenance-records', photo);
+        }
+        throw new NotFoundException(`Car with ID ${dto.carId} not found`);
+      }
+    }
+
+    const updateData: Partial<any> = { ...dto };
+    if (photo) {
+      if (record.photoPath) {
+        await deleteUploadedFile('maintenance-records', record.photoPath);
+      }
+      updateData.photoPath = photo;
+    }
+
+    const updatedRecord = await this.recordsRepo.update(id, updateData);
+
+    // Recalculate item maintenance status
+    await this.updateItemMaintenanceStatus(record.itemId);
+    if (dto.itemId && dto.itemId !== record.itemId) {
+      await this.updateItemMaintenanceStatus(dto.itemId);
+    }
 
     return plainToInstance(MaintenanceRecordSerializer, updatedRecord);
   }
@@ -86,6 +140,75 @@ export class MaintenanceRecordsService {
     if (!record) {
       throw new NotFoundException(`MaintenanceRecord with ID ${id} not found`);
     }
+
+    const itemId = record.itemId;
+
+    if (record.photoPath) {
+      await deleteUploadedFile('maintenance-records', record.photoPath);
+    }
+
     await this.recordsRepo.remove(id);
+
+    // Recalculate item maintenance status after record removal
+    await this.updateItemMaintenanceStatus(itemId);
+  }
+
+  private async updateItemMaintenanceStatus(itemId: number): Promise<void> {
+    const item = await this.itemsRepo.findOne(itemId);
+    if (!item) return;
+
+    // Find all maintenance records for this item sorted by date descending
+    const [records] = await this.recordsRepo.findAll(
+      1,
+      1000,
+      undefined,
+      'maintenanceDate',
+      'DESC',
+      undefined,
+      itemId,
+    );
+
+    const latestRecord = records[0];
+    const updateData: Partial<any> = {};
+
+    if (latestRecord) {
+      updateData.lastMaintenanceId = latestRecord.id;
+      updateData.lastMaintenanceDate = latestRecord.maintenanceDate;
+
+      if (item.expectedMaintenanceKm) {
+        updateData.nextMaintenanceKm =
+          Number(latestRecord.kmCounter) + Number(item.expectedMaintenanceKm);
+      }
+
+      if (item.expectedMaintenanceMonths) {
+        const nextDate = new Date(latestRecord.maintenanceDate);
+        nextDate.setMonth(
+          nextDate.getMonth() + Number(item.expectedMaintenanceMonths),
+        );
+        updateData.nextMaintenanceDate = nextDate;
+      }
+    } else {
+      updateData.lastMaintenanceId = null;
+      updateData.lastMaintenanceDate = null;
+
+      if (item.installedKm && item.expectedMaintenanceKm) {
+        updateData.nextMaintenanceKm =
+          Number(item.installedKm) + Number(item.expectedMaintenanceKm);
+      } else {
+        updateData.nextMaintenanceKm = null;
+      }
+
+      if (item.installedDate && item.expectedMaintenanceMonths) {
+        const nextDate = new Date(item.installedDate);
+        nextDate.setMonth(
+          nextDate.getMonth() + Number(item.expectedMaintenanceMonths),
+        );
+        updateData.nextMaintenanceDate = nextDate;
+      } else {
+        updateData.nextMaintenanceDate = null;
+      }
+    }
+
+    await this.itemsRepo.update(item.id, updateData);
   }
 }

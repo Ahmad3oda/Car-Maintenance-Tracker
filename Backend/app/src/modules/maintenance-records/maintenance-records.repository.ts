@@ -24,7 +24,10 @@ export class MaintenanceRecordsRepository {
     carId?: number,
     itemId?: number,
   ): Promise<[MaintenanceRecord[], number]> {
-    const query = this.repo.createQueryBuilder('record');
+    const query = this.repo
+      .createQueryBuilder('record')
+      .leftJoinAndSelect('record.car', 'car')
+      .leftJoinAndSelect('record.item', 'item');
 
     if (carId) {
       query.andWhere('record.carId = :carId', { carId });
@@ -38,11 +41,9 @@ export class MaintenanceRecordsRepository {
       query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
     }
 
-    if (sortBy) {
-      query.orderBy(`record.${sortBy}`, order);
-    } else {
-      query.orderBy('record.maintenanceDate', order);
-    }
+    const sortField = sortBy || 'maintenanceDate';
+    const sortOrder = order || 'DESC';
+    query.orderBy(`record.${sortField}`, sortOrder);
 
     query.skip((page - 1) * limit).take(limit);
 

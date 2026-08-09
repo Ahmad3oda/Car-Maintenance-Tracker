@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { existsSync, unlinkSync } from 'fs';
-import { join } from 'path';
 import { ItemsRepository } from './items.repository';
+import { CarsRepository } from '../cars/cars.repository';
 import { CreateItemDto } from './dtos/create-item.dto';
 import { UpdateItemDto } from './dtos/update-item.dto';
 import { QueryItemDto } from './dtos/query-item.dto';
@@ -9,15 +8,27 @@ import { ItemSerializer } from './serializers/item.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
+import { deleteUploadedFile } from '../../common/utils/multer.util';
 
 @Injectable()
 export class ItemsService {
-  constructor(private readonly itemsRepo: ItemsRepository) {}
+  constructor(
+    private readonly itemsRepo: ItemsRepository,
+    private readonly carsRepo: CarsRepository,
+  ) {}
 
   async create(dto: CreateItemDto, photo?: string): Promise<ItemSerializer> {
+    const car = await this.carsRepo.findOne(dto.carId);
+    if (!car) {
+      if (photo) {
+        await deleteUploadedFile('items', photo);
+      }
+      throw new NotFoundException(`Car with ID ${dto.carId} not found`);
+    }
+
     const itemData = {
       ...dto,
-      photoPath: photo ? photo : undefined,
+      photoPath: photo ?? null,
     };
     const savedItem = await this.itemsRepo.create(itemData);
     return plainToInstance(ItemSerializer, savedItem);
@@ -34,7 +45,9 @@ export class ItemsService {
     );
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: query });
-    const serializedItems = items.map((item) => plainToInstance(ItemSerializer, item));
+    const serializedItems = items.map((item) =>
+      plainToInstance(ItemSerializer, item),
+    );
 
     return new PageDto(serializedItems, pageMetaDto);
   }
@@ -47,19 +60,36 @@ export class ItemsService {
     return plainToInstance(ItemSerializer, item);
   }
 
-  async update(id: number, dto: UpdateItemDto, photo?: string): Promise<ItemSerializer> {
+  async update(
+    id: number,
+    dto: UpdateItemDto,
+    photo?: string,
+  ): Promise<ItemSerializer> {
     const item = await this.itemsRepo.findOne(id);
     if (!item) {
+      if (photo) {
+        await deleteUploadedFile('items', photo);
+      }
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
 
-    if (photo && item.photoPath) {
-      const oldPath = join(process.cwd(), 'uploads', item.photoPath);
-      if (existsSync(oldPath)) unlinkSync(oldPath);
+    if (dto.carId && dto.carId !== item.carId) {
+      const car = await this.carsRepo.findOne(dto.carId);
+      if (!car) {
+        if (photo) {
+          await deleteUploadedFile('items', photo);
+        }
+        throw new NotFoundException(`Car with ID ${dto.carId} not found`);
+      }
     }
 
-    const updateData = { ...dto };
-    if (photo) updateData['photoPath'] = photo;
+    const updateData: Partial<any> = { ...dto };
+    if (photo) {
+      if (item.photoPath) {
+        await deleteUploadedFile('items', item.photoPath);
+      }
+      updateData.photoPath = photo;
+    }
 
     const updatedItem = await this.itemsRepo.update(id, updateData);
     return plainToInstance(ItemSerializer, updatedItem);
@@ -72,8 +102,7 @@ export class ItemsService {
     }
 
     if (item.photoPath) {
-      const p = join(process.cwd(), 'uploads', item.photoPath);
-      if (existsSync(p)) unlinkSync(p);
+      await deleteUploadedFile('items', item.photoPath);
     }
 
     await this.itemsRepo.remove(id);

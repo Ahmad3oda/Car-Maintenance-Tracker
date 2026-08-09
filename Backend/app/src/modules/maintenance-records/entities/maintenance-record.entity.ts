@@ -36,6 +36,9 @@ export class MaintenanceRecord {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  photoPath: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

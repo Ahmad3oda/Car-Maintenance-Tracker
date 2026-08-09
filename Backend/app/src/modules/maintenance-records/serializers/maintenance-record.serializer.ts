@@ -37,6 +37,18 @@ export class MaintenanceRecordSerializer {
   @Expose()
   notes?: string;
 
+  @ApiPropertyOptional()
+  @Expose()
+  photoPath?: string | null;
+
+  @ApiPropertyOptional()
+  @Expose()
+  car?: any;
+
+  @ApiPropertyOptional()
+  @Expose()
+  item?: any;
+
   @ApiProperty()
   @Expose()
   createdAt: Date;

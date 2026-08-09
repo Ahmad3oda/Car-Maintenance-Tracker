@@ -11,7 +11,7 @@ import { CarSerializer } from './serializers/car.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
-import { promises as fs } from 'fs';
+import { deleteUploadedFile } from '../../common/utils/multer.util';
 
 @Injectable()
 export class CarsService {
@@ -21,12 +21,10 @@ export class CarsService {
     dto: CreateCarDto,
     photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    console.log(photo);
-
     const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber);
     if (dbCar) {
       if (photo) {
-        await fs.unlink(`uploads\\cars\\${photo.filename}`).catch(() => {});
+        await deleteUploadedFile('cars', photo.filename);
       }
       throw new BadRequestException(
         `Car with plate number ${dto.plateNumber} is already registered`,
@@ -72,16 +70,21 @@ export class CarsService {
   ): Promise<CarSerializer> {
     const car = await this.carsRepo.findOne(id);
     if (!car) {
+      if (photo) {
+        await deleteUploadedFile('cars', photo.filename);
+      }
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
-    if (photo && car.photoPath) {
-      await fs.unlink(`uploads\\cars\\${car.photoPath}`).catch(() => {});
+
+    const updateData: Partial<any> = { ...dto };
+    if (photo) {
+      if (car.photoPath) {
+        await deleteUploadedFile('cars', car.photoPath);
+      }
+      updateData.photoPath = photo.filename;
     }
 
-    const updatedCar = await this.carsRepo.update(id, {
-      ...dto,
-      photoPath: photo?.filename ?? null,
-    });
+    const updatedCar = await this.carsRepo.update(id, updateData);
 
     if (!updatedCar) {
       throw new BadRequestException(`Failed to update car with ID ${id}`);
@@ -95,7 +98,7 @@ export class CarsService {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
     if (car.photoPath) {
-      await fs.unlink(`uploads\\cars\\${car.photoPath}`).catch(() => {});
+      await deleteUploadedFile('cars', car.photoPath);
     }
     await this.carsRepo.remove(id);
   }

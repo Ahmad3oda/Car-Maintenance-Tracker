@@ -21,10 +21,10 @@ export class Item {
   description: string;
 
   @Column({ nullable: true })
-  serialNumber: string;
+  manufacturer: string;
 
-  @Column({ nullable: true })
-  photoPath: string;
+  @Column({ type: 'varchar', nullable: true })
+  photoPath: string | null;
 
   @Column({ type: 'datetime', nullable: true })
   installedDate: Date;
@@ -40,6 +40,9 @@ export class Item {
 
   @Column({ type: 'int', nullable: true })
   lastMaintenanceId: number;
+
+  @Column({ type: 'datetime', nullable: true })
+  lastMaintenanceDate: Date;
 
   @Column({ type: 'int', nullable: true })
   nextMaintenanceKm: number;

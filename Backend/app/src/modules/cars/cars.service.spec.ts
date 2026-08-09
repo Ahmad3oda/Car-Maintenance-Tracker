@@ -1,20 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ItemsController } from './items.controller';
-import { ItemsService } from './items.service';
+import { CarsService } from './cars.service';
+import { CarsRepository } from './cars.repository';
 
-describe('ItemsController', () => {
-  let controller: ItemsController;
+describe('CarsService', () => {
+  let service: CarsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ItemsController],
       providers: [
+        CarsService,
         {
-          provide: ItemsService,
+          provide: CarsRepository,
           useValue: {
             create: jest.fn(),
             findAll: jest.fn(),
             findOne: jest.fn(),
+            findOneByPlate: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
           },
@@ -22,10 +23,10 @@ describe('ItemsController', () => {
       ],
     }).compile();
 
-    controller = module.get<ItemsController>(ItemsController);
+    service = module.get<CarsService>(CarsService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 });

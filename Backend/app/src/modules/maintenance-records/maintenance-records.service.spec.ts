@@ -1,23 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ItemsService } from './items.service';
-import { ItemsRepository } from './items.repository';
+import { MaintenanceRecordsService } from './maintenance-records.service';
+import { MaintenanceRecordsRepository } from './maintenance-records.repository';
+import { ItemsRepository } from '../items/items.repository';
 import { CarsRepository } from '../cars/cars.repository';
 
-describe('ItemsService', () => {
-  let service: ItemsService;
+describe('MaintenanceRecordsService', () => {
+  let service: MaintenanceRecordsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ItemsService,
+        MaintenanceRecordsService,
         {
-          provide: ItemsRepository,
+          provide: MaintenanceRecordsRepository,
           useValue: {
             create: jest.fn(),
             findAll: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
+          },
+        },
+        {
+          provide: ItemsRepository,
+          useValue: {
+            findOne: jest.fn(),
             save: jest.fn(),
           },
         },
@@ -30,7 +37,7 @@ describe('ItemsService', () => {
       ],
     }).compile();
 
-    service = module.get<ItemsService>(ItemsService);
+    service = module.get<MaintenanceRecordsService>(MaintenanceRecordsService);
   });
 
   it('should be defined', () => {

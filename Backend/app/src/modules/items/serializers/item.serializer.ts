@@ -21,11 +21,11 @@ export class ItemSerializer {
 
   @ApiPropertyOptional()
   @Expose()
-  serialNumber?: string;
+  manufacturer?: string;
 
   @ApiPropertyOptional()
   @Expose()
-  photoPath?: string;
+  photoPath?: string | null;
 
   @ApiPropertyOptional()
   @Expose()
@@ -45,7 +45,38 @@ export class ItemSerializer {
 
   @ApiPropertyOptional()
   @Expose()
+  maintenanceRecords?: any[];
+
+  @ApiPropertyOptional()
+  @Expose()
   lastMaintenanceId?: number;
+
+  @ApiPropertyOptional()
+  @Expose()
+  lastMaintenanceDate?: Date;
+
+  @ApiPropertyOptional()
+  @Expose()
+  get lastInstallment(): Date | null {
+    if (
+      this.maintenanceRecords &&
+      Array.isArray(this.maintenanceRecords) &&
+      this.maintenanceRecords.length > 0
+    ) {
+      const sorted = [...this.maintenanceRecords].sort(
+        (a, b) =>
+          new Date(b.maintenanceDate).getTime() -
+          new Date(a.maintenanceDate).getTime(),
+      );
+      if (sorted[0]?.maintenanceDate) {
+        return sorted[0].maintenanceDate;
+      }
+    }
+    if (this.lastMaintenanceDate) {
+      return this.lastMaintenanceDate;
+    }
+    return this.installedDate || null;
+  }
 
   @ApiPropertyOptional()
   @Expose()

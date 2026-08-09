@@ -28,9 +28,8 @@ import { UpdateCarDto } from './dtos/update-car.dto';
 import { QueryCarDto } from './dtos/query-car.dto';
 import { CarSerializer } from './serializers/car.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
-import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
+import { createMulterStorage } from '../../common/utils/multer.util';
 
 @ApiTags('Cars')
 @Controller('cars')
@@ -47,13 +46,7 @@ export class CarsController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('photoPath', {
-      storage: diskStorage({
-        destination: 'uploads/cars/',
-        filename: (req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname)}`);
-        },
-      }),
+      storage: createMulterStorage('cars'),
     }),
   )
   @SerializeOptions({ type: CarSerializer })
@@ -108,13 +101,7 @@ export class CarsController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('photoPath', {
-      storage: diskStorage({
-        destination: 'uploads/cars/',
-        filename: (req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname)}`);
-        },
-      }),
+      storage: createMulterStorage('cars'),
     }),
   )
   @ApiResponse({ status: 404, description: 'Car not found.' })

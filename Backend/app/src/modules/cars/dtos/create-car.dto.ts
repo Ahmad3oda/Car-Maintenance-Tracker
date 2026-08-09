@@ -35,7 +35,6 @@ export class CreateCarDto {
     type: 'string',
     format: 'binary',
   })
-  @IsString()
   @IsOptional()
   photoPath?: any;
 }
