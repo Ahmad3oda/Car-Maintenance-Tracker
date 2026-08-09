@@ -1,44 +1,17 @@
-export interface Car {
-  id: number;
-  plateNumber: string;
-  brand: string;
-  model: string;
-  year: number;
-  currentKm: number;
-  photoPath?: string;
-}
+export * from './api.models';
 
-export interface Item {
-  id: number;
-  carId: number;
-  name: string;
-  manufacturer: string;
-  installedDate: string;
-  installedKm: number;
-  nextMaintenanceKm?: number;
-  nextMaintenanceDate?: string;
-  photoPath?: string;
-  serialNumber?: string;
-}
+import {
+  CarDto,
+  ItemDto,
+  MaintenanceRecordDto,
+  CreateCarDto,
+  CreateItemDto,
+  CreateMaintenanceRecordDto,
+} from './api.models';
 
-export interface ExtraCost {
-  name: string;
-  cost: number;
-}
-
-export interface MaintenanceEvent {
-  id: number;
-  itemId: number;
-  maintenanceDate: string;
-  kmCounter: number;
-  itemCost: number;
-  extraCosts: ExtraCost[];
-  notes?: string;
-}
-
-export interface DashboardStats {
-  totalCars: number;
-  totalItems: number;
-  maintenanceThisMonth: number;
-  upcomingMaintenance: number;
-}
+export type Car = CarDto;
+export type Item = ItemDto;
+export type MaintenanceEvent = MaintenanceRecordDto;
+export type CreateCar = CreateCarDto;
+export type CreateItem = CreateItemDto;
+export type CreateMaintenanceEvent = CreateMaintenanceRecordDto;

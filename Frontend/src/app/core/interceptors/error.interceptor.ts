@@ -8,13 +8,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      const message =
-        error.error?.message          // NestJS validation errors
-        ?? error.statusText
-        ?? 'Something went wrong';
+      let message = 'Something went wrong';
+
+      if (error.error?.message) {
+        if (Array.isArray(error.error.message)) {
+          message = error.error.message.join(', ');
+        } else if (typeof error.error.message === 'string') {
+          message = error.error.message;
+        }
+      } else if (typeof error.error === 'string' && error.error.length < 200) {
+        message = error.error;
+      } else if (error.statusText) {
+        message = error.statusText;
+      }
 
       notifications.showError(message);
       return throwError(() => error);
-    })
+    }),
   );
 };

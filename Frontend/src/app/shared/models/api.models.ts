@@ -18,9 +18,11 @@ export interface PageQuery {
   order?: 'ASC' | 'DESC';
   search?: string;
   sortBy?: string;
+  carId?: number;
+  itemId?: number;
 }
 
-// --- Backend-aligned DTOs ---
+// --- Car Models ---
 
 export interface CarDto {
   id: number;
@@ -29,7 +31,7 @@ export interface CarDto {
   model: string;
   year: number;
   currentKm: number;
-  photoPath?: string;
+  photoPath?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,24 +42,48 @@ export interface CreateCarDto {
   model: string;
   year: number;
   currentKm?: number;
-  photoPath?: string;
+  photoPath?: string | File | null;
 }
+
+// --- Item Models ---
 
 export interface ItemDto {
   id: number;
   carId: number;
   name: string;
   description?: string;
-  serialNumber?: string;
-  photoPath?: string;
+  manufacturer?: string;
+  photoPath?: string | null;
   installedDate?: string;
   installedKm?: number;
   expectedMaintenanceKm?: number;
   expectedMaintenanceMonths?: number;
-  nextMaintenanceKm?: number;
-  nextMaintenanceDate?: string;
+  lastMaintenanceId?: number | null;
+  lastMaintenanceDate?: string | null;
+  lastInstallment?: string | null;
+  nextMaintenanceKm?: number | null;
+  nextMaintenanceDate?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateItemDto {
+  carId: number;
+  name: string;
+  description?: string;
+  manufacturer?: string;
+  installedDate?: string;
+  installedKm?: number;
+  expectedMaintenanceKm?: number;
+  expectedMaintenanceMonths?: number;
+  photoPath?: string | File | null;
+}
+
+// --- Maintenance Record / Event Models ---
+
+export interface ExtraCost {
+  name: string;
+  cost: number;
 }
 
 export interface MaintenanceRecordDto {
@@ -67,26 +93,42 @@ export interface MaintenanceRecordDto {
   maintenanceDate: string;
   kmCounter: number;
   itemCost: number;
-  extraCosts?: { name: string; cost: number }[];
+  extraCosts?: ExtraCost[];
   notes?: string;
-  totalCost: number; // computed by backend serializer
+  photoPath?: string | null;
+  totalCost: number;
+  car?: {
+    id: number;
+    plateNumber: string;
+    brand: string;
+    model: string;
+  };
+  item?: {
+    id: number;
+    name: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateMaintenanceRecordDto {
-  carId: number;
+  carId?: number;
   itemId: number;
-  maintenanceDate: string;  // ISO date
+  maintenanceDate: string;
   kmCounter: number;
   itemCost: number;
-  extraCosts?: { name: string; cost: number }[];
+  extraCosts?: ExtraCost[];
   notes?: string;
+  photoPath?: string | File | null;
 }
+
+// --- Dashboard Stats ---
 
 export interface DashboardStats {
   totalCars: number;
   totalItems: number;
-  maintenanceThisMonth: number;
-  upcomingMaintenance: number;
+  itemsReplacedLastMonth: number;
+  itemsReplacedLastYear: number;
+  costSpentLastMonth: number;
+  costSpentLastYear: number;
 }

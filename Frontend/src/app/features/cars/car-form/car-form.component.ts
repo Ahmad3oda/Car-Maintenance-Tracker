@@ -8,7 +8,8 @@ import {
 } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../../../core/services/car.service';
-import { CarDto, CreateCarDto } from '../../../shared/models/api.models';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CarDto } from '../../../shared/models/api.models';
 
 @Component({
   selector: 'app-car-form',
@@ -19,6 +20,7 @@ import { CarDto, CreateCarDto } from '../../../shared/models/api.models';
 export class CarFormComponent implements OnInit {
   carForm: FormGroup;
   photoPreview: string | null = null;
+  selectedFile: File | null = null;
   isEditMode: boolean = false;
   carId?: number;
 
@@ -27,6 +29,7 @@ export class CarFormComponent implements OnInit {
     private carService: CarService,
     private router: Router,
     private route: ActivatedRoute,
+    private notificationService: NotificationService,
   ) {
     this.carForm = this.fb.group({
       plateNumber: ['', Validators.required],
@@ -46,11 +49,22 @@ export class CarFormComponent implements OnInit {
       if (id) {
         this.isEditMode = true;
         this.carId = Number(id);
-        this.carService.getCar(this.carId).subscribe((car: CarDto) => {
-          if (car) {
-            this.carForm.patchValue(car);
-            this.photoPreview = car.photoPath || null;
-          }
+        this.carService.getCar(this.carId).subscribe({
+          next: (car: CarDto) => {
+            if (car) {
+              this.carForm.patchValue({
+                plateNumber: car.plateNumber,
+                brand: car.brand,
+                model: car.model,
+                year: car.year,
+                currentKm: car.currentKm,
+              });
+              this.photoPreview = car.photoPath
+                ? this.carService.getPhotoUrl(car.photoPath)
+                : null;
+            }
+          },
+          error: () => {},
         });
       }
     });
@@ -60,20 +74,29 @@ export class CarFormComponent implements OnInit {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     if (file) {
+      this.selectedFile = file;
       this.photoPreview = URL.createObjectURL(file);
-    } else {
-      this.photoPreview = null;
     }
   }
 
-  // car-form.component.ts
   onSubmit() {
-    const dto: CreateCarDto = this.carForm.value;
+    if (this.carForm.invalid) return;
+
+    const formValue = this.carForm.value;
+    const payload = this.carService.toFormData(formValue, this.selectedFile);
 
     const request$ = this.carId
-      ? this.carService.updateCar(this.carId, dto)
-      : this.carService.createCar(dto);
+      ? this.carService.updateCar(this.carId, payload)
+      : this.carService.createCar(payload);
 
-    request$.subscribe(() => this.router.navigate(['/cars']));
+    request$.subscribe({
+      next: () => {
+        this.notificationService.showSuccess(
+          this.carId ? 'Car updated successfully' : 'Car added successfully',
+        );
+        this.router.navigate(['/cars']);
+      },
+      error: () => {},
+    });
   }
 }

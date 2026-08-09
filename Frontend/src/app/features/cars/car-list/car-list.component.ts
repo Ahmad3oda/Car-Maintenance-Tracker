@@ -5,6 +5,8 @@ import { CarService } from '../../../core/services/car.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { CarDto } from '../../../shared/models/api.models';
 
+import { NotificationService } from '../../../core/services/notification.service';
+
 @Component({
   selector: 'app-car-list',
   standalone: true,
@@ -14,7 +16,11 @@ import { CarDto } from '../../../shared/models/api.models';
 export class CarListComponent implements OnInit {
   cars: CarDto[] = [];
   loading = true;
-  constructor(private carService: CarService, private router: Router) {}
+  constructor(
+    private carService: CarService,
+    private router: Router,
+    private notificationService: NotificationService,
+  ) {}
 
   ngOnInit() {
     this.carService.getCarsList({ limit: 50, sortBy: 'brand' }).subscribe({
@@ -22,14 +28,27 @@ export class CarListComponent implements OnInit {
         this.cars = cars;
         this.loading = false;
       },
-      error: () => (this.loading = false), // error toast handled by interceptor
+      error: () => (this.loading = false),
     });
   }
-  
-  onDelete(id: number) {
-    this.carService.deleteCar(id).subscribe(() => {
-      this.cars = this.cars.filter((c) => c.id !== id);
-    });
+
+  onDelete(id: number, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (confirm('Are you sure you want to delete this vehicle?')) {
+      this.carService.deleteCar(id).subscribe({
+        next: () => {
+          this.cars = this.cars.filter((c) => c.id !== id);
+          this.notificationService.showSuccess('Car deleted successfully');
+        },
+        error: () => {},
+      });
+    }
+  }
+
+  getCarPhotoUrl(photoPath?: string | null): string | null {
+    return this.carService.getPhotoUrl(photoPath);
   }
 
   navigateToAddCar() {
