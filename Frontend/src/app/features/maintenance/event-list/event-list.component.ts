@@ -50,6 +50,10 @@ export class EventListComponent implements OnInit {
     });
   }
 
+  getItemPhotoUrl(path?: string | null): string | null {
+    return this.itemService.getPhotoUrl(path);
+  }
+
   getTotalCost(event: MaintenanceRecordDto): number {
     if (event.totalCost !== undefined && event.totalCost !== null) {
       return Number(event.totalCost);

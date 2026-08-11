@@ -75,7 +75,7 @@ export class ItemSerializer {
     if (this.lastMaintenanceDate) {
       return this.lastMaintenanceDate;
     }
-    return this.installedDate || null;
+    return null;
   }
 
   @ApiPropertyOptional()

@@ -36,7 +36,6 @@ export class ItemFormComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       manufacturer: [''],
-      installedDate: [''],
       installedKm: ['', [Validators.min(0)]],
       expectedMaintenanceKm: ['', [Validators.min(0)]],
       expectedMaintenanceMonths: ['', [Validators.min(0)]],
@@ -54,15 +53,10 @@ export class ItemFormComponent implements OnInit {
         this.itemService.getItem(this.itemId).subscribe({
           next: (item: ItemDto) => {
             if (item) {
-              const formattedDate = item.installedDate
-                ? new Date(item.installedDate).toISOString().split('T')[0]
-                : '';
-
               this.itemForm.patchValue({
                 name: item.name,
                 description: item.description || '',
                 manufacturer: item.manufacturer || '',
-                installedDate: formattedDate,
                 installedKm: item.installedKm || '',
                 expectedMaintenanceKm: item.expectedMaintenanceKm || '',
                 expectedMaintenanceMonths: item.expectedMaintenanceMonths || '',

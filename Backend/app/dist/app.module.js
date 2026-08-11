@@ -14,6 +14,8 @@ const items_module_1 = require("./modules/items/items.module");
 const maintenance_records_module_1 = require("./modules/maintenance-records/maintenance-records.module");
 const cars_module_1 = require("./modules/cars/cars.module");
 const request_logger_middleware_1 = require("./common/middlewares/request-logger.middleware");
+const app_controller_1 = require("./app.controller");
+const app_service_1 = require("./app.service");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(request_logger_middleware_1.RequestLoggerMiddleware).forRoutes('*');
@@ -34,6 +36,8 @@ exports.AppModule = AppModule = __decorate([
             maintenance_records_module_1.MaintenanceRecordsModule,
             cars_module_1.CarsModule,
         ],
+        controllers: [app_controller_1.AppController],
+        providers: [app_service_1.AppService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

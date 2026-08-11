@@ -12,7 +12,55 @@
     </div>
   </div>
 
-  <div class="flex items-center justify-end mb-6">
+  <!-- Item Info Card -->
+  <div class="flex flex-col md:flex-row items-center p-6 md:p-8 mb-8 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+    <div class="relative w-32 h-32 md:w-40 md:h-40 md:mr-8 mb-4 md:mb-0 shrink-0">
+      <img *ngIf="item.photoPath" class="object-cover w-full h-full rounded-xl shadow-sm" [src]="getItemPhotoUrl(item.photoPath)" [alt]="item.name" />
+      <div *ngIf="!item.photoPath" class="flex items-center justify-center w-full h-full bg-gray-100 rounded-xl dark:bg-gray-700">
+        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div class="absolute inset-0 rounded-xl shadow-inner border border-black/5" aria-hidden="true"></div>
+    </div>
+    
+    <div class="flex-1 w-full flex flex-col md:flex-row justify-between h-full py-2">
+      <div class="flex flex-col justify-center">
+        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">{{ item.name }}</h3>
+        <p class="text-gray-500 dark:text-gray-400 font-medium mb-4">
+          <span *ngIf="item.manufacturer" class="font-semibold text-gray-700 dark:text-gray-300">{{ item.manufacturer }}</span>
+          <span *ngIf="item.manufacturer && item.description"> &bull; </span>
+          <span *ngIf="item.description">{{ item.description }}</span>
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <span *ngIf="item.installedKm" class="inline-flex items-center px-3 py-1 text-sm font-semibold text-gray-700 bg-gray-100 rounded-md dark:text-gray-300 dark:bg-gray-700">
+            <svg class="w-4 h-4 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            Installed: {{ item.installedKm | number }} KM
+          </span>
+          <span *ngIf="item.expectedMaintenanceKm" class="inline-flex items-center px-3 py-1 text-sm font-semibold text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
+            <svg class="w-4 h-4 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Every {{ item.expectedMaintenanceKm | number }} KM
+          </span>
+          <span *ngIf="item.expectedMaintenanceMonths" class="inline-flex items-center px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-md dark:text-purple-200 dark:bg-purple-800">
+            <svg class="w-4 h-4 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            Every {{ item.expectedMaintenanceMonths }} Months
+          </span>
+        </div>
+      </div>
+      
+      <div class="mt-6 md:mt-0 flex items-start">
+        <a [routerLink]="['/cars', carId, 'items', itemId, 'edit']" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 dark:focus:ring-offset-gray-900 shadow-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+          Edit Item
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Events Section Header & Add Button -->
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Maintenance Events</h3>
     <a
       [routerLink]="['/cars', carId, 'items', itemId, 'events', 'add']"
       class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 shadow-sm"
@@ -46,11 +94,11 @@
                 {{ event.maintenanceDate ? (event.maintenanceDate | date:'dd/MM/yy') : '-' }}
               </td>
               <td class="px-4 py-4 text-sm font-medium"> {{ event.kmCounter | number }} </td>
-              <td class="px-4 py-4 text-sm font-semibold text-gray-800 dark:text-gray-200"> {{ event.itemCost | number:'1.2-2' }} EGP </td>
+              <td class="px-4 py-4 text-sm font-semibold text-gray-800 dark:text-gray-200"> {{ event.itemCost | number:'1.2-2' }} £ </td>
               <td class="px-4 py-4 text-sm">
                 <div class="flex flex-wrap gap-2 max-w-xs" *ngIf="event.extraCosts && event.extraCosts.length > 0; else noExtra">
                   <span *ngFor="let cost of event.extraCosts" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 shadow-sm">
-                    +{{ cost.cost }} EGP {{ cost.name }}
+                    +{{ cost.cost }} £ {{ cost.name }}
                   </span>
                 </div>
                 <ng-template #noExtra>
@@ -58,7 +106,7 @@
                 </ng-template>
               </td>
               <td class="px-4 py-4 text-sm font-bold text-purple-600 dark:text-purple-400">
-                {{ getTotalCost(event) | number:'1.2-2' }} EGP
+                {{ getTotalCost(event) | number:'1.2-2' }} £
               </td>
               <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
                 <div class="truncate max-w-xs" [title]="event.notes || ''">

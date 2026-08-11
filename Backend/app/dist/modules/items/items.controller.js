@@ -16,27 +16,20 @@ exports.ItemsController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
-const multer_1 = require("multer");
-const path_1 = require("path");
 const items_service_1 = require("./items.service");
 const create_item_dto_1 = require("./dtos/create-item.dto");
 const update_item_dto_1 = require("./dtos/update-item.dto");
 const query_item_dto_1 = require("./dtos/query-item.dto");
 const item_serializer_1 = require("./serializers/item.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
-const storage = (0, multer_1.diskStorage)({
-    destination: './uploads',
-    filename: (req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${unique}${(0, path_1.extname)(file.originalname)}`);
-    },
-});
+const multer_util_1 = require("../../common/utils/multer.util");
 let ItemsController = class ItemsController {
     itemsService;
     constructor(itemsService) {
         this.itemsService = itemsService;
     }
-    create(createItemDto, photo) {
+    create(createItemDto, files) {
+        const photo = files?.photoPath?.[0] || files?.photo?.[0];
         return this.itemsService.create(createItemDto, photo?.filename);
     }
     findAll(query) {
@@ -45,7 +38,8 @@ let ItemsController = class ItemsController {
     findOne(id) {
         return this.itemsService.findOne(id);
     }
-    update(id, updateItemDto, photo) {
+    update(id, updateItemDto, files) {
+        const photo = files?.photoPath?.[0] || files?.photo?.[0];
         return this.itemsService.update(id, updateItemDto, photo?.filename);
     }
     remove(id) {
@@ -57,10 +51,18 @@ __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new item' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'The item has been successfully created.', type: item_serializer_1.ItemSerializer }),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photo', { storage })),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'The item has been successfully created.',
+        type: item_serializer_1.ItemSerializer,
+    }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
+        { name: 'photoPath', maxCount: 1 },
+        { name: 'photo', maxCount: 1 },
+    ], { storage: (0, multer_util_1.createMulterStorage)('items') })),
+    (0, common_1.SerializeOptions)({ type: item_serializer_1.ItemSerializer }),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.UploadedFiles)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_item_dto_1.CreateItemDto, Object]),
     __metadata("design:returntype", Promise)
@@ -86,6 +88,7 @@ __decorate([
             ],
         },
     }),
+    (0, common_1.SerializeOptions)({ type: (page_dto_1.PageDto) }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [query_item_dto_1.QueryItemDto]),
@@ -96,6 +99,7 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get an item by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'The item.', type: item_serializer_1.ItemSerializer }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Item not found.' }),
+    (0, common_1.SerializeOptions)({ type: item_serializer_1.ItemSerializer }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -105,12 +109,20 @@ __decorate([
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Update an item' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'The item has been successfully updated.', type: item_serializer_1.ItemSerializer }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The item has been successfully updated.',
+        type: item_serializer_1.ItemSerializer,
+    }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Item not found.' }),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photo', { storage })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
+        { name: 'photoPath', maxCount: 1 },
+        { name: 'photo', maxCount: 1 },
+    ], { storage: (0, multer_util_1.createMulterStorage)('items') })),
+    (0, common_1.SerializeOptions)({ type: item_serializer_1.ItemSerializer }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.UploadedFiles)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, update_item_dto_1.UpdateItemDto, Object]),
     __metadata("design:returntype", Promise)
@@ -119,7 +131,10 @@ __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Delete an item' }),
-    (0, swagger_1.ApiResponse)({ status: 204, description: 'The item has been successfully deleted.' }),
+    (0, swagger_1.ApiResponse)({
+        status: 204,
+        description: 'The item has been successfully deleted.',
+    }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Item not found.' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),

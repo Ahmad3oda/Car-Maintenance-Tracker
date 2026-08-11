@@ -7,9 +7,15 @@ import { PageDto } from '../../common/dtos/page.dto';
 export declare class MaintenanceRecordsController {
     private readonly recordsService;
     constructor(recordsService: MaintenanceRecordsService);
-    create(createDto: CreateMaintenanceRecordDto): Promise<MaintenanceRecordSerializer>;
+    create(createDto: CreateMaintenanceRecordDto, files?: {
+        photoPath?: Express.Multer.File[];
+        photo?: Express.Multer.File[];
+    }): Promise<MaintenanceRecordSerializer>;
     findAll(query: QueryMaintenanceRecordDto): Promise<PageDto<MaintenanceRecordSerializer>>;
     findOne(id: number): Promise<MaintenanceRecordSerializer>;
-    update(id: number, updateDto: UpdateMaintenanceRecordDto): Promise<MaintenanceRecordSerializer>;
+    update(id: number, updateDto: UpdateMaintenanceRecordDto, files?: {
+        photoPath?: Express.Multer.File[];
+        photo?: Express.Multer.File[];
+    }): Promise<MaintenanceRecordSerializer>;
     remove(id: number): Promise<void>;
 }

@@ -27,7 +27,10 @@ let MaintenanceRecordsRepository = class MaintenanceRecordsRepository {
         return this.repo.save(newRecord);
     }
     async findAll(page = 1, limit = 10, search, sortBy, order = 'ASC', carId, itemId) {
-        const query = this.repo.createQueryBuilder('record');
+        const query = this.repo
+            .createQueryBuilder('record')
+            .leftJoinAndSelect('record.car', 'car')
+            .leftJoinAndSelect('record.item', 'item');
         if (carId) {
             query.andWhere('record.carId = :carId', { carId });
         }
@@ -37,12 +40,9 @@ let MaintenanceRecordsRepository = class MaintenanceRecordsRepository {
         if (search) {
             query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
         }
-        if (sortBy) {
-            query.orderBy(`record.${sortBy}`, order);
-        }
-        else {
-            query.orderBy('record.maintenanceDate', order);
-        }
+        const sortField = sortBy || 'maintenanceDate';
+        const sortOrder = order || 'DESC';
+        query.orderBy(`record.${sortField}`, sortOrder);
         query.skip((page - 1) * limit).take(limit);
         return query.getManyAndCount();
     }

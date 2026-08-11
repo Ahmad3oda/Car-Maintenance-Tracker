@@ -60,7 +60,6 @@ __decorate([
         type: 'string',
         format: 'binary',
     }),
-    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
 ], CreateCarDto.prototype, "photoPath", void 0);

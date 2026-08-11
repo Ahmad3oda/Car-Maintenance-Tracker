@@ -57,7 +57,7 @@ export class CarDetailsComponent implements OnInit {
   }
 
   getLastInstallmentDate(item: ItemDto): string | Date | null {
-    return item.lastInstallment || item.lastMaintenanceDate || item.installedDate || null;
+    return item.lastInstallment || item.lastMaintenanceDate || null;
   }
 
   onDeleteItem(itemId: number, event: Event) {

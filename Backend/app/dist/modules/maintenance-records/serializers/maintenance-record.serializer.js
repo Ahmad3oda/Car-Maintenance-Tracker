@@ -22,6 +22,9 @@ let MaintenanceRecordSerializer = class MaintenanceRecordSerializer {
     itemCost;
     extraCosts;
     notes;
+    photoPath;
+    car;
+    item;
     createdAt;
     updatedAt;
     get totalCost() {
@@ -77,6 +80,21 @@ __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
 ], MaintenanceRecordSerializer.prototype, "notes", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Object)
+], MaintenanceRecordSerializer.prototype, "photoPath", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Object)
+], MaintenanceRecordSerializer.prototype, "car", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Object)
+], MaintenanceRecordSerializer.prototype, "item", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_transformer_1.Expose)(),

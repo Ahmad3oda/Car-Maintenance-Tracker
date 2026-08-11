@@ -16,18 +16,17 @@ const car_serializer_1 = require("./serializers/car.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
 const page_meta_dto_1 = require("../../common/dtos/page-meta.dto");
 const class_transformer_1 = require("class-transformer");
-const fs_1 = require("fs");
+const multer_util_1 = require("../../common/utils/multer.util");
 let CarsService = class CarsService {
     carsRepo;
     constructor(carsRepo) {
         this.carsRepo = carsRepo;
     }
     async create(dto, photo) {
-        console.log(photo);
         const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber);
         if (dbCar) {
             if (photo) {
-                await fs_1.promises.unlink(`uploads\\cars\\${photo.filename}`).catch(() => { });
+                await (0, multer_util_1.deleteUploadedFile)('cars', photo.filename);
             }
             throw new common_1.BadRequestException(`Car with plate number ${dto.plateNumber} is already registered`);
         }
@@ -53,15 +52,19 @@ let CarsService = class CarsService {
     async update(id, dto, photo) {
         const car = await this.carsRepo.findOne(id);
         if (!car) {
+            if (photo) {
+                await (0, multer_util_1.deleteUploadedFile)('cars', photo.filename);
+            }
             throw new common_1.NotFoundException(`Car with ID ${id} not found`);
         }
-        if (photo && car.photoPath) {
-            await fs_1.promises.unlink(`uploads\\cars\\${car.photoPath}`).catch(() => { });
+        const updateData = { ...dto };
+        if (photo) {
+            if (car.photoPath) {
+                await (0, multer_util_1.deleteUploadedFile)('cars', car.photoPath);
+            }
+            updateData.photoPath = photo.filename;
         }
-        const updatedCar = await this.carsRepo.update(id, {
-            ...dto,
-            photoPath: photo?.filename ?? null,
-        });
+        const updatedCar = await this.carsRepo.update(id, updateData);
         if (!updatedCar) {
             throw new common_1.BadRequestException(`Failed to update car with ID ${id}`);
         }
@@ -73,7 +76,7 @@ let CarsService = class CarsService {
             throw new common_1.NotFoundException(`Car with ID ${id} not found`);
         }
         if (car.photoPath) {
-            await fs_1.promises.unlink(`uploads\\cars\\${car.photoPath}`).catch(() => { });
+            await (0, multer_util_1.deleteUploadedFile)('cars', car.photoPath);
         }
         await this.carsRepo.remove(id);
     }

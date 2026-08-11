@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -9,9 +9,15 @@ import { RouterModule } from '@angular/router';
   templateUrl: './header.component.html'
 })
 export class HeaderComponent {
+  @Output() menuClick = new EventEmitter<void>();
+
   isProfileMenuOpen = false;
   isNotificationsMenuOpen = false;
   isDark = false;
+
+  onMenuClick() {
+    this.menuClick.emit();
+  }
 
   toggleProfileMenu() {
     this.isProfileMenuOpen = !this.isProfileMenuOpen;

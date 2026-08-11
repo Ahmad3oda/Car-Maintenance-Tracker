@@ -15,10 +15,24 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const page_options_dto_1 = require("../../../common/dtos/page-options.dto");
 class QueryMaintenanceRecordDto extends page_options_dto_1.PageOptionsDto {
+    order = page_options_dto_1.Order.DESC;
+    sortBy = 'maintenanceDate';
     carId;
     itemId;
 }
 exports.QueryMaintenanceRecordDto = QueryMaintenanceRecordDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: page_options_dto_1.Order, default: page_options_dto_1.Order.DESC }),
+    (0, class_validator_1.IsEnum)(page_options_dto_1.Order),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], QueryMaintenanceRecordDto.prototype, "order", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ default: 'maintenanceDate' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], QueryMaintenanceRecordDto.prototype, "sortBy", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_transformer_1.Type)(() => Number),

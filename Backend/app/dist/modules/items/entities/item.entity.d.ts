@@ -6,13 +6,14 @@ export declare class Item {
     car: Car;
     name: string;
     description: string;
-    serialNumber: string;
-    photoPath: string;
+    manufacturer: string;
+    photoPath: string | null;
     installedDate: Date;
     installedKm: number;
     expectedMaintenanceKm: number;
     expectedMaintenanceMonths: number;
     lastMaintenanceId: number;
+    lastMaintenanceDate: Date;
     nextMaintenanceKm: number;
     nextMaintenanceDate: Date;
     createdAt: Date;

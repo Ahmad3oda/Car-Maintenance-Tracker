@@ -7,9 +7,15 @@ import { PageDto } from '../../common/dtos/page.dto';
 export declare class ItemsController {
     private readonly itemsService;
     constructor(itemsService: ItemsService);
-    create(createItemDto: CreateItemDto, photo?: Express.Multer.File): Promise<ItemSerializer>;
+    create(createItemDto: CreateItemDto, files?: {
+        photoPath?: Express.Multer.File[];
+        photo?: Express.Multer.File[];
+    }): Promise<ItemSerializer>;
     findAll(query: QueryItemDto): Promise<PageDto<ItemSerializer>>;
     findOne(id: number): Promise<ItemSerializer>;
-    update(id: number, updateItemDto: UpdateItemDto, photo?: Express.Multer.File): Promise<ItemSerializer>;
+    update(id: number, updateItemDto: UpdateItemDto, files?: {
+        photoPath?: Express.Multer.File[];
+        photo?: Express.Multer.File[];
+    }): Promise<ItemSerializer>;
     remove(id: number): Promise<void>;
 }

@@ -27,12 +27,14 @@ let ItemsRepository = class ItemsRepository {
         return this.repo.save(newItem);
     }
     async findAll(page = 1, limit = 10, search, sortBy, order = 'ASC', carId) {
-        const query = this.repo.createQueryBuilder('item');
+        const query = this.repo
+            .createQueryBuilder('item')
+            .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords');
         if (carId) {
             query.andWhere('item.carId = :carId', { carId });
         }
         if (search) {
-            query.andWhere('item.name LIKE :search OR item.description LIKE :search OR item.serialNumber LIKE :search', {
+            query.andWhere('item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search', {
                 search: `%${search}%`,
             });
         }

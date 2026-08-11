@@ -19,13 +19,14 @@ let Item = class Item {
     car;
     name;
     description;
-    serialNumber;
+    manufacturer;
     photoPath;
     installedDate;
     installedKm;
     expectedMaintenanceKm;
     expectedMaintenanceMonths;
     lastMaintenanceId;
+    lastMaintenanceDate;
     nextMaintenanceKm;
     nextMaintenanceDate;
     createdAt;
@@ -57,10 +58,10 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Item.prototype, "serialNumber", void 0);
+], Item.prototype, "manufacturer", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
 ], Item.prototype, "photoPath", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
@@ -82,6 +83,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
     __metadata("design:type", Number)
 ], Item.prototype, "lastMaintenanceId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
+    __metadata("design:type", Date)
+], Item.prototype, "lastMaintenanceDate", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
     __metadata("design:type", Number)

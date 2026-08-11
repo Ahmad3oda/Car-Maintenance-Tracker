@@ -17,7 +17,8 @@ class CreateItemDto {
     carId;
     name;
     description;
-    serialNumber;
+    manufacturer;
+    photoPath;
     installedDate;
     installedKm;
     expectedMaintenanceKm;
@@ -25,51 +26,63 @@ class CreateItemDto {
 }
 exports.CreateItemDto = CreateItemDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateItemDto.prototype, "carId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 'Brake Pads' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateItemDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Front ceramic brake pads' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateItemDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Bosch' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateItemDto.prototype, "serialNumber", void 0);
+], CreateItemDto.prototype, "manufacturer", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({
+        type: 'string',
+        format: 'binary',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Object)
+], CreateItemDto.prototype, "photoPath", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '2025-01-15' }),
     (0, class_transformer_1.Type)(() => Date),
     (0, class_validator_1.IsDate)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Date)
 ], CreateItemDto.prototype, "installedDate", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 50000 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateItemDto.prototype, "installedKm", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 10000 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateItemDto.prototype, "expectedMaintenanceKm", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 12 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),

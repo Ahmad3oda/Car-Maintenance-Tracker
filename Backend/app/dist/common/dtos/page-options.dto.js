@@ -46,13 +46,13 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
         minimum: 1,
-        maximum: 50,
+        maximum: 1000,
         default: 10,
     }),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
-    (0, class_validator_1.Max)(50),
+    (0, class_validator_1.Max)(1000),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], PageOptionsDto.prototype, "limit", void 0);

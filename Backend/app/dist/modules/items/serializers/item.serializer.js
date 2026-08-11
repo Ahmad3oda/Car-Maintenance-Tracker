@@ -17,13 +17,30 @@ let ItemSerializer = class ItemSerializer {
     carId;
     name;
     description;
-    serialNumber;
+    manufacturer;
     photoPath;
     installedDate;
     installedKm;
     expectedMaintenanceKm;
     expectedMaintenanceMonths;
+    maintenanceRecords;
     lastMaintenanceId;
+    lastMaintenanceDate;
+    get lastInstallment() {
+        if (this.maintenanceRecords &&
+            Array.isArray(this.maintenanceRecords) &&
+            this.maintenanceRecords.length > 0) {
+            const sorted = [...this.maintenanceRecords].sort((a, b) => new Date(b.maintenanceDate).getTime() -
+                new Date(a.maintenanceDate).getTime());
+            if (sorted[0]?.maintenanceDate) {
+                return sorted[0].maintenanceDate;
+            }
+        }
+        if (this.lastMaintenanceDate) {
+            return this.lastMaintenanceDate;
+        }
+        return null;
+    }
     nextMaintenanceKm;
     nextMaintenanceDate;
     createdAt;
@@ -57,11 +74,11 @@ __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
-], ItemSerializer.prototype, "serialNumber", void 0);
+], ItemSerializer.prototype, "manufacturer", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_transformer_1.Expose)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], ItemSerializer.prototype, "photoPath", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
@@ -86,8 +103,24 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Array)
+], ItemSerializer.prototype, "maintenanceRecords", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
     __metadata("design:type", Number)
 ], ItemSerializer.prototype, "lastMaintenanceId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Date)
+], ItemSerializer.prototype, "lastMaintenanceDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Object),
+    __metadata("design:paramtypes", [])
+], ItemSerializer.prototype, "lastInstallment", null);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_transformer_1.Expose)(),

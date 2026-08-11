@@ -25,6 +25,7 @@ __decorate([
 ], ExtraCostDto.prototype, "name", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 300 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
@@ -35,40 +36,70 @@ class CreateMaintenanceRecordDto {
     maintenanceDate;
     kmCounter;
     itemCost;
+    photoPath;
     extraCosts;
     notes;
 }
 exports.CreateMaintenanceRecordDto = CreateMaintenanceRecordDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateMaintenanceRecordDto.prototype, "carId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateMaintenanceRecordDto.prototype, "itemId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: '2025-02-01' }),
     (0, class_transformer_1.Type)(() => Date),
     (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateMaintenanceRecordDto.prototype, "maintenanceDate", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 60000 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], CreateMaintenanceRecordDto.prototype, "kmCounter", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 150 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], CreateMaintenanceRecordDto.prototype, "itemCost", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        type: 'string',
+        format: 'binary',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Object)
+], CreateMaintenanceRecordDto.prototype, "photoPath", void 0);
+__decorate([
     (0, swagger_1.ApiPropertyOptional)({ type: [ExtraCostDto] }),
+    (0, class_transformer_1.Transform)(({ value }) => {
+        let parsed = value;
+        if (typeof value === 'string') {
+            try {
+                parsed = JSON.parse(value);
+            }
+            catch {
+                return value;
+            }
+        }
+        if (Array.isArray(parsed)) {
+            return parsed.map((item) => item instanceof ExtraCostDto
+                ? item
+                : (0, class_transformer_1.plainToInstance)(ExtraCostDto, item));
+        }
+        return parsed;
+    }),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ValidateNested)({ each: true }),
     (0, class_transformer_1.Type)(() => ExtraCostDto),
@@ -76,7 +107,7 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateMaintenanceRecordDto.prototype, "extraCosts", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Routine maintenance at service center' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

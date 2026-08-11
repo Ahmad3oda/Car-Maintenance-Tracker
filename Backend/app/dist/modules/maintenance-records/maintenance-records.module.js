@@ -14,6 +14,7 @@ const maintenance_records_controller_1 = require("./maintenance-records.controll
 const maintenance_record_entity_1 = require("./entities/maintenance-record.entity");
 const maintenance_records_repository_1 = require("./maintenance-records.repository");
 const items_module_1 = require("../items/items.module");
+const cars_module_1 = require("../cars/cars.module");
 let MaintenanceRecordsModule = class MaintenanceRecordsModule {
 };
 exports.MaintenanceRecordsModule = MaintenanceRecordsModule;
@@ -22,6 +23,7 @@ exports.MaintenanceRecordsModule = MaintenanceRecordsModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([maintenance_record_entity_1.MaintenanceRecord]),
             items_module_1.ItemsModule,
+            cars_module_1.CarsModule,
         ],
         controllers: [maintenance_records_controller_1.MaintenanceRecordsController],
         providers: [maintenance_records_service_1.MaintenanceRecordsService, maintenance_records_repository_1.MaintenanceRecordsRepository],

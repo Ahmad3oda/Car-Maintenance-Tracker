@@ -21,9 +21,8 @@ const update_car_dto_1 = require("./dtos/update-car.dto");
 const query_car_dto_1 = require("./dtos/query-car.dto");
 const car_serializer_1 = require("./serializers/car.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
-const multer_1 = require("multer");
 const platform_express_1 = require("@nestjs/platform-express");
-const path_1 = require("path");
+const multer_util_1 = require("../../common/utils/multer.util");
 let CarsController = class CarsController {
     carsService;
     constructor(carsService) {
@@ -56,13 +55,7 @@ __decorate([
     }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photoPath', {
-        storage: (0, multer_1.diskStorage)({
-            destination: 'uploads/cars/',
-            filename: (req, file, cb) => {
-                const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-                cb(null, `${unique}${(0, path_1.extname)(file.originalname)}`);
-            },
-        }),
+        storage: (0, multer_util_1.createMulterStorage)('cars'),
     })),
     (0, common_1.SerializeOptions)({ type: car_serializer_1.CarSerializer }),
     __param(0, (0, common_1.Body)()),
@@ -119,13 +112,7 @@ __decorate([
     }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photoPath', {
-        storage: (0, multer_1.diskStorage)({
-            destination: 'uploads/cars/',
-            filename: (req, file, cb) => {
-                const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-                cb(null, `${unique}${(0, path_1.extname)(file.originalname)}`);
-            },
-        }),
+        storage: (0, multer_util_1.createMulterStorage)('cars'),
     })),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
     (0, common_1.SerializeOptions)({ type: car_serializer_1.CarSerializer }),
