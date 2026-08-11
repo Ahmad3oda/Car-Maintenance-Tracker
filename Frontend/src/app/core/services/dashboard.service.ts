@@ -6,6 +6,7 @@ import { MaintenanceService } from './maintenance.service';
 import {
   DashboardStats,
   MaintenanceRecordDto,
+  Page,
 } from '../../shared/models/api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -116,6 +117,15 @@ export class DashboardService {
         map((page) => page.data || []),
         catchError(() => of([])),
       );
+  }
+
+  getRecentMaintenancePaged(
+    page: number = 1,
+    limit: number = 5,
+    sortBy: string = 'maintenanceDate',
+    order: 'ASC' | 'DESC' = 'DESC',
+  ): Observable<Page<MaintenanceRecordDto>> {
+    return this.maintenance.getAllEvents({ page, limit, sortBy, order });
   }
 
   getRecentEvents(limit: number = 6): Observable<MaintenanceRecordDto[]> {

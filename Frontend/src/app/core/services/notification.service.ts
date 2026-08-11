@@ -19,7 +19,7 @@ export class NotificationService {
     this.addNotification('success', message, durationMs);
   }
 
-  showError(message: string, durationMs: number = 6000): void {
+  showError(message: string, durationMs: number = 4000): void {
     this.addNotification('error', message, durationMs);
   }
 
@@ -27,7 +27,7 @@ export class NotificationService {
     this.addNotification('info', message, durationMs);
   }
 
-  showWarning(message: string, durationMs: number = 5000): void {
+  showWarning(message: string, durationMs: number = 4000): void {
     this.addNotification('warning', message, durationMs);
   }
 

@@ -12,24 +12,19 @@ import { Observable } from 'rxjs';
   imports: [CommonModule],
   template: `
     <div
-      class="fixed bottom-6 right-6 z-[99999] flex flex-col gap-3 max-w-sm w-full px-4 pointer-events-none transition-all duration-300"
+      class="fixed bottom-6 right-6 z-[999999] flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none"
       *ngIf="notifications$ | async as notifications"
     >
       <div
         *ngFor="let toast of notifications"
-        class="pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-2xl border text-sm font-semibold transition-all transform ease-out duration-300"
-        [ngClass]="{
-          'bg-green-600 text-white border-green-700 dark:bg-green-600': toast.type === 'success',
-          'bg-red-600 text-white border-red-700 dark:bg-red-600': toast.type === 'error',
-          'bg-blue-600 text-white border-blue-700 dark:bg-blue-600': toast.type === 'info',
-          'bg-orange-600 text-white border-orange-700 dark:bg-orange-600': toast.type === 'warning'
-        }"
+        class="toast-item pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-2xl border text-sm font-medium text-white transition-all duration-300"
+        [ngClass]="'toast-' + toast.type"
       >
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3 text-white overflow-hidden mr-2">
           <!-- Success Icon -->
           <svg
             *ngIf="toast.type === 'success'"
-            class="w-5 h-5 flex-shrink-0"
+            class="w-5 h-5 flex-shrink-0 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -45,7 +40,7 @@ import { Observable } from 'rxjs';
           <!-- Error Icon -->
           <svg
             *ngIf="toast.type === 'error'"
-            class="w-5 h-5 flex-shrink-0"
+            class="w-5 h-5 flex-shrink-0 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -61,7 +56,7 @@ import { Observable } from 'rxjs';
           <!-- Info Icon -->
           <svg
             *ngIf="toast.type === 'info'"
-            class="w-5 h-5 flex-shrink-0"
+            class="w-5 h-5 flex-shrink-0 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -77,7 +72,7 @@ import { Observable } from 'rxjs';
           <!-- Warning Icon -->
           <svg
             *ngIf="toast.type === 'warning'"
-            class="w-5 h-5 flex-shrink-0"
+            class="w-5 h-5 flex-shrink-0 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -90,16 +85,16 @@ import { Observable } from 'rxjs';
             />
           </svg>
 
-          <span class="leading-tight">{{ toast.message }}</span>
+          <span class="leading-snug text-white font-medium break-words">{{ toast.message }}</span>
         </div>
 
         <button
           (click)="onDismiss(toast.id)"
-          class="ml-3 p-1 rounded-lg hover:bg-black/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
+          class="p-1 rounded-lg text-white hover:bg-white/20 focus:outline-none transition-colors shrink-0"
           aria-label="Close"
         >
           <svg
-            class="w-4 h-4"
+            class="w-4 h-4 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -115,6 +110,45 @@ import { Observable } from 'rxjs';
       </div>
     </div>
   `,
+  styles: [`
+    .toast-item {
+      animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .toast-success {
+      background-color: #10b981 !important;
+      border-color: #059669 !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4), 0 8px 10px -6px rgba(16, 185, 129, 0.3) !important;
+    }
+    .toast-error {
+      background-color: #ef4444 !important;
+      border-color: #dc2626 !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4), 0 8px 10px -6px rgba(239, 68, 68, 0.3) !important;
+    }
+    .toast-info {
+      background-color: #0284c7 !important;
+      border-color: #0369a1 !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.4), 0 8px 10px -6px rgba(2, 132, 199, 0.3) !important;
+    }
+    .toast-warning {
+      background-color: #f59e0b !important;
+      border-color: #d97706 !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4), 0 8px 10px -6px rgba(245, 158, 11, 0.3) !important;
+    }
+    @keyframes toastSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+  `]
 })
 export class ToastComponent {
   private notificationService = inject(NotificationService);

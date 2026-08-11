@@ -19,7 +19,7 @@ var Order;
     Order["DESC"] = "DESC";
 })(Order || (exports.Order = Order = {}));
 class PageOptionsDto {
-    order = Order.ASC;
+    order = Order.DESC;
     page = 1;
     limit = 10;
     search;
@@ -27,7 +27,7 @@ class PageOptionsDto {
 }
 exports.PageOptionsDto = PageOptionsDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: Order, default: Order.ASC }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: Order, default: Order.DESC }),
     (0, class_validator_1.IsEnum)(Order),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

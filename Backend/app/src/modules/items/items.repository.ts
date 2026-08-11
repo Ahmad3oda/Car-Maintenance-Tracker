@@ -20,7 +20,7 @@ export class ItemsRepository {
     limit: number = 10,
     search?: string,
     sortBy?: string,
-    order: 'ASC' | 'DESC' = 'ASC',
+    order: 'ASC' | 'DESC' = 'DESC',
     carId?: number,
   ): Promise<[Item[], number]> {
     const query = this.repo
@@ -40,10 +40,30 @@ export class ItemsRepository {
       );
     }
 
-    if (sortBy) {
-      query.orderBy(`item.${sortBy}`, order);
+    const sortOrder: 'ASC' | 'DESC' =
+      order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    if (sortBy === 'name') {
+      query.orderBy('item.name', sortOrder);
+    } else if (sortBy === 'installedKm') {
+      query.orderBy('item.installedKm', sortOrder).addOrderBy('item.id', 'DESC');
+    } else if (sortBy === 'nextMaintenanceKm') {
+      query.orderBy('item.nextMaintenanceKm', sortOrder).addOrderBy('item.id', 'DESC');
+    } else if (
+      sortBy === 'lastInstallment' ||
+      sortBy === 'lastMaintenanceDate' ||
+      sortBy === 'installedDate'
+    ) {
+      query
+        .orderBy('item.lastMaintenanceDate', sortOrder)
+        .addOrderBy('item.installedDate', sortOrder)
+        .addOrderBy('item.id', 'DESC');
+    } else if (sortBy === 'manufacturer') {
+      query.orderBy('item.manufacturer', sortOrder);
+    } else if (sortBy === 'updatedAt') {
+      query.orderBy('item.updatedAt', sortOrder);
     } else {
-      query.orderBy('item.createdAt', order);
+      query.orderBy('item.createdAt', 'DESC');
     }
 
     query.skip((page - 1) * limit).take(limit);

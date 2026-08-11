@@ -26,7 +26,7 @@ let MaintenanceRecordsRepository = class MaintenanceRecordsRepository {
         const newRecord = this.repo.create(record);
         return this.repo.save(newRecord);
     }
-    async findAll(page = 1, limit = 10, search, sortBy, order = 'ASC', carId, itemId) {
+    async findAll(page = 1, limit = 10, search, sortBy, order = 'DESC', carId, itemId) {
         const query = this.repo
             .createQueryBuilder('record')
             .leftJoinAndSelect('record.car', 'car')
@@ -40,9 +40,22 @@ let MaintenanceRecordsRepository = class MaintenanceRecordsRepository {
         if (search) {
             query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
         }
-        const sortField = sortBy || 'maintenanceDate';
-        const sortOrder = order || 'DESC';
-        query.orderBy(`record.${sortField}`, sortOrder);
+        const sortOrder = order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        if (sortBy === 'totalCost' || sortBy === 'itemCost') {
+            query.orderBy('record.itemCost', sortOrder).addOrderBy('record.id', 'DESC');
+        }
+        else if (sortBy === 'date' || sortBy === 'maintenanceDate') {
+            query.orderBy('record.maintenanceDate', sortOrder).addOrderBy('record.id', 'DESC');
+        }
+        else if (sortBy === 'kmCounter') {
+            query.orderBy('record.kmCounter', sortOrder).addOrderBy('record.id', 'DESC');
+        }
+        else if (sortBy === 'updatedAt') {
+            query.orderBy('record.updatedAt', sortOrder).addOrderBy('record.id', 'DESC');
+        }
+        else {
+            query.orderBy('record.maintenanceDate', 'DESC').addOrderBy('record.id', 'DESC');
+        }
         query.skip((page - 1) * limit).take(limit);
         return query.getManyAndCount();
     }

@@ -49,6 +49,20 @@ export class MaintenanceService {
       .pipe(map((page) => page.data));
   }
 
+  /** GET /maintenance-records?itemId=:itemId with full pagination */
+  getEventsForItemPaged(
+    itemId: number,
+    query: PageQuery = {},
+  ): Observable<Page<MaintenanceRecordDto>> {
+    const params = this.toParams({
+      sortBy: 'maintenanceDate',
+      order: 'DESC',
+      ...query,
+      itemId,
+    });
+    return this.http.get<Page<MaintenanceRecordDto>>(this.base, { params });
+  }
+
   /** GET /maintenance-records/:id */
   getEvent(id: number): Observable<MaintenanceRecordDto> {
     return this.http.get<MaintenanceRecordDto>(`${this.base}/${id}`);

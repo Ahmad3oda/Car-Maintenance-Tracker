@@ -20,7 +20,7 @@ export class MaintenanceRecordsRepository {
     limit: number = 10,
     search?: string,
     sortBy?: string,
-    order: 'ASC' | 'DESC' = 'ASC',
+    order: 'ASC' | 'DESC' = 'DESC',
     carId?: number,
     itemId?: number,
   ): Promise<[MaintenanceRecord[], number]> {
@@ -41,9 +41,20 @@ export class MaintenanceRecordsRepository {
       query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
     }
 
-    const sortField = sortBy || 'maintenanceDate';
-    const sortOrder = order || 'DESC';
-    query.orderBy(`record.${sortField}`, sortOrder);
+    const sortOrder: 'ASC' | 'DESC' =
+      order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    if (sortBy === 'totalCost' || sortBy === 'itemCost') {
+      query.orderBy('record.itemCost', sortOrder).addOrderBy('record.id', 'DESC');
+    } else if (sortBy === 'date' || sortBy === 'maintenanceDate') {
+      query.orderBy('record.maintenanceDate', sortOrder).addOrderBy('record.id', 'DESC');
+    } else if (sortBy === 'kmCounter') {
+      query.orderBy('record.kmCounter', sortOrder).addOrderBy('record.id', 'DESC');
+    } else if (sortBy === 'updatedAt') {
+      query.orderBy('record.updatedAt', sortOrder).addOrderBy('record.id', 'DESC');
+    } else {
+      query.orderBy('record.maintenanceDate', 'DESC').addOrderBy('record.id', 'DESC');
+    }
 
     query.skip((page - 1) * limit).take(limit);
 

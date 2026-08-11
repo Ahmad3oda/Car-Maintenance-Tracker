@@ -1,13 +1,13 @@
 <div class="container px-6 mx-auto grid">
   <div class="flex items-center justify-between my-6">
     <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Cars</h2>
-    <a
-      routerLink="/cars/add"
-      class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 shadow-sm"
-    >
+    <a routerLink="/cars/add"
+      class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 shadow-sm">
       <span>Add Car</span>
       <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+        <path fill-rule="evenodd"
+          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+          clip-rule="evenodd" />
       </svg>
     </a>
   </div>
@@ -15,22 +15,26 @@
   <ng-container *ngIf="cars.length > 0; else emptyState">
     <!-- Cards grid -->
     <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3">
-      <div *ngFor="let car of cars" class="relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition-shadow">
-        
+      <div *ngFor="let car of cars"
+        class="relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition-shadow">
+
         <!-- Make the entire card clickable to navigate to Car Details -->
         <a [routerLink]="['/cars', car.id]" class="block absolute inset-0 z-10" aria-label="View Car Details"></a>
 
-        <ng-container *ngIf="car.photoPath; else noPhoto">
-          <img class="object-cover w-full h-48 rounded-t-xl" [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model" />
-        </ng-container>
-        <ng-template #noPhoto>
-          <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-t-xl dark:bg-gray-700">
-            <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-            </svg>
-          </div>
-        </ng-template>
-        
+        <div class="relative w-full h-52 sm:h-56 overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-700/60">
+          <ng-container *ngIf="car.photoPath; else noPhoto">
+            <img class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+              [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model" />
+          </ng-container>
+          <ng-template #noPhoto>
+            <div class="flex items-center justify-center w-full h-full text-gray-400">
+              <svg class="w-16 h-16" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1.4 8.6C0.6 8.6 0.1 9.2 0.1 10.2V11.5C0.1 13 0.8 14 2 14H2.3A3.1 3.1 0 0 1 8.3 14H15.7A3.1 3.1 0 0 1 21.7 14H22.4C23.4 14 23.9 13 23.9 11.5C23.9 10 22.8 9.1 21.1 8.9L18.6 8.4L15.8 5.3C15.4 4.7 14.5 4.3 13.7 4.3H7C6.1 4.3 5.4 4.7 4.9 5.3L3.5 7.7L1.4 8.6ZM6.7 5.6L5.2 8C5 8.3 5.2 8.5 5.5 8.5H8.2C8.4 8.5 8.5 8.3 8.5 8V5.9C8.5 5.6 8.4 5.5 8.1 5.5H6.7ZM9.5 5.6V8C9.5 8.3 9.6 8.5 9.9 8.5H17.5C17.8 8.5 18 8.3 17.9 8L15.7 5.6H9.9C9.6 5.6 9.5 5.6 9.5 5.6ZM10.3 9.6H11.5C11.9 9.6 12.1 9.9 12.1 10.2C12.1 10.5 11.9 10.8 11.5 10.8H10.3C10 10.8 9.7 10.5 9.7 10.2C9.7 9.9 10 9.6 10.3 9.6ZM5.3 11A3 3 0 1 0 5.3 17A3 3 0 1 0 5.3 11ZM5.3 12.6A1.4 1.4 0 1 1 5.3 15.4A1.4 1.4 0 1 1 5.3 12.6ZM18.7 11A3 3 0 1 0 18.7 17A3 3 0 1 0 18.7 11ZM18.7 12.6A1.4 1.4 0 1 1 18.7 15.4A1.4 1.4 0 1 1 18.7 12.6Z"/>
+              </svg>
+            </div>
+          </ng-template>
+        </div>
+
         <div class="p-5">
           <div class="flex justify-between items-start mb-4">
             <div>
@@ -39,27 +43,45 @@
               </h4>
               <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ car.year }}</p>
             </div>
-            
+
             <!-- Actions placed on top-right of the card info area, z-index higher to be clickable independently of the card wrapper -->
             <div class="flex space-x-1 relative z-20">
               <!-- Edit action -->
-              <a [routerLink]="['/cars', car.id, 'edit']" (click)="$event.stopPropagation()" class="p-1.5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 hover:bg-purple-100 dark:hover:bg-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer" aria-label="Edit">
-                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path></svg>
+              <a [routerLink]="['/cars', car.id, 'edit']" (click)="$event.stopPropagation()"
+                class="p-1.5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 hover:bg-purple-100 dark:hover:bg-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                aria-label="Edit">
+                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
+                  </path>
+                </svg>
               </a>
               <!-- Delete action -->
-              <button (click)="onDelete(car.id, $event)" class="p-1.5 text-red-600 rounded-lg dark:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 hover:bg-red-50 dark:hover:bg-gray-600 transition-colors cursor-pointer" aria-label="Delete">
-                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+              <button (click)="onDelete(car.id, $event)"
+                class="p-1.5 text-red-600 rounded-lg dark:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 hover:bg-red-50 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                aria-label="Delete">
+                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                    clip-rule="evenodd"></path>
+                </svg>
               </button>
             </div>
           </div>
 
           <div class="flex justify-between items-center text-sm">
-            <span class="inline-flex items-center px-2 py-1 font-semibold leading-tight text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
-              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+            <span
+              class="inline-flex items-center px-2 py-1 font-semibold leading-tight text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
+              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
               {{ car.plateNumber }}
             </span>
             <span class="inline-flex items-center font-semibold text-gray-700 dark:text-gray-300">
-              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
               {{ car.currentKm | number }} KM
             </span>
           </div>
@@ -67,15 +89,14 @@
       </div>
     </div>
   </ng-container>
-  
+
   <ng-template #emptyState>
-    <app-empty-state 
-      title="No cars found" 
+    <app-empty-state title="No cars found"
       message="You haven't added any cars to track yet. Get started by adding your first vehicle."
-      actionLabel="Add your first Car"
-      (action)="navigateToAddCar()"
-    >
-      <svg icon class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 17v2c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2v-2m14-8V7c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2m14 8h-2m-8 0H7m12-8h-2M7 9H5m14 8a2 2 0 10-4 0 2 2 0 004 0zM9 17a2 2 0 10-4 0 2 2 0 004 0z" /></svg>
+      actionLabel="Add your first Car" (action)="navigateToAddCar()">
+      <svg icon class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.4 8.6C0.6 8.6 0.1 9.2 0.1 10.2V11.5C0.1 13 0.8 14 2 14H2.3A3.1 3.1 0 0 1 8.3 14H15.7A3.1 3.1 0 0 1 21.7 14H22.4C23.4 14 23.9 13 23.9 11.5C23.9 10 22.8 9.1 21.1 8.9L18.6 8.4L15.8 5.3C15.4 4.7 14.5 4.3 13.7 4.3H7C6.1 4.3 5.4 4.7 4.9 5.3L3.5 7.7L1.4 8.6ZM6.7 5.6L5.2 8C5 8.3 5.2 8.5 5.5 8.5H8.2C8.4 8.5 8.5 8.3 8.5 8V5.9C8.5 5.6 8.4 5.5 8.1 5.5H6.7ZM9.5 5.6V8C9.5 8.3 9.6 8.5 9.9 8.5H17.5C17.8 8.5 18 8.3 17.9 8L15.7 5.6H9.9C9.6 5.6 9.5 5.6 9.5 5.6ZM10.3 9.6H11.5C11.9 9.6 12.1 9.9 12.1 10.2C12.1 10.5 11.9 10.8 11.5 10.8H10.3C10 10.8 9.7 10.5 9.7 10.2C9.7 9.9 10 9.6 10.3 9.6ZM5.3 11A3 3 0 1 0 5.3 17A3 3 0 1 0 5.3 11ZM5.3 12.6A1.4 1.4 0 1 1 5.3 15.4A1.4 1.4 0 1 1 5.3 12.6ZM18.7 11A3 3 0 1 0 18.7 17A3 3 0 1 0 18.7 11ZM18.7 12.6A1.4 1.4 0 1 1 18.7 15.4A1.4 1.4 0 1 1 18.7 12.6Z"/>
+      </svg>
     </app-empty-state>
   </ng-template>
 </div>

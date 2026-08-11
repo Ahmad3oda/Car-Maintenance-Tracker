@@ -1,38 +1,25 @@
 <div class="py-4 text-purple-200 dark:text-gray-400">
-  <a class="ml-6 text-xl font-bold tracking-tight text-white dark:text-gray-200 flex items-center gap-2 hover:no-underline" routerLink="/dashboard">
-    <svg class="w-6 h-6 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+  <a class="ml-6 text-xl font-bold tracking-tight text-white dark:text-gray-200 flex items-center gap-2 hover:no-underline"
+    routerLink="/dashboard">
+    <svg class="w-6 h-6 text-purple-300" viewBox="0 0 24 24" fill="currentColor">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M1.4 8.6C0.6 8.6 0.1 9.2 0.1 10.2V11.5C0.1 13 0.8 14 2 14H2.3A3.1 3.1 0 0 1 8.3 14H15.7A3.1 3.1 0 0 1 21.7 14H22.4C23.4 14 23.9 13 23.9 11.5C23.9 10 22.8 9.1 21.1 8.9L18.6 8.4L15.8 5.3C15.4 4.7 14.5 4.3 13.7 4.3H7C6.1 4.3 5.4 4.7 4.9 5.3L3.5 7.7L1.4 8.6ZM6.7 5.6L5.2 8C5 8.3 5.2 8.5 5.5 8.5H8.2C8.4 8.5 8.5 8.3 8.5 8V5.9C8.5 5.6 8.4 5.5 8.1 5.5H6.7ZM9.5 5.6V8C9.5 8.3 9.6 8.5 9.9 8.5H17.5C17.8 8.5 18 8.3 17.9 8L15.7 5.6H9.9C9.6 5.6 9.5 5.6 9.5 5.6ZM10.3 9.6H11.5C11.9 9.6 12.1 9.9 12.1 10.2C12.1 10.5 11.9 10.8 11.5 10.8H10.3C10 10.8 9.7 10.5 9.7 10.2C9.7 9.9 10 9.6 10.3 9.6ZM5.3 11A3 3 0 1 0 5.3 17A3 3 0 1 0 5.3 11ZM5.3 12.6A1.4 1.4 0 1 1 5.3 15.4A1.4 1.4 0 1 1 5.3 12.6ZM18.7 11A3 3 0 1 0 18.7 17A3 3 0 1 0 18.7 11ZM18.7 12.6A1.4 1.4 0 1 1 18.7 15.4A1.4 1.4 0 1 1 18.7 12.6Z"/>
     </svg>
     {{ appName }}
   </a>
   <ul class="mt-6">
     <li class="relative px-6 py-3" *ngFor="let link of links">
-      <span
-        *ngIf="isMainLink(link.url)"
+      <span *ngIf="isMainLink(link.url)"
         class="absolute inset-y-0 left-0 w-1.5 bg-purple-300 rounded-tr-lg rounded-br-lg shadow-[0_0_8px_rgba(216,180,254,0.6)]"
-        aria-hidden="true"
-      ></span>
+        aria-hidden="true"></span>
 
-      <a
-        [routerLink]="link.url"
-        [ngClass]="{
+      <a [routerLink]="link.url" [ngClass]="{
           'text-white bg-purple-800/50 shadow-sm': isMainLink(link.url),
           'text-purple-200 hover:text-white hover:bg-purple-800/30': !isMainLink(link.url)
         }"
-        class="inline-flex items-center w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-lg hover:no-underline"
-      >
-        <svg
-          class="w-5 h-5"
-          aria-hidden="true"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path *ngFor="let s of link.svg" [attr.d]="s"></path>
+        class="inline-flex items-center w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-lg hover:no-underline">
+        <svg class="w-5 h-5" aria-hidden="true" [attr.fill]="link.fill ? 'currentColor' : 'none'" [attr.stroke]="link.fill ? 'none' : 'currentColor'" stroke-linecap="round" stroke-linejoin="round"
+          stroke-width="2" viewBox="0 0 24 24">
+          <path *ngFor="let s of link.svg" [attr.d]="s" [attr.fill-rule]="link.fill ? 'evenodd' : null" [attr.clip-rule]="link.fill ? 'evenodd' : null"></path>
         </svg>
         <span class="ml-4">{{ link.name }}</span>
       </a>

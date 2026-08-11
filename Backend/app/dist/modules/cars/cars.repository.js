@@ -26,18 +26,34 @@ let CarsRepository = class CarsRepository {
         const newCar = this.repo.create(car);
         return this.repo.save(newCar);
     }
-    async findAll(page = 1, limit = 10, search, sortBy, order = 'ASC') {
+    async findAll(page = 1, limit = 10, search, sortBy, order = 'DESC') {
         const query = this.repo.createQueryBuilder('car');
         if (search) {
             query.where('car.plateNumber LIKE :search OR car.brand LIKE :search OR car.model LIKE :search', {
                 search: `%${search}%`,
             });
         }
-        if (sortBy) {
-            query.orderBy(`car.${sortBy}`, order);
+        const sortOrder = order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        if (sortBy === 'brand') {
+            query.orderBy('car.brand', sortOrder);
+        }
+        else if (sortBy === 'model') {
+            query.orderBy('car.model', sortOrder);
+        }
+        else if (sortBy === 'year') {
+            query.orderBy('car.year', sortOrder);
+        }
+        else if (sortBy === 'currentKm') {
+            query.orderBy('car.currentKm', sortOrder);
+        }
+        else if (sortBy === 'plateNumber') {
+            query.orderBy('car.plateNumber', sortOrder);
+        }
+        else if (sortBy === 'updatedAt') {
+            query.orderBy('car.updatedAt', sortOrder);
         }
         else {
-            query.orderBy('car.createdAt', order);
+            query.orderBy('car.createdAt', 'DESC');
         }
         query.skip((page - 1) * limit).take(limit);
         return query.getManyAndCount();

@@ -20,7 +20,7 @@ export class CarsRepository {
     limit: number = 10,
     search?: string,
     sortBy?: string,
-    order: 'ASC' | 'DESC' = 'ASC',
+    order: 'ASC' | 'DESC' = 'DESC',
   ): Promise<[Car[], number]> {
     const query = this.repo.createQueryBuilder('car');
 
@@ -33,10 +33,23 @@ export class CarsRepository {
       );
     }
 
-    if (sortBy) {
-      query.orderBy(`car.${sortBy}`, order);
+    const sortOrder: 'ASC' | 'DESC' =
+      order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    if (sortBy === 'brand') {
+      query.orderBy('car.brand', sortOrder);
+    } else if (sortBy === 'model') {
+      query.orderBy('car.model', sortOrder);
+    } else if (sortBy === 'year') {
+      query.orderBy('car.year', sortOrder);
+    } else if (sortBy === 'currentKm') {
+      query.orderBy('car.currentKm', sortOrder);
+    } else if (sortBy === 'plateNumber') {
+      query.orderBy('car.plateNumber', sortOrder);
+    } else if (sortBy === 'updatedAt') {
+      query.orderBy('car.updatedAt', sortOrder);
     } else {
-      query.orderBy('car.createdAt', order);
+      query.orderBy('car.createdAt', 'DESC');
     }
 
     query.skip((page - 1) * limit).take(limit);

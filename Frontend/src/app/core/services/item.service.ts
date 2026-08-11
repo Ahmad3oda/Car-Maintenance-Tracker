@@ -37,6 +37,12 @@ export class ItemService {
       .pipe(map((page) => page.data));
   }
 
+  /** GET /items?carId=:carId with full pagination */
+  getItemsForCarPaged(carId: number, query: PageQuery = {}): Observable<Page<ItemDto>> {
+    const params = this.toParams({ ...query, carId });
+    return this.http.get<Page<ItemDto>>(this.base, { params });
+  }
+
   /** GET /items/:id */
   getItem(id: number): Observable<ItemDto> {
     return this.http.get<ItemDto>(`${this.base}/${id}`);
