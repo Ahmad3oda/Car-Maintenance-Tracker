@@ -53,6 +53,12 @@ import { CommonModule } from '@angular/common';
       </span>
     </button>
   `,
+  styles: [`
+    :host {
+      display: inline-flex;
+      align-items: center;
+    }
+  `]
 })
 export class SortHeaderComponent {
   @Input({ required: true }) field!: string;

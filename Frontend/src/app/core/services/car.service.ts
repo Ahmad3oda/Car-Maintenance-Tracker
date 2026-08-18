@@ -4,6 +4,9 @@ import { Observable, map } from 'rxjs';
 import {
   CarDto,
   CreateCarDto,
+  ExportCarDataDto,
+  ImportCarDataDto,
+  ImportResultDto,
   Page,
   PageQuery,
 } from '../../shared/models/api.models';
@@ -47,9 +50,49 @@ export class CarService {
     return this.http.patch<CarDto>(`${this.base}/${id}`, dto);
   }
 
+  /** Quick update odometer for a car */
+  updateOdometer(id: number, currentKm: number): Observable<CarDto> {
+    return this.http.patch<CarDto>(`${this.base}/${id}`, { currentKm });
+  }
+
   /** DELETE /cars/:id */
   deleteCar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  /** GET /cars/:id/export */
+  exportCarData(id: number): Observable<ExportCarDataDto> {
+    return this.http.get<ExportCarDataDto>(`${this.base}/${id}/export`);
+  }
+
+  /** Trigger download of exported JSON file */
+  downloadExportedCarData(id: number, plateNumber?: string): Observable<ExportCarDataDto> {
+    return this.exportCarData(id).pipe(
+      map((data) => {
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const plate = plateNumber || data.car?.plateNumber || `car-${id}`;
+        const cleanPlate = plate.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const dateStr = new Date().toISOString().split('T')[0];
+        a.href = url;
+        a.download = `maintenance-export-${cleanPlate}-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        return data;
+      }),
+    );
+  }
+
+  /** POST /cars/:id/import */
+  importCarData(
+    id: number,
+    data: ImportCarDataDto,
+  ): Observable<ImportResultDto> {
+    return this.http.post<ImportResultDto>(`${this.base}/${id}/import`, data);
   }
 
   /** Helper to build FormData from a plain object + optional File */

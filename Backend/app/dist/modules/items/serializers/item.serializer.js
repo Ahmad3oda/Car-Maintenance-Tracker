@@ -24,6 +24,7 @@ let ItemSerializer = class ItemSerializer {
     expectedMaintenanceKm;
     expectedMaintenanceMonths;
     maintenanceRecords;
+    car;
     lastMaintenanceId;
     lastMaintenanceDate;
     get lastInstallment() {
@@ -105,6 +106,11 @@ __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", Array)
 ], ItemSerializer.prototype, "maintenanceRecords", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Object)
+], ItemSerializer.prototype, "car", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_transformer_1.Expose)(),

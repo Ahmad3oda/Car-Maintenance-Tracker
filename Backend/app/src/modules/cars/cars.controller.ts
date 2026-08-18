@@ -26,6 +26,11 @@ import { CarsService } from './cars.service';
 import { CreateCarDto } from './dtos/create-car.dto';
 import { UpdateCarDto } from './dtos/update-car.dto';
 import { QueryCarDto } from './dtos/query-car.dto';
+import {
+  ExportCarDataDto,
+  ImportCarDataDto,
+  ImportResultDto,
+} from './dtos/import-export.dto';
 import { CarSerializer } from './serializers/car.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -112,6 +117,36 @@ export class CarsController {
     @UploadedFile() photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
     return this.carsService.update(id, updateCarDto, photo);
+  }
+
+  @Get(':id/export')
+  @ApiOperation({ summary: 'Export full car maintenance data (items + events)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Exported car data bundle in JSON format.',
+    type: ExportCarDataDto,
+  })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  exportData(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ExportCarDataDto> {
+    return this.carsService.exportCarData(id);
+  }
+
+  @Post(':id/import')
+  @ApiOperation({ summary: 'Import car maintenance data (items + events)' })
+  @ApiResponse({
+    status: 201,
+    description: 'Car maintenance data successfully imported.',
+    type: ImportResultDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid import data payload.' })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  importData(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ImportCarDataDto,
+  ): Promise<ImportResultDto> {
+    return this.carsService.importCarData(id, dto);
   }
 
   @Delete(':id')

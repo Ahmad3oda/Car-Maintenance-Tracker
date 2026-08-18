@@ -9,6 +9,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ImageModalComponent } from '../../../shared/components/image-modal/image-modal.component';
 import { DataTableComponent } from '../../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
+import { ImportModalComponent } from '../import-modal/import-modal.component';
 
 @Component({
   selector: 'app-car-details',
@@ -20,6 +21,7 @@ import { SortHeaderComponent } from '../../../shared/components/table/sort-heade
     ImageModalComponent,
     DataTableComponent,
     SortHeaderComponent,
+    ImportModalComponent,
   ],
   templateUrl: './car-details.component.html',
 })
@@ -37,6 +39,9 @@ export class CarDetailsComponent implements OnInit {
   isImageModalOpen = false;
   modalImageUrl: string | null = null;
   modalImageTitle = '';
+
+  isImportModalOpen = false;
+  isExporting = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -146,5 +151,35 @@ export class CarDetailsComponent implements OnInit {
 
   navigateToEvents(itemId: number) {
     this.router.navigate(['/cars', this.carId, 'items', itemId, 'events']);
+  }
+
+  openImportModal() {
+    this.isImportModalOpen = true;
+  }
+
+  closeImportModal() {
+    this.isImportModalOpen = false;
+  }
+
+  onImportCompleted() {
+    this.loadCarData();
+    this.loadItemsData();
+  }
+
+  onExportData() {
+    if (this.isExporting || !this.car) return;
+    this.isExporting = true;
+    this.carService.downloadExportedCarData(this.car.id, this.car.plateNumber).subscribe({
+      next: () => {
+        this.isExporting = false;
+        this.notificationService.showSuccess('Car maintenance data exported successfully!');
+      },
+      error: (err) => {
+        this.isExporting = false;
+        this.notificationService.showError(
+          err.error?.message || 'Failed to export car data.'
+        );
+      },
+    });
   }
 }

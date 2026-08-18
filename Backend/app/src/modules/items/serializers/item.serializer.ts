@@ -49,6 +49,10 @@ export class ItemSerializer {
 
   @ApiPropertyOptional()
   @Expose()
+  car?: any;
+
+  @ApiPropertyOptional()
+  @Expose()
   lastMaintenanceId?: number;
 
   @ApiPropertyOptional()

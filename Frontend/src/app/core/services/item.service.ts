@@ -6,6 +6,8 @@ import {
   ItemDto,
   Page,
   PageQuery,
+  UpcomingItemDto,
+  UpcomingQueryDto,
 } from '../../shared/models/api.models';
 import { environment } from '../../../environments/environment';
 
@@ -43,7 +45,19 @@ export class ItemService {
     return this.http.get<Page<ItemDto>>(this.base, { params });
   }
 
+  /** GET /items/upcoming with filtering and pagination */
+  getUpcomingItems(
+    query: PageQuery & Record<string, unknown> = {},
+  ): Observable<Page<import('../../shared/models/api.models').UpcomingItemDto>> {
+    const params = this.toParams(query);
+    return this.http.get<Page<import('../../shared/models/api.models').UpcomingItemDto>>(
+      `${this.base}/upcoming`,
+      { params },
+    );
+  }
+
   /** GET /items/:id */
+
   getItem(id: number): Observable<ItemDto> {
     return this.http.get<ItemDto>(`${this.base}/${id}`);
   }

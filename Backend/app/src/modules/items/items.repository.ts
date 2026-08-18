@@ -25,6 +25,7 @@ export class ItemsRepository {
   ): Promise<[Item[], number]> {
     const query = this.repo
       .createQueryBuilder('item')
+      .leftJoinAndSelect('item.car', 'car')
       .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords');
 
     if (carId) {
@@ -33,7 +34,7 @@ export class ItemsRepository {
 
     if (search) {
       query.andWhere(
-        'item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search',
+        '(item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)',
         {
           search: `%${search}%`,
         },
@@ -89,5 +90,31 @@ export class ItemsRepository {
 
   async save(item: Item): Promise<Item> {
     return this.repo.save(item);
+  }
+
+  async findUpcomingCandidates(
+    carId?: number,
+    search?: string,
+  ): Promise<Item[]> {
+    const query = this.repo
+      .createQueryBuilder('item')
+      .leftJoinAndSelect('item.car', 'car')
+      .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords')
+      .where(
+        '(item.nextMaintenanceKm IS NOT NULL OR item.nextMaintenanceDate IS NOT NULL)',
+      );
+
+    if (carId) {
+      query.andWhere('item.carId = :carId', { carId });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    return query.getMany();
   }
 }

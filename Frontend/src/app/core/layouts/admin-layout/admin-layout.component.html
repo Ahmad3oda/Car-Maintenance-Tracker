@@ -1,4 +1,4 @@
-<div class="flex h-screen bg-gray-50 dark:bg-gray-900" [ngClass]="{'overflow-hidden': isSideMenuOpen}">
+<div class="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden w-full max-w-full" [ngClass]="{'overflow-hidden': isSideMenuOpen}">
   <!-- Desktop sidebar -->
   <aside class="z-20 hidden w-64 overflow-y-auto bg-gradient-to-b from-purple-900 to-purple-800 dark:from-gray-900 dark:to-gray-800 md:block flex-shrink-0 shadow-lg border-r border-purple-700/50 dark:border-gray-800">
     <app-sidebar></app-sidebar>
@@ -40,9 +40,9 @@
     <app-sidebar></app-sidebar>
   </aside>
 
-  <div class="flex flex-col flex-1 w-full">
+  <div class="flex flex-col flex-1 w-full min-w-0 max-w-full overflow-x-hidden">
     <app-header (menuClick)="toggleSideMenu()"></app-header>
-    <main class="h-full overflow-y-auto">
+    <main class="h-full overflow-y-auto overflow-x-hidden w-full min-w-0 max-w-full">
       <router-outlet></router-outlet>
     </main>
   </div>

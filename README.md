@@ -16,22 +16,23 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Multi-car support** — Register and manage multiple vehicles
 - **Items management** — Track parts/services per car (oil, brake pads, tires, etc.)
 - **Maintenance records** — Log every service event with date, mileage, item cost, extra costs, and notes
-- **Photo upload** — Attach a photo to each item (stored locally in `/uploads`)
-- **Search, filter & pagination** — Paginated list endpoints with search and sorting
+- **Photo upload** — Attach a photo to cars and items (stored locally in `/uploads`)
+- **Search, filter & pagination** — Paginated list endpoints with search and multi-column sorting
 - **Validation** — Strong DTO validation with `class-validator`
 - **Swagger / OpenAPI** — Interactive API docs at `/api`
-- **CORS enabled** — Ready for the Angular frontend
+- **CORS enabled** — Connected to the Angular frontend
 
 ### Frontend
 
-- **Dashboard** — Overview stats and recent maintenance activity
+- **Dashboard** — Summary metrics and recent maintenance activity with sorting
 - **Cars** — List, add, edit, and view car details with linked items
-- **Items** — Add and edit maintenance items per car
+- **Items** — Add and edit maintenance items per vehicle
 - **Maintenance events** — View, add, and edit service records per item
-- **Admin layout** — Sidebar navigation, header, and responsive shell
-- **Shared UI** — Reusable stat cards, tables, page headers, and empty states
-
-> **Note:** The Angular frontend currently uses **in-memory mock data** in its services. Backend API integration is planned.
+- **Interactive sorting & pagination** — Server-side sorting headers and responsive pagination controls
+- **Theme support** — Dark and light mode toggle with persistent local storage
+- **Responsive design** — Adaptive layout optimized for mobile, tablet, and desktop screens
+- **Image lightbox & toast alerts** — Full-screen image preview and notification toasts
+- **Full API integration** — Angular services connected to NestJS backend via `HttpClient`
 
 ### UI Draft
 
@@ -393,68 +394,74 @@ Entities, services, and controllers stay the same.
 
 ```
 Frontend/src/app/
-├── app.config.ts              # Zone change detection + router providers
+├── app.config.ts              # Global config, HttpClient, ErrorInterceptor, Toast providers
 ├── app.routes.ts              # Route definitions
 ├── core/
+│   ├── interceptors/          # ErrorInterceptor
 │   ├── layouts/
-│   │   ├── admin-layout/      # Shell wrapper (sidebar + header + outlet)
-│   │   ├── header/
-│   │   └── sidebar/           # Dashboard, Cars, Settings nav links
+│   │   ├── admin-layout/      # Responsive shell (sidebar + header + router-outlet)
+│   │   ├── header/            # Search, dark mode toggler, user profile
+│   │   └── sidebar/           # Dashboard, Cars navigation
 │   └── services/
-│       ├── car.service.ts         # Mock car CRUD
-│       ├── item.service.ts        # Mock item CRUD (per car)
-│       ├── maintenance.service.ts # Mock maintenance events (per item)
-│       └── dashboard.service.ts   # Mock stats & recent activity
+│       ├── api-http.service.ts    # Centralized HTTP request client
+│       ├── car.service.ts         # Vehicle CRUD & photo upload
+│       ├── item.service.ts        # Part/component CRUD & photo upload
+│       ├── maintenance.service.ts # Service record CRUD & extra costs
+│       ├── dashboard.service.ts   # Summary stats & recent event logs
+│       ├── theme.service.ts       # Reactive dark/light mode state & persistence
+│       └── notification.service.ts# Global toast notification dispatcher
 ├── features/
 │   ├── dashboard/             # Stats cards + recent maintenance table
 │   ├── cars/
-│   │   ├── car-list/          # All cars
-│   │   ├── car-form/          # Add / edit car
-│   │   └── car-details/       # Car detail + items list
+│   │   ├── car-list/          # Vehicles list with grid view
+│   │   ├── car-form/          # Add / edit vehicle with photo upload
+│   │   └── car-details/       # Vehicle summary + installed items data table
 │   ├── items/
-│   │   └── item-form/         # Add / edit item for a car
+│   │   └── item-form/         # Add / edit item with photo upload
 │   └── maintenance/
-│       ├── event-list/        # Maintenance history for an item
-│       └── event-form/        # Add / edit maintenance event
+│       ├── event-list/        # Service history data table per item
+│       └── event-form/        # Add / edit maintenance record with dynamic extra costs
 └── shared/
-    ├── models/models.ts       # Car, Item, MaintenanceEvent, DashboardStats interfaces
+    ├── models/                # Car, Item, MaintenanceEvent, PageMeta, ApiModels
     └── components/
-        ├── stat-card/
-        ├── page-header/
-        ├── table/
-        └── empty-state/
+        ├── stat-card/         # Metric summary card
+        ├── table/             # DataTableComponent & SortHeaderComponent
+        ├── pagination/        # Responsive PaginationComponent
+        ├── image-modal/       # Lightbox image preview modal
+        ├── toast/             # Toast notification container
+        └── empty-state/       # Empty placeholder component
 ```
 
-All components are **standalone** (no NgModules). Styling uses Tailwind utility classes and custom CSS layers defined in `src/styles.css` (`.primary`, `.secondary`, `.success`, `.danger`, `.warning`, etc.).
+All components are **standalone** (no NgModules). Styling uses Tailwind utility classes and responsive breakpoints.
 
 ### Routes
 
 | Path | Component | Description |
 | ---- | --------- | ----------- |
-| `/dashboard` | DashboardComponent | Home — stats overview |
+| `/dashboard` | DashboardComponent | Home — stats overview & recent events |
 | `/cars` | CarListComponent | List all cars |
 | `/cars/add` | CarFormComponent | Register a new car |
-| `/cars/:id` | CarDetailsComponent | Car details and items |
-| `/cars/:id/edit` | CarFormComponent | Edit car |
+| `/cars/:id` | CarDetailsComponent | Car details and installed items table |
+| `/cars/:id/edit` | CarFormComponent | Edit car details |
 | `/cars/:id/items/add` | ItemFormComponent | Add item to car |
-| `/cars/:carId/items/:itemId/edit` | ItemFormComponent | Edit item |
-| `/cars/:carId/items/:itemId/events` | EventListComponent | Maintenance history |
-| `/cars/:carId/items/:itemId/events/add` | EventFormComponent | Log new service |
+| `/cars/:carId/items/:itemId/edit` | ItemFormComponent | Edit item details |
+| `/cars/:carId/items/:itemId/events` | EventListComponent | Maintenance history table |
+| `/cars/:carId/items/:itemId/events/add` | EventFormComponent | Log new service event |
 | `/cars/:carId/items/:itemId/events/:eventId/edit` | EventFormComponent | Edit service record |
 
 All routes render inside `AdminLayoutComponent` (sidebar + header). Unknown paths redirect to `/dashboard`.
 
 ### Shared Models (`shared/models/models.ts`)
 
-These TypeScript interfaces mirror the backend schema (with minor naming differences):
+These TypeScript interfaces mirror the backend schema:
 
 | Interface | Key fields |
 | --------- | ---------- |
 | `Car` | `id`, `plateNumber`, `brand`, `model`, `year`, `currentKm`, `photoPath?` |
-| `Item` | `id`, `carId`, `name`, `manufacturer`, `installedDate`, `installedKm`, `nextMaintenanceKm?`, `nextMaintenanceDate?`, `photoPath?`, `serialNumber?` |
-| `MaintenanceEvent` | `id`, `itemId`, `maintenanceDate`, `kmCounter`, `itemCost`, `extraCosts[]`, `notes?` |
+| `Item` | `id`, `carId`, `name`, `manufacturer?`, `description?`, `installedKm?`, `expectedMaintenanceKm?`, `expectedMaintenanceMonths?`, `nextMaintenanceKm?`, `photoPath?` |
+| `MaintenanceEvent` | `id`, `carId`, `itemId`, `maintenanceDate`, `kmCounter`, `itemCost`, `extraCosts[]`, `totalCost`, `notes?` |
 | `ExtraCost` | `name`, `cost` |
-| `DashboardStats` | `totalCars`, `totalItems`, `maintenanceThisMonth`, `upcomingMaintenance` |
+| `DashboardStats` | `totalCars`, `totalItems`, `itemsReplacedLastMonth`, `itemsReplacedLastYear`, `costSpentLastMonth`, `costSpentLastYear` |
 
 ### NPM Scripts
 
@@ -465,22 +472,17 @@ These TypeScript interfaces mirror the backend schema (with minor naming differe
 | `npm run watch` | Dev build with file watching |
 | `npm test` | Run Karma unit tests |
 
-### Backend Integration (planned)
-
-Services in `core/services/` currently return mock `Observable` data via `BehaviorSubject`. To connect to the NestJS API:
-
-1. Add `provideHttpClient()` in `app.config.ts`
-2. Replace mock logic in services with HTTP calls to `http://localhost:3000`
-3. Map backend field names where they differ (e.g. backend `description` vs frontend `manufacturer`)
-
 ---
 
 ## Roadmap
 
-- [ ] Wire Angular services to the NestJS API (`HttpClient`)
+- [x] Wire Angular services to the NestJS API (`HttpClient`)
+- [x] Server-side pagination & multi-column interactive sorting
+- [x] Full mobile & multi-device responsiveness overhaul
+- [x] Dark / Light mode toggle with local storage persistence
 - [ ] JWT authentication
 - [ ] Maintenance reminders (notify when km/date threshold is reached)
-- [ ] Cost analytics dashboard
+- [ ] Cost analytics charts & reports
 - [ ] Export records as CSV/PDF
 - [ ] Docker support
 - [ ] Cloud storage for photos (S3 / Cloudinary)

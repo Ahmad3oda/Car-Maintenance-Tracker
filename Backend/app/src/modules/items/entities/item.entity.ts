@@ -27,28 +27,30 @@ export class Item {
   photoPath: string | null;
 
   @Column({ type: 'datetime', nullable: true })
-  installedDate: Date;
+  @Column({ type: 'datetime', nullable: true })
+  installedDate: Date | null;
 
   @Column({ type: 'int', nullable: true })
-  installedKm: number;
+  installedKm: number | null;
 
   @Column({ type: 'int', nullable: true })
-  expectedMaintenanceKm: number;
+  expectedMaintenanceKm: number | null;
 
   @Column({ type: 'int', nullable: true })
-  expectedMaintenanceMonths: number;
+  expectedMaintenanceMonths: number | null;
 
   @Column({ type: 'int', nullable: true })
-  lastMaintenanceId: number;
+  lastMaintenanceId: number | null;
 
   @Column({ type: 'datetime', nullable: true })
-  lastMaintenanceDate: Date;
+  lastMaintenanceDate: Date | null;
 
   @Column({ type: 'int', nullable: true })
-  nextMaintenanceKm: number;
+  nextMaintenanceKm: number | null;
 
   @Column({ type: 'datetime', nullable: true })
-  nextMaintenanceDate: Date;
+  nextMaintenanceDate: Date | null;
+
 
   @CreateDateColumn()
   createdAt: Date;

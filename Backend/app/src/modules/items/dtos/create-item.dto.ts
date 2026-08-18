@@ -37,27 +37,27 @@ export class CreateItemDto {
   @IsOptional()
   photoPath?: any;
 
-  @ApiPropertyOptional({ example: '2025-01-15' })
+  @ApiProperty({ example: '2025-01-15', description: 'Installation date (triggers initial maintenance event)' })
   @Type(() => Date)
   @IsDate()
-  @IsOptional()
-  installedDate?: Date;
+  @IsNotEmpty()
+  installedDate: Date;
 
-  @ApiPropertyOptional({ example: 50000 })
+  @ApiPropertyOptional({ example: 50000, description: 'Installation mileage (defaults to current vehicle mileage)' })
   @Type(() => Number)
   @IsInt()
   @Min(0)
   @IsOptional()
   installedKm?: number;
 
-  @ApiPropertyOptional({ example: 10000 })
+  @ApiPropertyOptional({ example: 10000, description: 'Expected mileage interval for replacement' })
   @Type(() => Number)
   @IsInt()
   @Min(0)
   @IsOptional()
   expectedMaintenanceKm?: number;
 
-  @ApiPropertyOptional({ example: 12 })
+  @ApiPropertyOptional({ example: 12, description: 'Expected interval in months for replacement' })
   @Type(() => Number)
   @IsInt()
   @Min(0)

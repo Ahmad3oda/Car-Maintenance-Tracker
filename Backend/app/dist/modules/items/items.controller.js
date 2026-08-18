@@ -20,7 +20,9 @@ const items_service_1 = require("./items.service");
 const create_item_dto_1 = require("./dtos/create-item.dto");
 const update_item_dto_1 = require("./dtos/update-item.dto");
 const query_item_dto_1 = require("./dtos/query-item.dto");
+const query_upcoming_item_dto_1 = require("./dtos/query-upcoming-item.dto");
 const item_serializer_1 = require("./serializers/item.serializer");
+const upcoming_item_serializer_1 = require("./serializers/upcoming-item.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
 const multer_util_1 = require("../../common/utils/multer.util");
 let ItemsController = class ItemsController {
@@ -34,6 +36,9 @@ let ItemsController = class ItemsController {
     }
     findAll(query) {
         return this.itemsService.findAll(query);
+    }
+    getUpcoming(query) {
+        return this.itemsService.getUpcoming(query);
     }
     findOne(id) {
         return this.itemsService.findOne(id);
@@ -94,6 +99,33 @@ __decorate([
     __metadata("design:paramtypes", [query_item_dto_1.QueryItemDto]),
     __metadata("design:returntype", Promise)
 ], ItemsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('upcoming'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get upcoming and overdue maintenance items' }),
+    (0, swagger_1.ApiExtraModels)(page_dto_1.PageDto, upcoming_item_serializer_1.UpcomingItemSerializer),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of upcoming and overdue maintenance items.',
+        schema: {
+            allOf: [
+                { $ref: (0, swagger_1.getSchemaPath)(page_dto_1.PageDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'array',
+                            items: { $ref: (0, swagger_1.getSchemaPath)(upcoming_item_serializer_1.UpcomingItemSerializer) },
+                        },
+                    },
+                },
+            ],
+        },
+    }),
+    (0, common_1.SerializeOptions)({ type: (page_dto_1.PageDto) }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [query_upcoming_item_dto_1.QueryUpcomingItemDto]),
+    __metadata("design:returntype", Promise)
+], ItemsController.prototype, "getUpcoming", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get an item by ID' }),

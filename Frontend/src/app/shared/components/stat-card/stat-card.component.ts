@@ -6,15 +6,15 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex items-center p-5 h-full min-h-[105px] bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700/70 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
-      <div [ngClass]="iconContainerClass" class="p-3 mr-4 rounded-xl flex-shrink-0 flex items-center justify-center">
+    <div class="flex items-center p-4 sm:p-5 h-full min-h-[96px] sm:min-h-[105px] bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700/70 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
+      <div [ngClass]="iconContainerClass" class="p-2.5 sm:p-3 mr-3 sm:mr-4 rounded-xl flex-shrink-0 flex items-center justify-center">
         <ng-content select="[icon]"></ng-content>
       </div>
       <div class="flex-1 min-w-0 flex flex-col justify-center">
         <p class="mb-0.5 text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wide truncate" [title]="title">
           {{ title }}
         </p>
-        <p class="text-2xl font-semibold text-gray-800 dark:text-gray-100 tracking-tight truncate">
+        <p class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-100 tracking-tight truncate">
           {{ value }}
         </p>
       </div>
@@ -23,6 +23,9 @@ import { CommonModule } from '@angular/common';
   styles: [`
     :host {
       display: block;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
       height: 100%;
     }
   `]

@@ -29,12 +29,13 @@ let ItemsRepository = class ItemsRepository {
     async findAll(page = 1, limit = 10, search, sortBy, order = 'DESC', carId) {
         const query = this.repo
             .createQueryBuilder('item')
+            .leftJoinAndSelect('item.car', 'car')
             .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords');
         if (carId) {
             query.andWhere('item.carId = :carId', { carId });
         }
         if (search) {
-            query.andWhere('item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search', {
+            query.andWhere('(item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)', {
                 search: `%${search}%`,
             });
         }
@@ -83,6 +84,20 @@ let ItemsRepository = class ItemsRepository {
     }
     async save(item) {
         return this.repo.save(item);
+    }
+    async findUpcomingCandidates(carId, search) {
+        const query = this.repo
+            .createQueryBuilder('item')
+            .leftJoinAndSelect('item.car', 'car')
+            .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords')
+            .where('(item.nextMaintenanceKm IS NOT NULL OR item.nextMaintenanceDate IS NOT NULL)');
+        if (carId) {
+            query.andWhere('item.carId = :carId', { carId });
+        }
+        if (search) {
+            query.andWhere('(item.name LIKE :search OR item.description LIKE :search OR item.manufacturer LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)', { search: `%${search}%` });
+        }
+        return query.getMany();
     }
 };
 exports.ItemsRepository = ItemsRepository;

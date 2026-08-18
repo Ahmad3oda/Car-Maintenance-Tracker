@@ -17,7 +17,15 @@ import { CommonModule } from '@angular/common';
         {{ actionLabel }}
       </button>
     </div>
-  `
+  `,
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+  `]
 })
 export class EmptyStateComponent {
   @Input() title: string = 'No records found';

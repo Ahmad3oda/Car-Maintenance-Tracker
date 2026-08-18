@@ -10,6 +10,7 @@ export declare class ItemSerializer {
     expectedMaintenanceKm?: number;
     expectedMaintenanceMonths?: number;
     maintenanceRecords?: any[];
+    car?: any;
     lastMaintenanceId?: number;
     lastMaintenanceDate?: Date;
     get lastInstallment(): Date | null;

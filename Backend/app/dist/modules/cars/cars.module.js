@@ -13,12 +13,14 @@ const cars_service_1 = require("./cars.service");
 const cars_controller_1 = require("./cars.controller");
 const car_entity_1 = require("./entities/car.entity");
 const cars_repository_1 = require("./cars.repository");
+const item_entity_1 = require("../items/entities/item.entity");
+const maintenance_record_entity_1 = require("../maintenance-records/entities/maintenance-record.entity");
 let CarsModule = class CarsModule {
 };
 exports.CarsModule = CarsModule;
 exports.CarsModule = CarsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([car_entity_1.Car])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([car_entity_1.Car, item_entity_1.Item, maintenance_record_entity_1.MaintenanceRecord])],
         controllers: [cars_controller_1.CarsController],
         providers: [cars_service_1.CarsService, cars_repository_1.CarsRepository],
         exports: [cars_service_1.CarsService, cars_repository_1.CarsRepository],

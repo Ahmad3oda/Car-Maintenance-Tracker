@@ -27,7 +27,9 @@ import { ItemsService } from './items.service';
 import { CreateItemDto } from './dtos/create-item.dto';
 import { UpdateItemDto } from './dtos/update-item.dto';
 import { QueryItemDto } from './dtos/query-item.dto';
+import { QueryUpcomingItemDto } from './dtos/query-upcoming-item.dto';
 import { ItemSerializer } from './serializers/item.serializer';
+import { UpcomingItemSerializer } from './serializers/upcoming-item.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { createMulterStorage } from '../../common/utils/multer.util';
 
@@ -89,6 +91,33 @@ export class ItemsController {
   @SerializeOptions({ type: PageDto<ItemSerializer> })
   findAll(@Query() query: QueryItemDto): Promise<PageDto<ItemSerializer>> {
     return this.itemsService.findAll(query);
+  }
+
+  @Get('upcoming')
+  @ApiOperation({ summary: 'Get upcoming and overdue maintenance items' })
+  @ApiExtraModels(PageDto, UpcomingItemSerializer)
+  @ApiResponse({
+    status: 200,
+    description: 'List of upcoming and overdue maintenance items.',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(PageDto) },
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(UpcomingItemSerializer) },
+            },
+          },
+        },
+      ],
+    },
+  })
+  @SerializeOptions({ type: PageDto<UpcomingItemSerializer> })
+  getUpcoming(
+    @Query() query: QueryUpcomingItemDto,
+  ): Promise<PageDto<UpcomingItemSerializer>> {
+    return this.itemsService.getUpcoming(query);
   }
 
   @Get(':id')

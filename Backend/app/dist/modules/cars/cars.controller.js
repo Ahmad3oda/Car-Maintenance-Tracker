@@ -19,6 +19,7 @@ const cars_service_1 = require("./cars.service");
 const create_car_dto_1 = require("./dtos/create-car.dto");
 const update_car_dto_1 = require("./dtos/update-car.dto");
 const query_car_dto_1 = require("./dtos/query-car.dto");
+const import_export_dto_1 = require("./dtos/import-export.dto");
 const car_serializer_1 = require("./serializers/car.serializer");
 const page_dto_1 = require("../../common/dtos/page.dto");
 const platform_express_1 = require("@nestjs/platform-express");
@@ -39,6 +40,12 @@ let CarsController = class CarsController {
     }
     update(id, updateCarDto, photo) {
         return this.carsService.update(id, updateCarDto, photo);
+    }
+    exportData(id) {
+        return this.carsService.exportCarData(id);
+    }
+    importData(id, dto) {
+        return this.carsService.importCarData(id, dto);
     }
     remove(id) {
         return this.carsService.remove(id);
@@ -123,6 +130,36 @@ __decorate([
     __metadata("design:paramtypes", [Number, update_car_dto_1.UpdateCarDto, Object]),
     __metadata("design:returntype", Promise)
 ], CarsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Get)(':id/export'),
+    (0, swagger_1.ApiOperation)({ summary: 'Export full car maintenance data (items + events)' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Exported car data bundle in JSON format.',
+        type: import_export_dto_1.ExportCarDataDto,
+    }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], CarsController.prototype, "exportData", null);
+__decorate([
+    (0, common_1.Post)(':id/import'),
+    (0, swagger_1.ApiOperation)({ summary: 'Import car maintenance data (items + events)' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Car maintenance data successfully imported.',
+        type: import_export_dto_1.ImportResultDto,
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid import data payload.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Car not found.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, import_export_dto_1.ImportCarDataDto]),
+    __metadata("design:returntype", Promise)
+], CarsController.prototype, "importData", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),

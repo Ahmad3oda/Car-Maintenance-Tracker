@@ -131,4 +131,32 @@ export class DashboardService {
   getRecentEvents(limit: number = 6): Observable<MaintenanceRecordDto[]> {
     return this.getRecentMaintenance(limit);
   }
+
+  getUpcomingMaintenancePaged(
+    query: import('../../shared/models/api.models').UpcomingQueryDto = {},
+  ): Observable<Page<import('../../shared/models/api.models').UpcomingItemDto>> {
+    return this.items.getUpcomingItems(query);
+  }
+
+  getDueAlertsSummary(): Observable<{
+    overdue: number;
+    dueSoon: number;
+    totalDue: number;
+    items: import('../../shared/models/api.models').UpcomingItemDto[];
+  }> {
+    return this.items.getUpcomingItems({ scope: 'due_soon_or_overdue', limit: 10 }).pipe(
+      map((page) => {
+        const items = page.data || [];
+        const overdue = items.filter((i) => i.status === 'OVERDUE').length;
+        const dueSoon = items.filter((i) => i.status === 'DUE_SOON').length;
+        return {
+          overdue,
+          dueSoon,
+          totalDue: page.meta?.totalItems ?? items.length,
+          items,
+        };
+      }),
+      catchError(() => of({ overdue: 0, dueSoon: 0, totalDue: 0, items: [] })),
+    );
+  }
 }

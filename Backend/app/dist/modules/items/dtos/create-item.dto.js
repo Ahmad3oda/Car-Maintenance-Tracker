@@ -58,14 +58,14 @@ __decorate([
     __metadata("design:type", Object)
 ], CreateItemDto.prototype, "photoPath", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '2025-01-15' }),
+    (0, swagger_1.ApiProperty)({ example: '2025-01-15', description: 'Installation date (triggers initial maintenance event)' }),
     (0, class_transformer_1.Type)(() => Date),
     (0, class_validator_1.IsDate)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Date)
 ], CreateItemDto.prototype, "installedDate", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 50000 }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 50000, description: 'Installation mileage (defaults to current vehicle mileage)' }),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
@@ -73,7 +73,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateItemDto.prototype, "installedKm", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 10000 }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 10000, description: 'Expected mileage interval for replacement' }),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
@@ -81,7 +81,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateItemDto.prototype, "expectedMaintenanceKm", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 12 }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 12, description: 'Expected interval in months for replacement' }),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),

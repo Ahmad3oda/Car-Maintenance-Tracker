@@ -1,10 +1,13 @@
-<div class="container px-6 mx-auto grid">
-  <div class="flex items-center justify-between my-6">
-    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Cars</h2>
+<div class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto min-w-0">
+  <div class="flex items-center justify-between my-4 sm:my-6 gap-3">
+    <div>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">Cars</h2>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Manage all registered vehicles and their items.</p>
+    </div>
     <a routerLink="/cars/add"
-      class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 shadow-sm">
+      class="inline-flex items-center justify-center px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 shadow-sm shrink-0">
       <span>Add Car</span>
-      <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20">
+      <svg class="w-4 h-4 ml-1.5 sm:ml-2 -mr-0.5 sm:-mr-1" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd"
           d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
           clip-rule="evenodd" />
@@ -14,38 +17,38 @@
 
   <ng-container *ngIf="cars.length > 0; else emptyState">
     <!-- Cards grid -->
-    <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
       <div *ngFor="let car of cars"
         class="relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition-shadow">
 
         <!-- Make the entire card clickable to navigate to Car Details -->
         <a [routerLink]="['/cars', car.id]" class="block absolute inset-0 z-10" aria-label="View Car Details"></a>
 
-        <div class="relative w-full h-52 sm:h-56 overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-700/60">
+        <div class="relative w-full h-48 sm:h-52 md:h-56 overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-700/60">
           <ng-container *ngIf="car.photoPath; else noPhoto">
             <img class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
               [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model" />
           </ng-container>
           <ng-template #noPhoto>
             <div class="flex items-center justify-center w-full h-full text-gray-400">
-              <svg class="w-16 h-16" viewBox="0 0 24 24" fill="currentColor">
+              <svg class="w-14 sm:w-16 h-14 sm:h-16" viewBox="0 0 24 24" fill="currentColor">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M1.4 8.6C0.6 8.6 0.1 9.2 0.1 10.2V11.5C0.1 13 0.8 14 2 14H2.3A3.1 3.1 0 0 1 8.3 14H15.7A3.1 3.1 0 0 1 21.7 14H22.4C23.4 14 23.9 13 23.9 11.5C23.9 10 22.8 9.1 21.1 8.9L18.6 8.4L15.8 5.3C15.4 4.7 14.5 4.3 13.7 4.3H7C6.1 4.3 5.4 4.7 4.9 5.3L3.5 7.7L1.4 8.6ZM6.7 5.6L5.2 8C5 8.3 5.2 8.5 5.5 8.5H8.2C8.4 8.5 8.5 8.3 8.5 8V5.9C8.5 5.6 8.4 5.5 8.1 5.5H6.7ZM9.5 5.6V8C9.5 8.3 9.6 8.5 9.9 8.5H17.5C17.8 8.5 18 8.3 17.9 8L15.7 5.6H9.9C9.6 5.6 9.5 5.6 9.5 5.6ZM10.3 9.6H11.5C11.9 9.6 12.1 9.9 12.1 10.2C12.1 10.5 11.9 10.8 11.5 10.8H10.3C10 10.8 9.7 10.5 9.7 10.2C9.7 9.9 10 9.6 10.3 9.6ZM5.3 11A3 3 0 1 0 5.3 17A3 3 0 1 0 5.3 11ZM5.3 12.6A1.4 1.4 0 1 1 5.3 15.4A1.4 1.4 0 1 1 5.3 12.6ZM18.7 11A3 3 0 1 0 18.7 17A3 3 0 1 0 18.7 11ZM18.7 12.6A1.4 1.4 0 1 1 18.7 15.4A1.4 1.4 0 1 1 18.7 12.6Z"/>
               </svg>
             </div>
           </ng-template>
         </div>
 
-        <div class="p-5">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h4 class="text-xl font-bold text-gray-800 dark:text-gray-200">
+        <div class="p-4 sm:p-5">
+          <div class="flex justify-between items-start mb-3 sm:mb-4">
+            <div class="min-w-0 mr-2">
+              <h4 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200 truncate">
                 {{ car.brand }} {{ car.model }}
               </h4>
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ car.year }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{{ car.year }}</p>
             </div>
 
             <!-- Actions placed on top-right of the card info area, z-index higher to be clickable independently of the card wrapper -->
-            <div class="flex space-x-1 relative z-20">
+            <div class="flex space-x-1 relative z-20 shrink-0">
               <!-- Edit action -->
               <a [routerLink]="['/cars', car.id, 'edit']" (click)="$event.stopPropagation()"
                 class="p-1.5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 hover:bg-purple-100 dark:hover:bg-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
@@ -69,17 +72,17 @@
             </div>
           </div>
 
-          <div class="flex justify-between items-center text-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
             <span
               class="inline-flex items-center px-2 py-1 font-semibold leading-tight text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
-              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
               </svg>
               {{ car.plateNumber }}
             </span>
             <span class="inline-flex items-center font-semibold text-gray-700 dark:text-gray-300">
-              <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               {{ car.currentKm | number }} KM

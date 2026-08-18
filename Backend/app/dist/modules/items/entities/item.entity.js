@@ -65,35 +65,36 @@ __decorate([
 ], Item.prototype, "photoPath", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
-    __metadata("design:type", Date)
+    (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
+    __metadata("design:type", Object)
 ], Item.prototype, "installedDate", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Item.prototype, "installedKm", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Item.prototype, "expectedMaintenanceKm", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Item.prototype, "expectedMaintenanceMonths", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Item.prototype, "lastMaintenanceId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], Item.prototype, "lastMaintenanceDate", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Item.prototype, "nextMaintenanceKm", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], Item.prototype, "nextMaintenanceDate", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),

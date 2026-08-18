@@ -36,6 +36,7 @@ export class ItemFormComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       manufacturer: [''],
+      installedDate: [new Date().toISOString().substring(0, 10), Validators.required],
       installedKm: ['', [Validators.min(0)]],
       expectedMaintenanceKm: ['', [Validators.min(0)]],
       expectedMaintenanceMonths: ['', [Validators.min(0)]],
@@ -57,7 +58,10 @@ export class ItemFormComponent implements OnInit {
                 name: item.name,
                 description: item.description || '',
                 manufacturer: item.manufacturer || '',
-                installedKm: item.installedKm || '',
+                installedDate: item.installedDate
+                  ? new Date(item.installedDate).toISOString().substring(0, 10)
+                  : '',
+                installedKm: item.installedKm !== undefined && item.installedKm !== null ? item.installedKm : '',
                 expectedMaintenanceKm: item.expectedMaintenanceKm || '',
                 expectedMaintenanceMonths: item.expectedMaintenanceMonths || '',
               });
