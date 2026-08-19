@@ -14,23 +14,29 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 ### Backend
 
 - **Multi-car support** — Register and manage multiple vehicles
-- **Items management** — Track parts/services per car (oil, brake pads, tires, etc.)
+- **Items management & automated baselines** — Track parts/services per car (oil, brake pads, tires, etc.) with required installation date that automatically registers the component's initial maintenance event
+- **Upcoming maintenance calculation engine** — Calculates remaining mileage, days left, and urgency status (`OVERDUE`, `DUE_SOON`, `UPCOMING`, `HEALTHY`) based on car odometer readings and maintenance intervals
 - **Maintenance records** — Log every service event with date, mileage, item cost, extra costs, and notes
 - **Photo upload** — Attach a photo to cars and items (stored locally in `/uploads`)
-- **Search, filter & pagination** — Paginated list endpoints with search and multi-column sorting
+- **Search, filter & pagination** — Paginated list endpoints with search, urgency scope filtering, and multi-column sorting
+- **Data Import & Export** — Export and import complete vehicle maintenance profiles (items + historical events) in standardized JSON format with atomic database transactions and automatic maintenance cycle recalculation
 - **Validation** — Strong DTO validation with `class-validator`
 - **Swagger / OpenAPI** — Interactive API docs at `/api`
 - **CORS enabled** — Connected to the Angular frontend
 
 ### Frontend
 
-- **Dashboard** — Summary metrics and recent maintenance activity with sorting
+- **Dashboard** — Summary metrics, upcoming/due maintenance alerts table with urgency filters, and recent maintenance activity with sorting
+- **Quick Odometer Update Modal** — Update any vehicle's mileage directly from the dashboard to instantly trigger maintenance deadline recalculations
+- **Global Search with Floating Suggestions** — Real-time search across vehicles and installed items with category indicators, car badges, custom icons, and instant navigation
+- **Header Notification System** — Interactive notification bell showing real-time pending alert counts and quick links to log maintenance records
 - **Cars** — List, add, edit, and view car details with linked items
-- **Items** — Add and edit maintenance items per vehicle
+- **Items** — Add and edit maintenance items per vehicle with required installation dates
 - **Maintenance events** — View, add, and edit service records per item
 - **Interactive sorting & pagination** — Server-side sorting headers and responsive pagination controls
 - **Theme support** — Dark and light mode toggle with persistent local storage
 - **Responsive design** — Adaptive layout optimized for mobile, tablet, and desktop screens
+- **Data Import & Export Modal** — Seamless JSON backup and restoration with instant file pick, raw JSON textarea editor, sample template inserter, and dynamic button swapping (Import button for empty vehicles automatically replaces with Export when data exists)
 - **Image lightbox & toast alerts** — Full-screen image preview and notification toasts
 - **Full API integration** — Angular services connected to NestJS backend via `HttpClient`
 
@@ -53,7 +59,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 | **Validation** | class-validator, class-transformer |
 | **File uploads** | Multer |
 | **Frontend styling** | Tailwind CSS 3, DaisyUI 4, PostCSS |
-| **Frontend fonts** | Fira Mono (`@fontsource/fira-mono`) |
+| **Frontend fonts** | Inter, Fira Mono (`@fontsource/fira-mono`) |
 | **Frontend testing** | Karma + Jasmine |
 
 > The database can be swapped to PostgreSQL/MySQL by changing the TypeORM connection config in `Backend/app/src/app.module.ts`.
@@ -70,7 +76,7 @@ Car-Maintenance-Tracker/
 │       │   ├── common/dtos/          # Shared pagination DTOs
 │       │   ├── modules/
 │       │   │   ├── cars/             # Cars module
-│       │   │   ├── items/            # Items module
+│       │   │   ├── items/            # Items module & upcoming calculations
 │       │   │   └── maintenance-records/
 │       │   ├── app.module.ts
 │       │   └── main.ts
@@ -80,8 +86,8 @@ Car-Maintenance-Tracker/
 ├── Frontend/                         # Angular SPA
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── core/                 # Layouts & services
-│   │   │   ├── features/             # Feature pages
+│   │   │   ├── core/                 # Layouts, headers & services
+│   │   │   ├── features/             # Feature pages (Dashboard, Cars, Items, Maintenance)
 │   │   │   └── shared/               # Models & reusable components
 │   │   ├── styles.css
 │   │   └── main.ts
@@ -179,11 +185,11 @@ modules/
 │   ├── cars.repository.ts
 │   └── cars.module.ts
 ├── items/
-│   ├── dtos/
+│   ├── dtos/                   # create, update, query, query-upcoming DTOs
 │   ├── entities/               # Item entity (items table)
-│   ├── serializers/
-│   ├── items.controller.ts
-│   ├── items.service.ts
+│   ├── serializers/            # item, upcoming-item serializers
+│   ├── items.controller.ts     # CRUD + GET /items/upcoming
+│   ├── items.service.ts        # Item management & urgency calculation engine
 │   ├── items.repository.ts
 │   └── items.module.ts
 └── maintenance-records/
@@ -301,7 +307,9 @@ All list endpoints return a paginated envelope:
 | POST | `/cars` | Create a car |
 | GET | `/cars` | List cars (paginated) |
 | GET | `/cars/:id` | Get one car |
-| PATCH | `/cars/:id` | Update a car |
+| PATCH | `/cars/:id` | Update a car (and odometer) |
+| GET | `/cars/:id/export` | Export full vehicle maintenance bundle (items + events) |
+| POST | `/cars/:id/import` | Import full vehicle maintenance bundle with transactional validation |
 | DELETE | `/cars/:id` | Delete a car (cascades items & records) |
 
 **Create body:** `plateNumber`, `brand`, `model`, `year`, `currentKm?`
@@ -312,11 +320,13 @@ All list endpoints return a paginated envelope:
 | ------ | -------- | ----------- |
 | POST | `/items` | Create item (`multipart/form-data`, optional `photo`) |
 | GET | `/items` | List items (paginated) |
+| GET | `/items/upcoming` | Query upcoming/due items with remaining KM/days & urgency status |
 | GET | `/items/:id` | Get one item |
 | PATCH | `/items/:id` | Update item (`multipart/form-data`, optional `photo`) |
 | DELETE | `/items/:id` | Delete item (cascades records) |
 
-**Extra query param:** `carId` — filter items by car
+**Extra query params for `/items`:** `carId` — filter items by car  
+**Extra query params for `/items/upcoming`:** `carId`, `scope` (`due_soon_or_overdue`, `overdue_only`, `within_1k_km`, `within_30_days`, `all`)
 
 **Create body:** `carId`, `name`, `description?`, `serialNumber?`, `installedDate?`, `installedKm?`, `expectedMaintenanceKm?`, `expectedMaintenanceMonths?`
 
@@ -400,29 +410,30 @@ Frontend/src/app/
 │   ├── interceptors/          # ErrorInterceptor
 │   ├── layouts/
 │   │   ├── admin-layout/      # Responsive shell (sidebar + header + router-outlet)
-│   │   ├── header/            # Search, dark mode toggler, user profile
+│   │   ├── header/            # Global floating search, dark mode toggler, notification bell popover, user profile
 │   │   └── sidebar/           # Dashboard, Cars navigation
 │   └── services/
 │       ├── api-http.service.ts    # Centralized HTTP request client
-│       ├── car.service.ts         # Vehicle CRUD & photo upload
-│       ├── item.service.ts        # Part/component CRUD & photo upload
+│       ├── car.service.ts         # Vehicle CRUD, odometer updater & photo upload
+│       ├── item.service.ts        # Part/component CRUD, upcoming items & photo upload
 │       ├── maintenance.service.ts # Service record CRUD & extra costs
-│       ├── dashboard.service.ts   # Summary stats & recent event logs
+│       ├── dashboard.service.ts   # Summary stats, upcoming maintenance & recent event logs
 │       ├── theme.service.ts       # Reactive dark/light mode state & persistence
 │       └── notification.service.ts# Global toast notification dispatcher
 ├── features/
-│   ├── dashboard/             # Stats cards + recent maintenance table
+│   ├── dashboard/             # Stats cards, upcoming/due maintenance table & quick odometer modal
 │   ├── cars/
 │   │   ├── car-list/          # Vehicles list with grid view
 │   │   ├── car-form/          # Add / edit vehicle with photo upload
-│   │   └── car-details/       # Vehicle summary + installed items data table
+│   │   ├── car-details/       # Vehicle summary + installed items data table
+│   │   └── import-modal/      # Floating JSON import dialog (file drop + text paste)
 │   ├── items/
 │   │   └── item-form/         # Add / edit item with photo upload
 │   └── maintenance/
 │       ├── event-list/        # Service history data table per item
 │       └── event-form/        # Add / edit maintenance record with dynamic extra costs
 └── shared/
-    ├── models/                # Car, Item, MaintenanceEvent, PageMeta, ApiModels
+    ├── models/                # Car, Item, UpcomingItemDto, MaintenanceEvent, PageMeta, ApiModels
     └── components/
         ├── stat-card/         # Metric summary card
         ├── table/             # DataTableComponent & SortHeaderComponent
@@ -438,7 +449,7 @@ All components are **standalone** (no NgModules). Styling uses Tailwind utility 
 
 | Path | Component | Description |
 | ---- | --------- | ----------- |
-| `/dashboard` | DashboardComponent | Home — stats overview & recent events |
+| `/dashboard` | DashboardComponent | Home — stats overview, upcoming maintenance table & recent events |
 | `/cars` | CarListComponent | List all cars |
 | `/cars/add` | CarFormComponent | Register a new car |
 | `/cars/:id` | CarDetailsComponent | Car details and installed items table |
@@ -459,6 +470,7 @@ These TypeScript interfaces mirror the backend schema:
 | --------- | ---------- |
 | `Car` | `id`, `plateNumber`, `brand`, `model`, `year`, `currentKm`, `photoPath?` |
 | `Item` | `id`, `carId`, `name`, `manufacturer?`, `description?`, `installedKm?`, `expectedMaintenanceKm?`, `expectedMaintenanceMonths?`, `nextMaintenanceKm?`, `photoPath?` |
+| `UpcomingItemDto` | `id`, `carId`, `name`, `nextMaintenanceKm`, `nextMaintenanceDate`, `remainingKm`, `remainingDays`, `status`, `car` |
 | `MaintenanceEvent` | `id`, `carId`, `itemId`, `maintenanceDate`, `kmCounter`, `itemCost`, `extraCosts[]`, `totalCost`, `notes?` |
 | `ExtraCost` | `name`, `cost` |
 | `DashboardStats` | `totalCars`, `totalItems`, `itemsReplacedLastMonth`, `itemsReplacedLastYear`, `costSpentLastMonth`, `costSpentLastYear` |
@@ -480,10 +492,15 @@ These TypeScript interfaces mirror the backend schema:
 - [x] Server-side pagination & multi-column interactive sorting
 - [x] Full mobile & multi-device responsiveness overhaul
 - [x] Dark / Light mode toggle with local storage persistence
+- [x] Maintenance reminders engine & predictive urgency alerts (overdue, due soon, upcoming, healthy)
+- [x] Quick odometer update modal with real-time schedule recalculation
+- [x] Header notification bell with real-time pending badges and quick service actions
+- [x] Full car maintenance import & export system (JSON format with nested items & events)
 - [ ] JWT authentication
-- [ ] Maintenance reminders (notify when km/date threshold is reached)
 - [ ] Cost analytics charts & reports
 - [ ] Export records as CSV/PDF
 - [ ] Docker support
 - [ ] Cloud storage for photos (S3 / Cloudinary)
 - [ ] Environment-based API URL configuration
+
+
