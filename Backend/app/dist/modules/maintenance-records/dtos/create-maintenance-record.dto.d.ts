@@ -8,6 +8,7 @@ export declare class CreateMaintenanceRecordDto {
     maintenanceDate: Date;
     kmCounter: number;
     itemCost: number;
+    photoPath?: any;
     extraCosts?: ExtraCostDto[];
     notes?: string;
 }

@@ -1,11 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe,
+  SerializeOptions,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiExtraModels,
+  getSchemaPath,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { CarsService } from './cars.service';
 import { CreateCarDto } from './dtos/create-car.dto';
 import { UpdateCarDto } from './dtos/update-car.dto';
 import { QueryCarDto } from './dtos/query-car.dto';
+import {
+  ExportCarDataDto,
+  ImportCarDataDto,
+  ImportResultDto,
+} from './dtos/import-export.dto';
 import { CarSerializer } from './serializers/car.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { createMulterStorage } from '../../common/utils/multer.util';
 
 @ApiTags('Cars')
 @Controller('cars')
@@ -14,9 +43,23 @@ export class CarsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new car' })
-  @ApiResponse({ status: 201, description: 'The car has been successfully created.', type: CarSerializer })
-  create(@Body() createCarDto: CreateCarDto): Promise<CarSerializer> {
-    return this.carsService.create(createCarDto);
+  @ApiResponse({
+    status: 201,
+    description: 'The car has been successfully created.',
+    type: CarSerializer,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('photoPath', {
+      storage: createMulterStorage('cars'),
+    }),
+  )
+  @SerializeOptions({ type: CarSerializer })
+  create(
+    @Body() createCarDto: CreateCarDto,
+    @UploadedFile() photo?: Express.Multer.File,
+  ): Promise<CarSerializer> {
+    return this.carsService.create(createCarDto, photo);
   }
 
   @Get()
@@ -39,6 +82,7 @@ export class CarsController {
       ],
     },
   })
+  @SerializeOptions({ type: PageDto<CarSerializer> })
   findAll(@Query() query: QueryCarDto): Promise<PageDto<CarSerializer>> {
     return this.carsService.findAll(query);
   }
@@ -47,22 +91,71 @@ export class CarsController {
   @ApiOperation({ summary: 'Get a car by ID' })
   @ApiResponse({ status: 200, description: 'The car.', type: CarSerializer })
   @ApiResponse({ status: 404, description: 'Car not found.' })
+  @SerializeOptions({ type: CarSerializer })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<CarSerializer> {
     return this.carsService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a car' })
-  @ApiResponse({ status: 200, description: 'The car has been successfully updated.', type: CarSerializer })
+  @ApiResponse({
+    status: 200,
+    description: 'The car has been successfully updated.',
+    type: CarSerializer,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('photoPath', {
+      storage: createMulterStorage('cars'),
+    }),
+  )
   @ApiResponse({ status: 404, description: 'Car not found.' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateCarDto: UpdateCarDto): Promise<CarSerializer> {
-    return this.carsService.update(id, updateCarDto);
+  @SerializeOptions({ type: CarSerializer })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCarDto: UpdateCarDto,
+    @UploadedFile() photo?: Express.Multer.File,
+  ): Promise<CarSerializer> {
+    return this.carsService.update(id, updateCarDto, photo);
+  }
+
+  @Get(':id/export')
+  @ApiOperation({ summary: 'Export full car maintenance data (items + events)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Exported car data bundle in JSON format.',
+    type: ExportCarDataDto,
+  })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  exportData(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ExportCarDataDto> {
+    return this.carsService.exportCarData(id);
+  }
+
+  @Post(':id/import')
+  @ApiOperation({ summary: 'Import car maintenance data (items + events)' })
+  @ApiResponse({
+    status: 201,
+    description: 'Car maintenance data successfully imported.',
+    type: ImportResultDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid import data payload.' })
+  @ApiResponse({ status: 404, description: 'Car not found.' })
+  importData(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ImportCarDataDto,
+  ): Promise<ImportResultDto> {
+    return this.carsService.importCarData(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a car' })
-  @ApiResponse({ status: 204, description: 'The car has been successfully deleted.' })
+  @ApiResponse({
+    status: 204,
+    description: 'The car has been successfully deleted.',
+  })
   @ApiResponse({ status: 404, description: 'Car not found.' })
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.carsService.remove(id);

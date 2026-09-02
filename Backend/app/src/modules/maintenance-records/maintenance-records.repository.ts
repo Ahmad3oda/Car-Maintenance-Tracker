@@ -20,11 +20,16 @@ export class MaintenanceRecordsRepository {
     limit: number = 10,
     search?: string,
     sortBy?: string,
-    order: 'ASC' | 'DESC' = 'ASC',
+    order: 'ASC' | 'DESC' = 'DESC',
     carId?: number,
     itemId?: number,
+    startDate?: string,
+    endDate?: string,
   ): Promise<[MaintenanceRecord[], number]> {
-    const query = this.repo.createQueryBuilder('record');
+    const query = this.repo
+      .createQueryBuilder('record')
+      .leftJoinAndSelect('record.car', 'car')
+      .leftJoinAndSelect('record.item', 'item');
 
     if (carId) {
       query.andWhere('record.carId = :carId', { carId });
@@ -34,14 +39,38 @@ export class MaintenanceRecordsRepository {
       query.andWhere('record.itemId = :itemId', { itemId });
     }
 
-    if (search) {
-      query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
+    if (startDate) {
+      query.andWhere('record.maintenanceDate >= :startDate', {
+        startDate: new Date(startDate),
+      });
     }
 
-    if (sortBy) {
-      query.orderBy(`record.${sortBy}`, order);
+    if (endDate) {
+      query.andWhere('record.maintenanceDate <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(record.notes LIKE :search OR item.name LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    const sortOrder: 'ASC' | 'DESC' =
+      order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    if (sortBy === 'totalCost' || sortBy === 'itemCost') {
+      query.orderBy('record.itemCost', sortOrder).addOrderBy('record.id', 'DESC');
+    } else if (sortBy === 'date' || sortBy === 'maintenanceDate') {
+      query.orderBy('record.maintenanceDate', sortOrder).addOrderBy('record.id', 'DESC');
+    } else if (sortBy === 'kmCounter') {
+      query.orderBy('record.kmCounter', sortOrder).addOrderBy('record.id', 'DESC');
+    } else if (sortBy === 'updatedAt') {
+      query.orderBy('record.updatedAt', sortOrder).addOrderBy('record.id', 'DESC');
     } else {
-      query.orderBy('record.maintenanceDate', order);
+      query.orderBy('record.maintenanceDate', 'DESC').addOrderBy('record.id', 'DESC');
     }
 
     query.skip((page - 1) * limit).take(limit);

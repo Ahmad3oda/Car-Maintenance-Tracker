@@ -21,31 +21,36 @@ export class Item {
   description: string;
 
   @Column({ nullable: true })
-  serialNumber: string;
+  manufacturer: string;
 
-  @Column({ nullable: true })
-  photoPath: string;
-
-  @Column({ type: 'datetime', nullable: true })
-  installedDate: Date;
-
-  @Column({ type: 'int', nullable: true })
-  installedKm: number;
-
-  @Column({ type: 'int', nullable: true })
-  expectedMaintenanceKm: number;
-
-  @Column({ type: 'int', nullable: true })
-  expectedMaintenanceMonths: number;
-
-  @Column({ type: 'int', nullable: true })
-  lastMaintenanceId: number;
-
-  @Column({ type: 'int', nullable: true })
-  nextMaintenanceKm: number;
+  @Column({ type: 'varchar', nullable: true })
+  photoPath: string | null;
 
   @Column({ type: 'datetime', nullable: true })
-  nextMaintenanceDate: Date;
+  @Column({ type: 'datetime', nullable: true })
+  installedDate: Date | null;
+
+  @Column({ type: 'int', nullable: true })
+  installedKm: number | null;
+
+  @Column({ type: 'int', nullable: true })
+  expectedMaintenanceKm: number | null;
+
+  @Column({ type: 'int', nullable: true })
+  expectedMaintenanceMonths: number | null;
+
+  @Column({ type: 'int', nullable: true })
+  lastMaintenanceId: number | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  lastMaintenanceDate: Date | null;
+
+  @Column({ type: 'int', nullable: true })
+  nextMaintenanceKm: number | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  nextMaintenanceDate: Date | null;
+
 
   @CreateDateColumn()
   createdAt: Date;

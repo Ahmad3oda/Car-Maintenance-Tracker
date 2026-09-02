@@ -18,6 +18,7 @@ let CarSerializer = class CarSerializer {
     brand;
     model;
     year;
+    photoPath;
     currentKm;
     createdAt;
     updatedAt;
@@ -51,6 +52,11 @@ __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", Number)
 ], CarSerializer.prototype, "year", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Object)
+], CarSerializer.prototype, "photoPath", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_transformer_1.Expose)(),

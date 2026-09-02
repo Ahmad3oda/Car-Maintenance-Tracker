@@ -9,4 +9,5 @@ export declare class ItemsRepository {
     update(id: number, item: Partial<Item>): Promise<Item | null>;
     remove(id: number): Promise<void>;
     save(item: Item): Promise<Item>;
+    findUpcomingCandidates(carId?: number, search?: string): Promise<Item[]>;
 }

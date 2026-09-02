@@ -1,4 +1,4 @@
-# Car Maintenance Tracker
+# Car Maintenance Tracker <img src="Frontend/public/favicon.svg" width="35" height="35" alt="Car Maintenance Tracker Logo">
 
 A full-stack application for tracking cars, their maintenance items (parts/services), and service history. Built with **NestJS** + **TypeORM** + **SQLite** on the backend and **Angular 19** on the frontend.
 

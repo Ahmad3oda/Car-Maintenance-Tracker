@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 // import { ItemSerializer } from '../../items/serializers/item.serializer'; // will be added later
 
 @Exclude()
@@ -23,6 +23,10 @@ export class CarSerializer {
   @ApiProperty()
   @Expose()
   year: number;
+
+  @ApiPropertyOptional()
+  @Expose()
+  photoPath: string | null;
 
   @ApiProperty()
   @Expose()

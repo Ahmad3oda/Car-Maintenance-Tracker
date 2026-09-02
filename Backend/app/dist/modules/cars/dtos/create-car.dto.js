@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateCarDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class CreateCarDto {
     plateNumber;
@@ -18,6 +19,7 @@ class CreateCarDto {
     model;
     year;
     currentKm;
+    photoPath;
 }
 exports.CreateCarDto = CreateCarDto;
 __decorate([
@@ -27,28 +29,38 @@ __decorate([
     __metadata("design:type", String)
 ], CreateCarDto.prototype, "plateNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Toyota' }),
+    (0, swagger_1.ApiProperty)({ example: 'Nissan' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateCarDto.prototype, "brand", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Camry' }),
+    (0, swagger_1.ApiProperty)({ example: 'Sunny' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateCarDto.prototype, "model", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 2020 }),
+    (0, swagger_1.ApiProperty)({ example: 2019 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1900),
     __metadata("design:type", Number)
 ], CreateCarDto.prototype, "year", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 50000 }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 100000 }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateCarDto.prototype, "currentKm", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        type: 'string',
+        format: 'binary',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Object)
+], CreateCarDto.prototype, "photoPath", void 0);
 //# sourceMappingURL=create-car.dto.js.map

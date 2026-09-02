@@ -7,6 +7,7 @@ export declare class Car {
     model: string;
     year: number;
     currentKm: number;
+    photoPath: string | null;
     createdAt: Date;
     updatedAt: Date;
     items: Item[];

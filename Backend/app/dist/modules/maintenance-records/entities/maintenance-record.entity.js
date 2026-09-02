@@ -24,6 +24,7 @@ let MaintenanceRecord = class MaintenanceRecord {
     itemCost;
     extraCosts;
     notes;
+    photoPath;
     createdAt;
     updatedAt;
 };
@@ -70,6 +71,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], MaintenanceRecord.prototype, "notes", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], MaintenanceRecord.prototype, "photoPath", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

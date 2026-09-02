@@ -1,50 +1,314 @@
-<header class="z-10 py-4 bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-  <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
-    <!-- Mobile hamburger -->
-    <button class="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple" aria-label="Menu">
-      <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-      </svg>
-    </button>
+<header class="z-30 py-3.5 sm:py-4 bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 w-full min-w-0 max-w-full relative">
+  <div class="w-full max-w-7xl flex items-center justify-between h-full px-4 sm:px-6 lg:px-8 mx-auto text-purple-600 dark:text-purple-300 min-w-0 font-sans">
     
-    <!-- Search input -->
-    <div class="flex justify-center flex-1 lg:mr-32">
-      <div class="relative w-full max-w-xl mr-6 focus-within:text-purple-500">
-        <div class="absolute inset-y-0 flex items-center pl-3">
-          <svg class="w-4 h-4 text-gray-400" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+    <!-- Left: Mobile Hamburger -->
+    <div class="flex items-center">
+      <button (click)="onMenuClick()" class="p-1.5 mr-2 sm:mr-4 rounded-lg md:hidden hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none transition-colors" aria-label="Menu">
+        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Center: Search Input & Floating Suggestions Dropdown -->
+    <div class="relative flex justify-center flex-1 max-w-xs sm:max-w-md lg:max-w-xl mx-2 sm:mx-6">
+      <div class="relative w-full">
+        <!-- Search icon -->
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 dark:text-gray-500">
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <input class="w-full pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 bg-gray-50 border border-transparent rounded-full dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-purple-300 focus:outline-none focus:ring-4 focus:ring-purple-600/10 transition-all duration-200" type="text" placeholder="Search for Cars or Items" aria-label="Search" />
+
+        <!-- Input field -->
+        <input
+          type="text"
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearchInput($event)"
+          (focus)="onSearchFocus()"
+          (keydown)="onSearchKeyDown($event)"
+          placeholder="Search cars or items..."
+          aria-label="Search"
+          class="w-full pl-9 sm:pl-10 pr-9 sm:pr-10 py-2 text-xs sm:text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-gray-50 dark:bg-gray-700/70 border border-gray-200/80 dark:border-gray-600 rounded-full focus:bg-white dark:focus:bg-gray-700 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-150 shadow-xs"
+        />
+
+        <!-- Loading spinner or Clear button -->
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+          <svg *ngIf="isSearching" class="w-4 h-4 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <button
+            *ngIf="!isSearching && searchQuery"
+            type="button"
+            (click)="clearSearch()"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          >
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating Suggestions Popover -->
+      <div
+        *ngIf="showSearchDropdown"
+        class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden max-h-96 overflow-y-auto font-sans animate-in fade-in zoom-in-95 duration-100"
+      >
+        <!-- Searching state skeleton/spinner -->
+        <div *ngIf="isSearching" class="p-4 text-center text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Searching for cars and items...
+        </div>
+
+        <div *ngIf="!isSearching">
+          <!-- Categorized: Vehicles Section -->
+          <div *ngIf="matchedCars.length > 0" class="border-b border-gray-100 dark:border-gray-700/70 last:border-b-0">
+            <div class="px-4 py-2 bg-gray-50/80 dark:bg-gray-700/40 text-3xs uppercase font-bold text-gray-500 dark:text-gray-400 tracking-wider flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                </svg>
+                Vehicles
+              </span>
+              <span class="px-1.5 py-0.2 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold text-[10px]">
+                {{ matchedCars.length }}
+              </span>
+            </div>
+
+            <div class="divide-y divide-gray-50 dark:divide-gray-700/40">
+              <div
+                *ngFor="let car of matchedCars; let i = index"
+                [attr.id]="'search-result-' + i"
+                (click)="selectCar(car)"
+                (mouseenter)="highlightedIndex = i"
+                [ngClass]="{
+                  'bg-purple-100/90 dark:bg-purple-900/60 font-semibold text-purple-900 dark:text-purple-100 ring-1 ring-purple-400/40': highlightedIndex === i,
+                  'hover:bg-purple-50/60 dark:hover:bg-gray-700/60': highlightedIndex !== i
+                }"
+                class="px-4 py-2.5 cursor-pointer transition-colors flex items-center justify-between gap-3 group"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">
+                      {{ car.brand }} {{ car.model }}
+                    </div>
+                    <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5">
+                      <span class="font-mono px-1 py-0.2 bg-gray-100 dark:bg-gray-700 rounded text-3xs font-semibold text-gray-700 dark:text-gray-300">
+                        {{ car.plateNumber }}
+                      </span>
+                      <span>{{ car.year }}</span>
+                      <span>•</span>
+                      <span>{{ car.currentKm | number }} KM</span>
+                    </div>
+                  </div>
+                </div>
+
+                <svg class="w-4 h-4 text-gray-300 group-hover:text-purple-500 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Categorized: Installed Items Section -->
+          <div *ngIf="matchedItems.length > 0">
+            <div class="px-4 py-2 bg-gray-50/80 dark:bg-gray-700/40 text-3xs uppercase font-bold text-gray-500 dark:text-gray-400 tracking-wider flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Installed Items
+              </span>
+              <span class="px-1.5 py-0.2 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold text-[10px]">
+                {{ matchedItems.length }}
+              </span>
+            </div>
+
+            <div class="divide-y divide-gray-50 dark:divide-gray-700/40">
+              <div
+                *ngFor="let item of matchedItems; let j = index"
+                [attr.id]="'search-result-' + (matchedCars.length + j)"
+                (click)="selectItem(item)"
+                (mouseenter)="highlightedIndex = matchedCars.length + j"
+                [ngClass]="{
+                  'bg-purple-100/90 dark:bg-purple-900/60 font-semibold text-purple-900 dark:text-purple-100 ring-1 ring-purple-400/40': highlightedIndex === (matchedCars.length + j),
+                  'hover:bg-purple-50/60 dark:hover:bg-gray-700/60': highlightedIndex !== (matchedCars.length + j)
+                }"
+                class="px-4 py-2.5 cursor-pointer transition-colors flex items-center justify-between gap-3 group"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/40 border border-purple-100 dark:border-purple-800 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center gap-2">
+                      <span class="truncate">{{ item.name }}</span>
+                      <span *ngIf="item.manufacturer" class="text-3xs px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
+                        {{ item.manufacturer }}
+                      </span>
+                    </div>
+                    <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5 truncate">
+                      <span class="font-medium text-purple-700 dark:text-purple-300">
+                        {{ item.car ? (item.car.brand + ' ' + item.car.model) : ('Car #' + item.carId) }}
+                      </span>
+                      <span *ngIf="item.car?.plateNumber" class="text-gray-400 font-mono text-3xs">
+                        ({{ item.car?.plateNumber }})
+                      </span>
+                      <span *ngIf="item.nextMaintenanceKm" class="text-gray-400">• Next: {{ item.nextMaintenanceKm | number }} KM</span>
+                    </div>
+                  </div>
+                </div>
+
+                <svg class="w-4 h-4 text-gray-300 group-hover:text-purple-500 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state when no matches -->
+          <div *ngIf="!hasSearchResults" class="p-6 text-center text-xs text-gray-500 dark:text-gray-400">
+            <svg class="w-7 h-7 mx-auto text-gray-400 dark:text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <p class="font-medium text-gray-700 dark:text-gray-300">No vehicles or items found</p>
+            <p class="text-3xs text-gray-400 mt-1">Try searching for brand, model, plate number, or part name</p>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Right: Theme Toggler, Notifications, Profile -->
     <div>
-      <ul class="flex justify-end items-center flex-shrink-0 space-x-6">
+      <ul class="flex justify-end items-center flex-shrink-0 space-x-3 sm:space-x-5">
         <!-- Theme toggler -->
         <li class="flex">
-          <button class="rounded-md focus:outline-none focus:shadow-outline-purple" (click)="toggleTheme()" aria-label="Toggle color mode">
+          <button class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-purple-600 dark:hover:text-purple-300 focus:outline-none transition-colors" (click)="toggleTheme()" aria-label="Toggle color mode" title="Toggle dark mode">
             <ng-container *ngIf="!isDark">
               <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
               </svg>
             </ng-container>
             <ng-container *ngIf="isDark">
-              <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-5 h-5 text-yellow-400 hover:text-yellow-300" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 1.32a1 1 0 011.415 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-1.32 4.22a1 1 0 010 1.415l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM10 18a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1zm-4.22-1.32a1 1 0 01-1.415 0l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm1.32-4.22a1 1 0 010-1.415l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zM10 4a6 6 0 100 12 6 6 0 000-12z" clip-rule="evenodd" />
               </svg>
             </ng-container>
           </button>
         </li>
+
         <!-- Notifications menu -->
         <li class="relative">
-          <button class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple" (click)="toggleNotificationsMenu()" aria-label="Notifications" aria-haspopup="true">
+          <button
+            class="relative p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-purple-600 dark:hover:text-purple-300 focus:outline-none transition-colors"
+            (click)="toggleNotificationsMenu()"
+            aria-label="Notifications"
+            aria-haspopup="true"
+          >
             <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
             </svg>
-            <span aria-hidden="true" class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-red-600 border-2 border-white rounded-full dark:border-gray-800"></span>
+
+            <!-- Dynamic Due Alert Badge -->
+            <span
+              *ngIf="dueAlerts.totalDue > 0"
+              [ngClass]="dueAlerts.overdue > 0 ? 'bg-red-600 animate-pulse' : 'bg-yellow-400 text-yellow-900'"
+              class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] px-1 text-[10px] font-bold text-white rounded-full border-2 border-white dark:border-gray-800 shadow-xs"
+            >
+              {{ dueAlerts.totalDue }}
+            </span>
           </button>
+
+          <!-- Notifications Dropdown -->
+          <div
+            *ngIf="isNotificationsMenuOpen"
+            class="absolute right-0 mt-2 w-80 sm:w-88 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden font-sans"
+          >
+            <!-- Dropdown Header -->
+            <div class="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-700 dark:text-gray-200">
+                  Maintenance Alerts
+                </span>
+                <span
+                  *ngIf="dueAlerts.totalDue > 0"
+                  class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300"
+                >
+                  {{ dueAlerts.totalDue }} due
+                </span>
+              </div>
+            </div>
+
+            <!-- Dropdown List -->
+            <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/60">
+              <ng-container *ngIf="dueAlerts.items.length > 0; else noAlerts">
+                <div
+                  *ngFor="let item of dueAlerts.items"
+                  class="p-3 hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition-colors"
+                >
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0 flex-1">
+                      <div class="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {{ item.name }}
+                      </div>
+                      <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                        {{ item.car ? (item.car.brand + ' ' + item.car.model) : ('Car #' + item.carId) }}
+                        <span *ngIf="item.car?.plateNumber" class="text-gray-400 font-mono">({{ item.car?.plateNumber }})</span>
+                      </div>
+                    </div>
+
+                    <!-- Status Pill -->
+                    <app-urgency-badge [status]="item.status"></app-urgency-badge>
+                  </div>
+
+                  <!-- Details & Action -->
+                  <div class="mt-2 flex items-center justify-between text-[11px]">
+                    <span class="text-gray-500 dark:text-gray-400 font-medium">
+                      <span *ngIf="item.remainingKm !== null && item.remainingKm !== undefined">
+                        {{ item.remainingKm <= 0 ? (item.remainingKm === 0 ? '-0 KM' : ((item.remainingKm | number) + ' KM')) : ((item.remainingKm | number) + ' KM left') }}
+                      </span>
+                      <span *ngIf="item.remainingDays !== null && item.remainingDays !== undefined" class="ml-1 text-gray-400">
+                        • {{ item.remainingDays <= 0 ? (item.remainingDays === 0 ? '-0d' : (item.remainingDays + 'd')) : (item.remainingDays + 'd left') }}
+                      </span>
+                    </span>
+
+                    <a
+                      [routerLink]="['/cars', item.carId, 'items', item.id, 'events', 'add']"
+                      (click)="closeMenus()"
+                      class="font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 hover:underline inline-flex items-center gap-0.5"
+                    >
+                      Log Service &rarr;
+                    </a>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-template #noAlerts>
+                <div class="p-5 text-center text-xs text-gray-500 dark:text-gray-400">
+                  <svg class="w-6 h-6 mx-auto text-green-500 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  No pending maintenance alerts.
+                </div>
+              </ng-template>
+            </div>
+          </div>
         </li>
+
         <!-- Profile menu -->
         <li class="relative">
           <button class="align-middle rounded-full focus:shadow-outline-purple focus:outline-none ring-2 ring-transparent hover:ring-purple-300 transition-all duration-200" (click)="toggleProfileMenu()" aria-label="Account" aria-haspopup="true">

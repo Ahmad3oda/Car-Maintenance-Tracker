@@ -11,6 +11,7 @@ export declare class MaintenanceRecord {
     itemCost: number;
     extraCosts: any;
     notes: string;
+    photoPath: string | null;
     createdAt: Date;
     updatedAt: Date;
 }

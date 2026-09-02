@@ -1,48 +1,66 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional, IsString, Min, IsDate } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  IsDate,
+} from 'class-validator';
 
 export class CreateItemDto {
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
   @IsInt()
   carId: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Brake Pads' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Front ceramic brake pads' })
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Bosch' })
   @IsString()
   @IsOptional()
-  serialNumber?: string;
+  manufacturer?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  photoPath?: any;
+
+  @ApiProperty({ example: '2025-01-15', description: 'Installation date (triggers initial maintenance event)' })
   @Type(() => Date)
   @IsDate()
-  @IsOptional()
-  installedDate?: Date;
+  @IsNotEmpty()
+  installedDate: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 50000, description: 'Installation mileage (defaults to current vehicle mileage)' })
+  @Transform(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value)))
   @IsInt()
   @Min(0)
   @IsOptional()
-  installedKm?: number;
+  installedKm?: number | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 10000, description: 'Expected mileage interval for replacement' })
+  @Transform(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value)))
   @IsInt()
   @Min(0)
   @IsOptional()
-  expectedMaintenanceKm?: number;
+  expectedMaintenanceKm?: number | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 12, description: 'Expected interval in months for replacement' })
+  @Transform(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value)))
   @IsInt()
   @Min(0)
   @IsOptional()
-  expectedMaintenanceMonths?: number;
+  expectedMaintenanceMonths?: number | null;
 }

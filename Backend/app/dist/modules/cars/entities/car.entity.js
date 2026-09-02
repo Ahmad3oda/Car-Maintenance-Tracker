@@ -20,6 +20,7 @@ let Car = class Car {
     model;
     year;
     currentKm;
+    photoPath;
     createdAt;
     updatedAt;
     items;
@@ -50,6 +51,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', default: 0 }),
     __metadata("design:type", Number)
 ], Car.prototype, "currentKm", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], Car.prototype, "photoPath", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

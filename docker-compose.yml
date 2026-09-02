@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+
+  backend:
+    build:
+      context: ./Backend/app
+    container_name: nest-backend
+
+    ports:
+      - "3000:3000"
+
+    restart: unless-stopped
+
+    volumes:
+      - ./Backend/app/data.sqlite:/app/data.sqlite
+      - ./Backend/app/uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./Frontend
+
+    container_name: angular-frontend
+
+    ports:
+      - "4200:80"
+
+    restart: unless-stopped
+
+    depends_on:
+      - backend

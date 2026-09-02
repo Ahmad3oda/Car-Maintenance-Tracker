@@ -1,32 +1,32 @@
-<div class="container px-6 mx-auto grid">
+<div class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto min-w-0">
   <!-- Header -->
-  <div class="flex items-center my-6 space-x-4">
-    <a [routerLink]="['/cars', carId]" class="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 rounded-lg p-1">
+  <div class="flex items-center my-4 sm:my-6 space-x-3 sm:space-x-4">
+    <a [routerLink]="isEditMode && itemId ? ['/cars', carId, 'items', itemId, 'events'] : ['/cars', carId]" class="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 rounded-lg p-1">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
     </a>
     <div>
-      <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ isEditMode ? 'Edit Item' : 'Add Installed Item' }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400">{{ isEditMode ? 'Update this item details.' : 'Register a new part or component installed on this vehicle.' }}</p>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">{{ isEditMode ? 'Edit Item' : 'Add Installed Item' }}</h2>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ isEditMode ? 'Update this item details.' : 'Register a new part or component installed on this vehicle.' }}</p>
     </div>
   </div>
 
-  <div class="p-6 mb-8 bg-white rounded-xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+  <div class="p-4 sm:p-6 lg:p-8 mb-8 bg-white rounded-xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
     <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         <!-- Left Column: Photo Upload -->
         <div class="space-y-4">
-          <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700 pb-2">Item Image</h3>
+          <h3 class="text-base sm:text-lg font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700 pb-2">Item Image</h3>
           
           <label class="block cursor-pointer">
             <span class="sr-only">Choose item photo</span>
-            <div class="relative flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-xl dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors overflow-hidden group">
+            <div class="relative flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-gray-300 border-dashed rounded-xl dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors overflow-hidden group">
               <ng-container *ngIf="photoPreview; else noPreview">
                 <img [src]="photoPreview" alt="Preview" class="object-cover w-full h-full" />
                 <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span class="text-white font-medium flex items-center space-x-2">
+                  <span class="text-white font-medium flex items-center space-x-2 text-xs sm:text-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                     <span>Replace Image</span>
                   </span>
@@ -34,10 +34,10 @@
               </ng-container>
               
               <ng-template #noPreview>
-                <div class="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500 dark:text-gray-400">
-                  <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  <p class="mb-2 text-sm"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                  <p class="text-xs">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                <div class="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500 dark:text-gray-400 px-4 text-center">
+                  <svg class="w-8 h-8 sm:w-10 sm:h-10 mb-2 sm:mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <p class="mb-1 text-xs sm:text-sm"><span class="font-semibold text-purple-600 dark:text-purple-400">Click to upload</span> or drag and drop</p>
+                  <p class="text-2xs sm:text-xs text-gray-400">SVG, PNG, JPG or GIF</p>
                 </div>
               </ng-template>
               
@@ -52,93 +52,93 @@
         </div>
 
         <!-- Right Column: Details -->
-        <div class="space-y-6">
-          <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700 pb-2">Item Details</h3>
+        <div class="space-y-4 sm:space-y-6">
+          <h3 class="text-base sm:text-lg font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700 pb-2">Item Details</h3>
           
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Name -->
-            <div class="col-span-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+            <div class="sm:col-span-2">
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
                 Item Name <span class="text-red-500">*</span>
               </label>
               <input
                 formControlName="name"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
                 placeholder="e.g. Brake Pads"
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                Description
+              </label>
+              <input
+                formControlName="description"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                placeholder="e.g. Synthetic 5W-30"
               />
             </div>
 
             <!-- Manufacturer -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
                 Manufacturer
               </label>
               <input
                 formControlName="manufacturer"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
-                placeholder="e.g. Bosch"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                placeholder="e.g. Bosch / Brembo / Mobil"
               />
             </div>
 
-            <!-- Serial Number -->
+            <!-- Installation Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-                Serial Number
-              </label>
-              <input
-                formControlName="serialNumber"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
-                placeholder="e.g. SN-98765"
-              />
-            </div>
-
-            <!-- Installed Date -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-                Installed Date
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                Installation Date <span class="text-red-500">*</span>
               </label>
               <input
                 formControlName="installedDate"
                 type="date"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
               />
             </div>
 
             <!-- Installed KM -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
                 Installed KM
               </label>
               <input
                 formControlName="installedKm"
                 type="number"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
-                placeholder="0"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                placeholder="Defaults to current vehicle mileage"
               />
             </div>
 
             <!-- Expected Maintenance KM -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
                 Maint. Interval (KM)
               </label>
               <input
                 formControlName="expectedMaintenanceKm"
                 type="number"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
                 placeholder="e.g. 10000"
               />
             </div>
 
             <!-- Expected Maintenance Months -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
                 Maint. Interval (Months)
               </label>
               <input
                 formControlName="expectedMaintenanceMonths"
                 type="number"
-                class="block w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+                class="block w-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-colors"
                 placeholder="e.g. 12"
               />
             </div>
@@ -147,17 +147,17 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="mt-10 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-4">
+      <div class="mt-8 sm:mt-10 pt-4 sm:pt-6 border-t border-gray-100 dark:border-gray-700 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
         <a
-          [routerLink]="['/cars', carId]"
-          class="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 dark:focus:ring-offset-gray-900"
+          [routerLink]="isEditMode && itemId ? ['/cars', carId, 'items', itemId, 'events'] : ['/cars', carId]"
+          class="inline-flex items-center justify-center w-full sm:w-auto px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 dark:focus:ring-offset-gray-900"
         >
           Cancel
         </a>
         <button
           type="submit"
           [disabled]="itemForm.invalid"
-          class="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          class="inline-flex items-center justify-center w-full sm:w-auto px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           {{ isEditMode ? 'Update Item' : 'Save Item' }}
         </button>

@@ -1,24 +1,162 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { DashboardStats, MaintenanceEvent } from '../../shared/models/models';
+import { Injectable, inject } from '@angular/core';
+import { forkJoin, map, Observable, of, catchError } from 'rxjs';
+import { CarService } from './car.service';
+import { ItemService } from './item.service';
+import { MaintenanceService } from './maintenance.service';
+import {
+  DashboardStats,
+  MaintenanceRecordDto,
+  Page,
+} from '../../shared/models/api.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DashboardService {
+  private cars = inject(CarService);
+  private items = inject(ItemService);
+  private maintenance = inject(MaintenanceService);
+
   getStats(): Observable<DashboardStats> {
-    return of({
-      totalCars: 3,
-      totalItems: 12,
-      maintenanceThisMonth: 2,
-      upcomingMaintenance: 5
-    });
+    const now = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(now.getDate() - 365);
+
+    const emptyCarsPage = {
+      data: [],
+      meta: {
+        page: 1,
+        limit: 1,
+        totalItems: 0,
+        totalPages: 0,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+    };
+
+    const emptyItemsPage = {
+      data: [],
+      meta: {
+        page: 1,
+        limit: 1,
+        totalItems: 0,
+        totalPages: 0,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+    };
+
+    const emptyRecordsPage = {
+      data: [],
+      meta: {
+        page: 1,
+        limit: 500,
+        totalItems: 0,
+        totalPages: 0,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+    };
+
+    return forkJoin({
+      cars: this.cars.getCars({ limit: 1 }).pipe(catchError(() => of(emptyCarsPage))),
+      items: this.items.getItems({ limit: 1 }).pipe(catchError(() => of(emptyItemsPage))),
+      records: this.maintenance
+        .getAllEvents({ limit: 500 })
+        .pipe(catchError(() => of(emptyRecordsPage))),
+    }).pipe(
+      map(({ cars, items, records }) => {
+        const allRecords = records?.data || [];
+
+        let itemsReplacedLastMonth = 0;
+        let itemsReplacedLastYear = 0;
+        let costSpentLastMonth = 0;
+        let costSpentLastYear = 0;
+
+        for (const record of allRecords) {
+          if (!record.maintenanceDate) continue;
+          const recDate = new Date(record.maintenanceDate);
+
+          let totalRecordCost = Number(record.itemCost || 0);
+          if (record.extraCosts && Array.isArray(record.extraCosts)) {
+            totalRecordCost += record.extraCosts.reduce(
+              (sum, ec) => sum + Number(ec.cost || 0),
+              0,
+            );
+          }
+
+          // Check last 30 days
+          if (recDate >= thirtyDaysAgo && recDate <= now) {
+            itemsReplacedLastMonth++;
+            costSpentLastMonth += totalRecordCost;
+          }
+
+          // Check last 365 days
+          if (recDate >= oneYearAgo && recDate <= now) {
+            itemsReplacedLastYear++;
+            costSpentLastYear += totalRecordCost;
+          }
+        }
+
+        return {
+          totalCars: cars?.meta?.totalItems ?? 0,
+          totalItems: items?.meta?.totalItems ?? 0,
+          itemsReplacedLastMonth,
+          itemsReplacedLastYear,
+          costSpentLastMonth,
+          costSpentLastYear,
+        };
+      }),
+    );
   }
 
-  getRecentMaintenance(): Observable<(MaintenanceEvent & { carName: string; itemName: string })[]> {
-    return of([
-      { id: 1, itemId: 1, maintenanceDate: '2023-10-15', kmCounter: 54000, itemCost: 150.00, extraCosts: [{ name: 'Labor', cost: 50.00 }], notes: 'Regular oil change', carName: 'Toyota Camry (ABC-123)', itemName: 'Engine Oil' },
-      { id: 2, itemId: 2, maintenanceDate: '2023-10-10', kmCounter: 35000, itemCost: 200.00, extraCosts: [], notes: '', carName: 'Toyota Camry (ABC-123)', itemName: 'Brake Pads' },
-    ]);
+  getRecentMaintenance(limit: number = 6): Observable<MaintenanceRecordDto[]> {
+    return this.maintenance
+      .getAllEvents({ limit, sortBy: 'maintenanceDate', order: 'DESC' })
+      .pipe(
+        map((page) => page.data || []),
+        catchError(() => of([])),
+      );
+  }
+
+  getRecentMaintenancePaged(
+    page: number = 1,
+    limit: number = 5,
+    sortBy: string = 'maintenanceDate',
+    order: 'ASC' | 'DESC' = 'DESC',
+  ): Observable<Page<MaintenanceRecordDto>> {
+    return this.maintenance.getAllEvents({ page, limit, sortBy, order });
+  }
+
+  getRecentEvents(limit: number = 6): Observable<MaintenanceRecordDto[]> {
+    return this.getRecentMaintenance(limit);
+  }
+
+  getUpcomingMaintenancePaged(
+    query: import('../../shared/models/api.models').UpcomingQueryDto = {},
+  ): Observable<Page<import('../../shared/models/api.models').UpcomingItemDto>> {
+    return this.items.getUpcomingItems(query);
+  }
+
+  getDueAlertsSummary(): Observable<{
+    overdue: number;
+    dueSoon: number;
+    totalDue: number;
+    items: import('../../shared/models/api.models').UpcomingItemDto[];
+  }> {
+    return this.items.getUpcomingItems({ scope: 'due_soon_or_overdue', limit: 10 }).pipe(
+      map((page) => {
+        const items = page.data || [];
+        const overdue = items.filter((i) => i.status === 'OVERDUE').length;
+        const dueSoon = items.filter((i) => i.status === 'DUE_SOON').length;
+        return {
+          overdue,
+          dueSoon,
+          totalDue: page.meta?.totalItems ?? items.length,
+          items,
+        };
+      }),
+      catchError(() => of({ overdue: 0, dueSoon: 0, totalDue: 0, items: [] })),
+    );
   }
 }

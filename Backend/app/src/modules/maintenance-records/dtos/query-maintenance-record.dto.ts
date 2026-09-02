@@ -1,9 +1,19 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
-import { PageOptionsDto } from '../../../common/dtos/page-options.dto';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { Order, PageOptionsDto } from '../../../common/dtos/page-options.dto';
 
 export class QueryMaintenanceRecordDto extends PageOptionsDto {
+  @ApiPropertyOptional({ enum: Order, default: Order.DESC })
+  @IsEnum(Order)
+  @IsOptional()
+  readonly order?: Order = Order.DESC;
+
+  @ApiPropertyOptional({ default: 'maintenanceDate' })
+  @IsString()
+  @IsOptional()
+  readonly sortBy?: string = 'maintenanceDate';
+
   @ApiPropertyOptional()
   @Type(() => Number)
   @IsInt()
@@ -15,4 +25,14 @@ export class QueryMaintenanceRecordDto extends PageOptionsDto {
   @IsInt()
   @IsOptional()
   itemId?: number;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  startDate?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  endDate?: string;
 }
