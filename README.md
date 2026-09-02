@@ -40,9 +40,58 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Image lightbox & toast alerts** — Full-screen image preview and notification toasts
 - **Full API integration** — Angular services connected to NestJS backend via `HttpClient`
 
-### UI Draft
+---
+## UI
 
-<img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/1e366ad6-1049-4502-b4d3-5ab106469576" />
+The application provides a clean dashboard and structured views for managing vehicles, their maintenance items, and complete service history.
+
+### Dashboard
+
+A quick overview of the vehicle fleet, maintenance activity, upcoming maintenance, and recent service records.
+
+<p align="center">
+    <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/66c84e32-d433-4b2b-b679-4b4127126a33" />
+</p>
+
+---
+
+### Cars
+
+Manage all registered vehicles and quickly access their maintenance information.
+
+<p align="center">
+    <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/6cf30867-7772-4f4c-af72-0b14eb39934e" />
+</p>
+
+---
+
+### Items
+
+Each vehicle has its own maintenance items, such as engine oil, filters, brake pads, tires, batteries, and other serviceable components.
+
+<p align="center">
+    <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/56dac6f3-9063-4227-bcba-968e530e3ef0" />
+</p>
+
+---
+
+### Maintenance History
+
+Track every maintenance event per specific item with its date, mileage, item cost, additional expenses, and notes.
+
+<p align="center">
+    <img width="1919" height="878" alt="image" src="https://github.com/user-attachments/assets/70b5fa1d-7f60-4358-8109-44f1406ead41" />
+</p>
+
+---
+
+### Maintenance Log
+
+List tracking all maintenance events for better general tracking.
+
+<p align="center">
+    <img width="1919" height="878" alt="image" src="https://github.com/user-attachments/assets/4348599f-ea6f-434f-b0d9-e90afca40562" />
+</p>
 
 ---
 
