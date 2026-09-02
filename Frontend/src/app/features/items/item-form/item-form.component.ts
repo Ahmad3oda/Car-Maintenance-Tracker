@@ -103,13 +103,18 @@ export class ItemFormComponent implements OnInit {
         : this.itemService.createItem(payload);
 
     request$.subscribe({
-      next: () => {
+      next: (res: ItemDto) => {
         this.notificationService.showSuccess(
           this.isEditMode
             ? 'Item updated successfully'
             : 'Item added successfully',
         );
-        this.router.navigate(['/cars', this.carId]);
+        const targetItemId = this.itemId || res?.id;
+        if (targetItemId) {
+          this.router.navigate(['/cars', this.carId, 'items', targetItemId, 'events']);
+        } else {
+          this.router.navigate(['/cars', this.carId]);
+        }
       },
       error: () => {},
     });

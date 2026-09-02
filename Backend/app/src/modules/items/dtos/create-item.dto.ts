@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
@@ -44,23 +44,23 @@ export class CreateItemDto {
   installedDate: Date;
 
   @ApiPropertyOptional({ example: 50000, description: 'Installation mileage (defaults to current vehicle mileage)' })
-  @Type(() => Number)
+  @Transform(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value)))
   @IsInt()
   @Min(0)
   @IsOptional()
-  installedKm?: number;
+  installedKm?: number | null;
 
   @ApiPropertyOptional({ example: 10000, description: 'Expected mileage interval for replacement' })
-  @Type(() => Number)
+  @Transform(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value)))
   @IsInt()
   @Min(0)
   @IsOptional()
-  expectedMaintenanceKm?: number;
+  expectedMaintenanceKm?: number | null;
 
   @ApiPropertyOptional({ example: 12, description: 'Expected interval in months for replacement' })
-  @Type(() => Number)
+  @Transform(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value)))
   @IsInt()
   @Min(0)
   @IsOptional()
-  expectedMaintenanceMonths?: number;
+  expectedMaintenanceMonths?: number | null;
 }

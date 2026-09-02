@@ -20,6 +20,8 @@ export interface PageQuery {
   sortBy?: string;
   carId?: number;
   itemId?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 // --- Car Models ---

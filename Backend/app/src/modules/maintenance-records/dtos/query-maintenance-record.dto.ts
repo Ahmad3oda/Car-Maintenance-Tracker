@@ -25,4 +25,14 @@ export class QueryMaintenanceRecordDto extends PageOptionsDto {
   @IsInt()
   @IsOptional()
   itemId?: number;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  startDate?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  endDate?: string;
 }

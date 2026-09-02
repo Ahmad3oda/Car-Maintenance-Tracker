@@ -5,7 +5,7 @@ export declare class CreateItemDto {
     manufacturer?: string;
     photoPath?: any;
     installedDate: Date;
-    installedKm?: number;
-    expectedMaintenanceKm?: number;
-    expectedMaintenanceMonths?: number;
+    installedKm?: number | null;
+    expectedMaintenanceKm?: number | null;
+    expectedMaintenanceMonths?: number | null;
 }

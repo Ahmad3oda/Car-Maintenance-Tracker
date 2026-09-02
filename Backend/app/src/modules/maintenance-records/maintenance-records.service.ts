@@ -65,6 +65,8 @@ export class MaintenanceRecordsService {
       query.order,
       query.carId,
       query.itemId,
+      query.startDate,
+      query.endDate,
     );
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: query });
@@ -175,30 +177,43 @@ export class MaintenanceRecordsService {
       updateData.lastMaintenanceId = latestRecord.id;
       updateData.lastMaintenanceDate = latestRecord.maintenanceDate;
 
-      if (item.expectedMaintenanceKm) {
+      if (item.expectedMaintenanceKm && Number(item.expectedMaintenanceKm) > 0) {
         updateData.nextMaintenanceKm =
           Number(latestRecord.kmCounter) + Number(item.expectedMaintenanceKm);
+      } else {
+        updateData.nextMaintenanceKm = null;
       }
 
-      if (item.expectedMaintenanceMonths) {
+      if (item.expectedMaintenanceMonths && Number(item.expectedMaintenanceMonths) > 0) {
         const nextDate = new Date(latestRecord.maintenanceDate);
         nextDate.setMonth(
           nextDate.getMonth() + Number(item.expectedMaintenanceMonths),
         );
         updateData.nextMaintenanceDate = nextDate;
+      } else {
+        updateData.nextMaintenanceDate = null;
       }
     } else {
       updateData.lastMaintenanceId = null;
       updateData.lastMaintenanceDate = null;
 
-      if (item.installedKm && item.expectedMaintenanceKm) {
+      if (
+        item.installedKm !== null &&
+        item.installedKm !== undefined &&
+        item.expectedMaintenanceKm &&
+        Number(item.expectedMaintenanceKm) > 0
+      ) {
         updateData.nextMaintenanceKm =
           Number(item.installedKm) + Number(item.expectedMaintenanceKm);
       } else {
         updateData.nextMaintenanceKm = null;
       }
 
-      if (item.installedDate && item.expectedMaintenanceMonths) {
+      if (
+        item.installedDate &&
+        item.expectedMaintenanceMonths &&
+        Number(item.expectedMaintenanceMonths) > 0
+      ) {
         const nextDate = new Date(item.installedDate);
         nextDate.setMonth(
           nextDate.getMonth() + Number(item.expectedMaintenanceMonths),

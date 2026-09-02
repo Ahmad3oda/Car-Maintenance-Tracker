@@ -17,6 +17,9 @@ import { StatCardComponent } from '../../shared/components/stat-card/stat-card.c
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { DataTableComponent } from '../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../shared/components/table/sort-header.component';
+import { UrgencyBadgeComponent } from '../../shared/components/urgency-badge/urgency-badge.component';
+import { OdometerModalComponent } from '../../shared/components/odometer-modal/odometer-modal.component';
+import { ExpensesChartComponent } from '../../shared/components/expenses-chart/expenses-chart.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,6 +32,9 @@ import { SortHeaderComponent } from '../../shared/components/table/sort-header.c
     EmptyStateComponent,
     DataTableComponent,
     SortHeaderComponent,
+    UrgencyBadgeComponent,
+    OdometerModalComponent,
+    ExpensesChartComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -161,79 +167,18 @@ export class DashboardComponent implements OnInit {
   // --- Quick Odometer Modal Methods ---
   openOdometerModal(preselectCarId?: number) {
     if (this.carsList.length === 0) return;
-
-    if (preselectCarId) {
-      this.odometerCarId = preselectCarId;
-    } else if (!this.odometerCarId || !this.carsList.some((c) => c.id === Number(this.odometerCarId))) {
-      this.odometerCarId = this.carsList[0].id;
-    }
-
-    this.updateOdometerModalValues(true);
-    this.odometerError = '';
+    this.odometerCarId = preselectCarId || null;
     this.isOdometerModalOpen = true;
   }
 
   closeOdometerModal() {
     this.isOdometerModalOpen = false;
-    this.odometerError = '';
-    this.odometerNewKm = null;
   }
 
-  onOdometerCarChange() {
-    this.updateOdometerModalValues(true);
-  }
-
-  private updateOdometerModalValues(resetInput = false) {
-    const selected = this.carsList.find((c) => c.id === Number(this.odometerCarId));
-    if (selected) {
-      this.odometerCurrentKm = selected.currentKm || 0;
-      if (resetInput) {
-        this.odometerNewKm = null;
-      }
-    }
-  }
-
-  submitOdometerUpdate() {
-    if (!this.odometerCarId) {
-      this.odometerError = 'Please select a vehicle.';
-      return;
-    }
-
-    if (this.odometerNewKm === null || this.odometerNewKm === undefined || this.odometerNewKm < 0) {
-      this.odometerError = 'Please enter a valid non-negative mileage.';
-      return;
-    }
-
-    const selectedCar = this.carsList.find((c) => c.id === Number(this.odometerCarId));
-    this.isUpdatingOdometer = true;
-    this.odometerError = '';
-
-    this.carService.updateOdometer(Number(this.odometerCarId), Number(this.odometerNewKm)).subscribe({
-      next: (updatedCar) => {
-        this.isUpdatingOdometer = false;
-        this.closeOdometerModal();
-
-        // Update local car state
-        const idx = this.carsList.findIndex((c) => c.id === updatedCar.id);
-        if (idx !== -1) {
-          this.carsList[idx] = updatedCar;
-        }
-
-        const carName = selectedCar ? `${selectedCar.brand} ${selectedCar.model}` : `Car #${updatedCar.id}`;
-        this.notificationService.showSuccess(
-          `Odometer for ${carName} updated to ${updatedCar.currentKm.toLocaleString()} KM. Maintenance schedule recalculated!`,
-          5000,
-        );
-
-        // Instantly reload dashboard upcoming items and stats
-        this.loadUpcomingItems();
-        this.loadStats();
-      },
-      error: (err) => {
-        this.isUpdatingOdometer = false;
-        this.odometerError = err?.error?.message || 'Failed to update odometer. Please try again.';
-      },
-    });
+  onOdometerUpdated() {
+    this.carService.getCarsList().subscribe((cars) => (this.carsList = cars));
+    this.loadUpcomingItems();
+    this.loadStats();
   }
 
   // --- Recent Events Methods ---

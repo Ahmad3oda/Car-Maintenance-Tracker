@@ -4,4 +4,6 @@ export declare class QueryMaintenanceRecordDto extends PageOptionsDto {
     readonly sortBy?: string;
     carId?: number;
     itemId?: number;
+    startDate?: string;
+    endDate?: string;
 }

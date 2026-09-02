@@ -147,36 +147,63 @@ export class ItemsService {
       updateData.photoPath = photo;
     }
 
-    // Recalculate nextMaintenanceKm if installed or expected values change and no records logged yet
+    // Recalculate nextMaintenanceKm and nextMaintenanceDate based on updated values
     const records = item.maintenanceRecords || [];
-    if (records.length === 0) {
-      const installedKm =
-        dto.installedKm !== undefined ? dto.installedKm : item.installedKm;
-      const expectedKm =
-        dto.expectedMaintenanceKm !== undefined
-          ? dto.expectedMaintenanceKm
-          : item.expectedMaintenanceKm;
-      if (installedKm !== undefined && installedKm !== null && expectedKm) {
-        updateData.nextMaintenanceKm = Number(installedKm) + Number(expectedKm);
-      } else if (
-        targetCar?.currentKm !== undefined &&
-        targetCar?.currentKm !== null &&
-        expectedKm
-      ) {
-        updateData.nextMaintenanceKm =
-          Number(targetCar.currentKm) + Number(expectedKm);
-      }
+    const sortedRecords = [...records].sort(
+      (a, b) =>
+        new Date(b.maintenanceDate).getTime() -
+        new Date(a.maintenanceDate).getTime(),
+    );
+    const latestRecord = sortedRecords[0];
 
-      const installedDate =
-        dto.installedDate !== undefined
-          ? dto.installedDate
-          : item.installedDate;
-      const expectedMonths =
-        dto.expectedMaintenanceMonths !== undefined
-          ? dto.expectedMaintenanceMonths
-          : item.expectedMaintenanceMonths;
-      if (installedDate && expectedMonths) {
-        const d = new Date(installedDate);
+    // Determine expectedMaintenanceKm
+    const expectedKm =
+      dto.expectedMaintenanceKm !== undefined
+        ? dto.expectedMaintenanceKm
+        : item.expectedMaintenanceKm;
+
+    if (expectedKm === null || expectedKm === undefined || Number(expectedKm) <= 0) {
+      updateData.expectedMaintenanceKm = null;
+      updateData.nextMaintenanceKm = null;
+    } else {
+      updateData.expectedMaintenanceKm = Number(expectedKm);
+      if (latestRecord) {
+        updateData.nextMaintenanceKm =
+          Number(latestRecord.kmCounter) + Number(expectedKm);
+      } else {
+        const installedKm =
+          dto.installedKm !== undefined && dto.installedKm !== null
+            ? dto.installedKm
+            : item.installedKm;
+        const baseKm =
+          installedKm !== undefined && installedKm !== null
+            ? Number(installedKm)
+            : Number(targetCar?.currentKm || 0);
+        updateData.nextMaintenanceKm = baseKm + Number(expectedKm);
+      }
+    }
+
+    // Determine expectedMaintenanceMonths
+    const expectedMonths =
+      dto.expectedMaintenanceMonths !== undefined
+        ? dto.expectedMaintenanceMonths
+        : item.expectedMaintenanceMonths;
+
+    if (expectedMonths === null || expectedMonths === undefined || Number(expectedMonths) <= 0) {
+      updateData.expectedMaintenanceMonths = null;
+      updateData.nextMaintenanceDate = null;
+    } else {
+      updateData.expectedMaintenanceMonths = Number(expectedMonths);
+      if (latestRecord) {
+        const d = new Date(latestRecord.maintenanceDate);
+        d.setMonth(d.getMonth() + Number(expectedMonths));
+        updateData.nextMaintenanceDate = d;
+      } else {
+        const installedDate =
+          dto.installedDate !== undefined && dto.installedDate !== null
+            ? dto.installedDate
+            : item.installedDate;
+        const d = installedDate ? new Date(installedDate) : new Date();
         d.setMonth(d.getMonth() + Number(expectedMonths));
         updateData.nextMaintenanceDate = d;
       }

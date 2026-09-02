@@ -1,0 +1,228 @@
+<div class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto min-w-0">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between my-4 sm:my-6 gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex p-1.5 rounded-xl bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </span>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">Maintenance Logs</h2>
+      </div>
+    </div>
+
+    <div *ngIf="eventsMeta" class="flex items-center gap-2">
+      <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
+        {{ eventsMeta.totalItems }} Total Logged Events
+      </span>
+    </div>
+  </div>
+
+  <!-- Filters Toolbar -->
+  <div class="p-4 sm:p-5 mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-700 space-y-4">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      
+      <!-- Left Controls: Vehicle Selector & Period Pills -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Vehicle Dropdown -->
+        <div class="relative min-w-[200px]">
+          <select
+            [ngModel]="selectedCarId"
+            (ngModelChange)="onCarFilterChange($event)"
+            class="w-full text-xs sm:text-sm bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 font-medium"
+          >
+            <option [value]="null">All Vehicles</option>
+            <option *ngFor="let car of carsList" [value]="car.id">
+              {{ car.brand }} {{ car.model }} ({{ car.plateNumber }})
+            </option>
+          </select>
+        </div>
+
+        <!-- Time Period Pills -->
+        <div class="flex items-center bg-gray-100 dark:bg-gray-700/70 p-1 rounded-xl gap-1 overflow-x-auto max-w-full">
+          <button
+            type="button"
+            (click)="onPeriodChange('lifetime')"
+            [ngClass]="selectedPeriod === 'lifetime' ? 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 shadow-xs font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium'"
+            class="px-3 py-1 text-xs rounded-lg transition-colors whitespace-nowrap"
+          >
+            Lifetime
+          </button>
+          <button
+            type="button"
+            (click)="onPeriodChange('day')"
+            [ngClass]="selectedPeriod === 'day' ? 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 shadow-xs font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium'"
+            class="px-3 py-1 text-xs rounded-lg transition-colors whitespace-nowrap"
+          >
+            Last 24H
+          </button>
+          <button
+            type="button"
+            (click)="onPeriodChange('week')"
+            [ngClass]="selectedPeriod === 'week' ? 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 shadow-xs font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium'"
+            class="px-3 py-1 text-xs rounded-lg transition-colors whitespace-nowrap"
+          >
+            Last Week
+          </button>
+          <button
+            type="button"
+            (click)="onPeriodChange('month')"
+            [ngClass]="selectedPeriod === 'month' ? 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 shadow-xs font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium'"
+            class="px-3 py-1 text-xs rounded-lg transition-colors whitespace-nowrap"
+          >
+            Last Month
+          </button>
+          <button
+            type="button"
+            (click)="onPeriodChange('year')"
+            [ngClass]="selectedPeriod === 'year' ? 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 shadow-xs font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium'"
+            class="px-3 py-1 text-xs rounded-lg transition-colors whitespace-nowrap"
+          >
+            Last Year
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Controls: Search Box -->
+      <div class="relative w-full lg:w-64">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearchInput($event)"
+          placeholder="Filter notes or part name..."
+          class="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 font-medium"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Events Data Table -->
+  <ng-container *ngIf="events.length > 0; else emptyState">
+    <app-data-table
+      [meta]="eventsMeta"
+      [loading]="loadingEvents"
+      [pageSizeOptions]="[10, 20, 50]"
+      (pageChange)="onPageChange($event)"
+      (limitChange)="onLimitChange($event)"
+    >
+      <ng-container table-head>
+        <th class="px-5 py-3.5">Vehicle</th>
+        <th class="px-5 py-3.5">Item / Part</th>
+        <th class="px-5 py-3.5">
+          <app-sort-header field="maintenanceDate" [currentSortBy]="sortBy" [currentOrder]="order" (sortChange)="onSortChange($event)">
+            Date
+          </app-sort-header>
+        </th>
+        <th class="px-5 py-3.5">
+          <app-sort-header field="kmCounter" [currentSortBy]="sortBy" [currentOrder]="order" (sortChange)="onSortChange($event)">
+            KM Counter
+          </app-sort-header>
+        </th>
+        <th class="px-5 py-3.5">
+          <app-sort-header field="totalCost" [currentSortBy]="sortBy" [currentOrder]="order" (sortChange)="onSortChange($event)">
+            Total Cost
+          </app-sort-header>
+        </th>
+        <th class="px-5 py-3.5">Notes</th>
+        <th class="px-5 py-3.5 text-right">Actions</th>
+      </ng-container>
+
+      <ng-container table-body>
+        <tr *ngFor="let event of events" class="text-gray-700 dark:text-gray-400 even:bg-gray-50/50 dark:even:bg-gray-800/40 hover:bg-purple-50/50 dark:hover:bg-gray-700/50 transition-colors">
+          <!-- Vehicle -->
+          <td class="px-5 py-4 text-sm font-semibold text-gray-800 dark:text-gray-200">
+            <a [routerLink]="['/cars', event.carId]" class="hover:text-purple-600 dark:hover:text-purple-400 hover:underline flex items-center gap-1.5">
+              <span>{{ event.car ? (event.car.brand + ' ' + event.car.model) : ('Car #' + event.carId) }}</span>
+              <span *ngIf="event.car?.plateNumber" class="text-3xs font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                {{ event.car?.plateNumber }}
+              </span>
+            </a>
+          </td>
+
+          <!-- Item / Part -->
+          <td class="px-5 py-4 text-sm font-semibold text-purple-600 dark:text-purple-400">
+            <a [routerLink]="['/cars', event.carId, 'items', event.itemId, 'events']" class="hover:underline">
+              {{ getItemName(event) }}
+            </a>
+          </td>
+
+          <!-- Date -->
+          <td class="px-5 py-4 text-sm font-medium text-gray-600 dark:text-gray-300">
+            {{ event.maintenanceDate ? (event.maintenanceDate | date:'dd/MM/yyyy') : '-' }}
+          </td>
+
+          <!-- KM Counter -->
+          <td class="px-5 py-4 text-sm font-medium">
+            {{ event.kmCounter | number }} KM
+          </td>
+
+          <!-- Total Cost -->
+          <td class="px-5 py-4 text-sm font-bold text-purple-600 dark:text-purple-400">
+            {{ getTotalCost(event) | number:'1.2-2' }} £
+          </td>
+
+          <!-- Notes -->
+          <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+            <div class="truncate max-w-xs" [title]="event.notes || ''">
+              {{ event.notes || '-' }}
+            </div>
+          </td>
+
+          <!-- Actions -->
+          <td class="px-5 py-4 text-sm text-right">
+            <div class="flex items-center justify-end space-x-2">
+              <a
+                [routerLink]="['/cars', event.carId, 'items', event.itemId, 'events']"
+                class="p-1.5 text-purple-600 rounded-lg dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-gray-700 transition-colors"
+                title="View Item History"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </a>
+
+              <button
+                (click)="onDeleteEvent(event.id, $event)"
+                class="p-1.5 text-red-600 rounded-lg dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-colors"
+                title="Delete Event"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+    </app-data-table>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <div class="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white border border-gray-100 border-dashed rounded-2xl dark:bg-gray-800 dark:border-gray-700">
+      <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 class="mb-1 text-base sm:text-lg font-bold text-gray-900 dark:text-white">No maintenance events found</h3>
+      <p class="mb-6 text-xs sm:text-sm text-gray-500 dark:text-gray-400 max-w-md">
+        No service records match your selected vehicle or period filter. Try adjusting the period or vehicle filter.
+      </p>
+    </div>
+  </ng-template>
+
+  <!-- Lightbox Image Modal -->
+  <app-image-modal
+    [isOpen]="isImageModalOpen"
+    [imageUrl]="modalImageUrl"
+    [title]="modalImageTitle"
+    (closed)="closeImageModal()"
+  ></app-image-modal>
+</div>

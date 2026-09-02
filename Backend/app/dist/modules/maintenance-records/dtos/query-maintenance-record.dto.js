@@ -19,6 +19,8 @@ class QueryMaintenanceRecordDto extends page_options_dto_1.PageOptionsDto {
     sortBy = 'maintenanceDate';
     carId;
     itemId;
+    startDate;
+    endDate;
 }
 exports.QueryMaintenanceRecordDto = QueryMaintenanceRecordDto;
 __decorate([
@@ -47,4 +49,16 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], QueryMaintenanceRecordDto.prototype, "itemId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], QueryMaintenanceRecordDto.prototype, "startDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], QueryMaintenanceRecordDto.prototype, "endDate", void 0);
 //# sourceMappingURL=query-maintenance-record.dto.js.map

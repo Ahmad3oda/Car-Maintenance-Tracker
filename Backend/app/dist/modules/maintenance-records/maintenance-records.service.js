@@ -54,7 +54,7 @@ let MaintenanceRecordsService = class MaintenanceRecordsService {
         return (0, class_transformer_1.plainToInstance)(maintenance_record_serializer_1.MaintenanceRecordSerializer, record);
     }
     async findAll(query) {
-        const [records, itemCount] = await this.recordsRepo.findAll(query.page, query.limit, query.search, query.sortBy, query.order, query.carId, query.itemId);
+        const [records, itemCount] = await this.recordsRepo.findAll(query.page, query.limit, query.search, query.sortBy, query.order, query.carId, query.itemId, query.startDate, query.endDate);
         const pageMetaDto = new page_meta_dto_1.PageMetaDto({ itemCount, pageOptionsDto: query });
         const serializedRecords = records.map((r) => (0, class_transformer_1.plainToInstance)(maintenance_record_serializer_1.MaintenanceRecordSerializer, r));
         return new page_dto_1.PageDto(serializedRecords, pageMetaDto);
@@ -128,27 +128,38 @@ let MaintenanceRecordsService = class MaintenanceRecordsService {
         if (latestRecord) {
             updateData.lastMaintenanceId = latestRecord.id;
             updateData.lastMaintenanceDate = latestRecord.maintenanceDate;
-            if (item.expectedMaintenanceKm) {
+            if (item.expectedMaintenanceKm && Number(item.expectedMaintenanceKm) > 0) {
                 updateData.nextMaintenanceKm =
                     Number(latestRecord.kmCounter) + Number(item.expectedMaintenanceKm);
             }
-            if (item.expectedMaintenanceMonths) {
+            else {
+                updateData.nextMaintenanceKm = null;
+            }
+            if (item.expectedMaintenanceMonths && Number(item.expectedMaintenanceMonths) > 0) {
                 const nextDate = new Date(latestRecord.maintenanceDate);
                 nextDate.setMonth(nextDate.getMonth() + Number(item.expectedMaintenanceMonths));
                 updateData.nextMaintenanceDate = nextDate;
+            }
+            else {
+                updateData.nextMaintenanceDate = null;
             }
         }
         else {
             updateData.lastMaintenanceId = null;
             updateData.lastMaintenanceDate = null;
-            if (item.installedKm && item.expectedMaintenanceKm) {
+            if (item.installedKm !== null &&
+                item.installedKm !== undefined &&
+                item.expectedMaintenanceKm &&
+                Number(item.expectedMaintenanceKm) > 0) {
                 updateData.nextMaintenanceKm =
                     Number(item.installedKm) + Number(item.expectedMaintenanceKm);
             }
             else {
                 updateData.nextMaintenanceKm = null;
             }
-            if (item.installedDate && item.expectedMaintenanceMonths) {
+            if (item.installedDate &&
+                item.expectedMaintenanceMonths &&
+                Number(item.expectedMaintenanceMonths) > 0) {
                 const nextDate = new Date(item.installedDate);
                 nextDate.setMonth(nextDate.getMonth() + Number(item.expectedMaintenanceMonths));
                 updateData.nextMaintenanceDate = nextDate;

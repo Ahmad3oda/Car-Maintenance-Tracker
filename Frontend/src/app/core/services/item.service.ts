@@ -89,13 +89,9 @@ export class ItemService {
   toFormData(data: Record<string, unknown>, photo?: File | null): FormData {
     const fd = new FormData();
     for (const [key, value] of Object.entries(data)) {
-      if (
-        value !== undefined &&
-        value !== null &&
-        value !== '' &&
-        key !== 'photoPath'
-      ) {
-        fd.append(key, String(value));
+      if (key === 'photoPath') continue;
+      if (value !== undefined) {
+        fd.append(key, value === null ? '' : String(value));
       }
     }
     if (photo) {

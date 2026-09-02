@@ -66,26 +66,26 @@ __decorate([
 ], CreateItemDto.prototype, "installedDate", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 50000, description: 'Installation mileage (defaults to current vehicle mileage)' }),
-    (0, class_transformer_1.Type)(() => Number),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value))),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], CreateItemDto.prototype, "installedKm", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 10000, description: 'Expected mileage interval for replacement' }),
-    (0, class_transformer_1.Type)(() => Number),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value))),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], CreateItemDto.prototype, "expectedMaintenanceKm", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 12, description: 'Expected interval in months for replacement' }),
-    (0, class_transformer_1.Type)(() => Number),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' || value === null || value === 'null' || value === undefined ? null : Number(value))),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], CreateItemDto.prototype, "expectedMaintenanceMonths", void 0);
 //# sourceMappingURL=create-item.dto.js.map

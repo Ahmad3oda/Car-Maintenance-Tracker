@@ -17,11 +17,12 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CarService } from '../../services/car.service';
 import { ItemService } from '../../services/item.service';
 import { CarDto, ItemDto, UpcomingItemDto } from '../../../shared/models/api.models';
+import { UrgencyBadgeComponent } from '../../../shared/components/urgency-badge/urgency-badge.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit {
@@ -43,6 +44,7 @@ export class HeaderComponent implements OnInit {
   isSearching = false;
   matchedCars: CarDto[] = [];
   matchedItems: ItemDto[] = [];
+  highlightedIndex = -1;
   private searchSubject = new Subject<string>();
 
   dueAlerts: {
@@ -69,6 +71,10 @@ export class HeaderComponent implements OnInit {
     return this.isSearchFocused && this.searchQuery.trim().length > 0;
   }
 
+  get totalSearchResultsCount(): number {
+    return this.matchedCars.length + this.matchedItems.length;
+  }
+
   ngOnInit() {
     this.loadDueAlerts();
 
@@ -81,6 +87,7 @@ export class HeaderComponent implements OnInit {
           if (!query) {
             this.matchedCars = [];
             this.matchedItems = [];
+            this.highlightedIndex = -1;
             this.isSearching = false;
             return of({ cars: [], items: [] });
           }
@@ -99,6 +106,7 @@ export class HeaderComponent implements OnInit {
         next: ({ cars, items }) => {
           this.matchedCars = cars;
           this.matchedItems = items;
+          this.highlightedIndex = -1;
           this.isSearching = false;
         },
         error: () => {
@@ -132,7 +140,60 @@ export class HeaderComponent implements OnInit {
     this.searchQuery = '';
     this.matchedCars = [];
     this.matchedItems = [];
+    this.highlightedIndex = -1;
     this.isSearching = false;
+  }
+
+  onSearchKeyDown(event: KeyboardEvent) {
+    if (!this.showSearchDropdown) return;
+
+    const total = this.totalSearchResultsCount;
+    if (total === 0) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (this.highlightedIndex < total - 1) {
+        this.highlightedIndex++;
+      } else {
+        this.highlightedIndex = 0;
+      }
+      this.scrollToHighlighted();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (this.highlightedIndex > 0) {
+        this.highlightedIndex--;
+      } else if (this.highlightedIndex === 0) {
+        this.highlightedIndex = -1;
+      } else {
+        this.highlightedIndex = total - 1;
+      }
+      this.scrollToHighlighted();
+    } else if (event.key === 'Enter') {
+      if (this.highlightedIndex >= 0 && this.highlightedIndex < total) {
+        event.preventDefault();
+        if (this.highlightedIndex < this.matchedCars.length) {
+          this.selectCar(this.matchedCars[this.highlightedIndex]);
+        } else {
+          const itemIndex = this.highlightedIndex - this.matchedCars.length;
+          this.selectItem(this.matchedItems[itemIndex]);
+        }
+      }
+    } else if (event.key === 'Escape') {
+      this.isSearchFocused = false;
+      this.highlightedIndex = -1;
+    }
+  }
+
+  private scrollToHighlighted() {
+    if (this.highlightedIndex < 0) return;
+    setTimeout(() => {
+      const el = this.elementRef.nativeElement.querySelector(
+        `#search-result-${this.highlightedIndex}`,
+      );
+      if (el) {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
   }
 
   selectCar(car: CarDto) {

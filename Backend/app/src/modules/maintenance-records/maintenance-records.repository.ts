@@ -23,6 +23,8 @@ export class MaintenanceRecordsRepository {
     order: 'ASC' | 'DESC' = 'DESC',
     carId?: number,
     itemId?: number,
+    startDate?: string,
+    endDate?: string,
   ): Promise<[MaintenanceRecord[], number]> {
     const query = this.repo
       .createQueryBuilder('record')
@@ -37,8 +39,23 @@ export class MaintenanceRecordsRepository {
       query.andWhere('record.itemId = :itemId', { itemId });
     }
 
+    if (startDate) {
+      query.andWhere('record.maintenanceDate >= :startDate', {
+        startDate: new Date(startDate),
+      });
+    }
+
+    if (endDate) {
+      query.andWhere('record.maintenanceDate <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
+
     if (search) {
-      query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
+      query.andWhere(
+        '(record.notes LIKE :search OR item.name LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)',
+        { search: `%${search}%` },
+      );
     }
 
     const sortOrder: 'ASC' | 'DESC' =

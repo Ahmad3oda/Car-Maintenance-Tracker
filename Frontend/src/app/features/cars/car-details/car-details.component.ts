@@ -5,11 +5,10 @@ import { CarService } from '../../../core/services/car.service';
 import { ItemService } from '../../../core/services/item.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CarDto, ItemDto, PageMeta } from '../../../shared/models/api.models';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ImageModalComponent } from '../../../shared/components/image-modal/image-modal.component';
 import { DataTableComponent } from '../../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
-import { ImportModalComponent } from '../import-modal/import-modal.component';
+import { ImportModalComponent } from '../../../shared/components/import-modal/import-modal.component';
 
 @Component({
   selector: 'app-car-details',
@@ -17,7 +16,6 @@ import { ImportModalComponent } from '../import-modal/import-modal.component';
   imports: [
     CommonModule,
     RouterModule,
-    EmptyStateComponent,
     ImageModalComponent,
     DataTableComponent,
     SortHeaderComponent,

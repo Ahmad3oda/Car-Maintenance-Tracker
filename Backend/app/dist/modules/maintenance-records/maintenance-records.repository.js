@@ -26,7 +26,7 @@ let MaintenanceRecordsRepository = class MaintenanceRecordsRepository {
         const newRecord = this.repo.create(record);
         return this.repo.save(newRecord);
     }
-    async findAll(page = 1, limit = 10, search, sortBy, order = 'DESC', carId, itemId) {
+    async findAll(page = 1, limit = 10, search, sortBy, order = 'DESC', carId, itemId, startDate, endDate) {
         const query = this.repo
             .createQueryBuilder('record')
             .leftJoinAndSelect('record.car', 'car')
@@ -37,8 +37,18 @@ let MaintenanceRecordsRepository = class MaintenanceRecordsRepository {
         if (itemId) {
             query.andWhere('record.itemId = :itemId', { itemId });
         }
+        if (startDate) {
+            query.andWhere('record.maintenanceDate >= :startDate', {
+                startDate: new Date(startDate),
+            });
+        }
+        if (endDate) {
+            query.andWhere('record.maintenanceDate <= :endDate', {
+                endDate: new Date(endDate),
+            });
+        }
         if (search) {
-            query.andWhere('record.notes LIKE :search', { search: `%${search}%` });
+            query.andWhere('(record.notes LIKE :search OR item.name LIKE :search OR car.brand LIKE :search OR car.model LIKE :search OR car.plateNumber LIKE :search)', { search: `%${search}%` });
         }
         const sortOrder = order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
         if (sortBy === 'totalCost' || sortBy === 'itemCost') {

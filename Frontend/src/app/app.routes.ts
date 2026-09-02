@@ -7,6 +7,7 @@ import { CarDetailsComponent } from './features/cars/car-details/car-details.com
 import { ItemFormComponent } from './features/items/item-form/item-form.component';
 import { EventListComponent } from './features/maintenance/event-list/event-list.component';
 import { EventFormComponent } from './features/maintenance/event-form/event-form.component';
+import { AllEventsComponent } from './features/maintenance/all-events/all-events.component';
 
 export const routes: Routes = [
   {
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'cars/:carId/items/:itemId/events', component: EventListComponent },
       { path: 'cars/:carId/items/:itemId/events/add', component: EventFormComponent },
       { path: 'cars/:carId/items/:itemId/events/:eventId/edit', component: EventFormComponent },
+      { path: 'events', component: AllEventsComponent },
     ]
   },
   { path: '**', redirectTo: '' }

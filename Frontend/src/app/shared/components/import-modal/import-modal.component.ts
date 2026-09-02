@@ -62,7 +62,6 @@ export class ImportModalComponent {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       this.readFileAndImport(file);
-      // Reset input value so the same file can be picked again if needed
       input.value = '';
     }
   }
