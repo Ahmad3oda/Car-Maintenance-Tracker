@@ -4,7 +4,7 @@ services:
 
   backend:
     build:
-      context: ./backend/app
+      context: ./Backend/app
     container_name: nest-backend
 
     ports:
@@ -13,11 +13,12 @@ services:
     restart: unless-stopped
 
     volumes:
-      - ./backend/database.sqlite:/app/database.sqlite
+      - ./Backend/app/data.sqlite:/app/data.sqlite
+      - ./Backend/app/uploads:/app/uploads
 
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
 
     container_name: angular-frontend
 
@@ -27,4 +28,4 @@ services:
     restart: unless-stopped
 
     depends_on:
-      - backend
+      - backend

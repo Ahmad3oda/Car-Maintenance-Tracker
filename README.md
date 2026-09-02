@@ -15,8 +15,8 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 
 - **Multi-car support** — Register and manage multiple vehicles
 - **Items management & automated baselines** — Track parts/services per car (oil, brake pads, tires, etc.) with required installation date that automatically registers the component's initial maintenance event
-- **Upcoming maintenance calculation engine** — Calculates remaining mileage, days left, and urgency status (`OVERDUE`, `DUE_SOON`, `UPCOMING`, `HEALTHY`) based on car odometer readings and maintenance intervals
-- **Maintenance records** — Log every service event with date, mileage, item cost, extra costs, and notes
+- **Upcoming maintenance calculation engine** — Calculates remaining mileage, days left, and urgency status (`OVERDUE`, `DUE_SOON`, `UPCOMING`, `HEALTHY`) based on car odometer readings and maintenance intervals. Supports resetting intervals to `null` to clear replacement limits (e.g. for non-interval parts like windshield wipers)
+- **Maintenance records & date-range filtering** — Log service events with date, mileage, item cost, extra costs, and notes; filter records by ISO `startDate` and `endDate` boundaries
 - **Photo upload** — Attach a photo to cars and items (stored locally in `/uploads`)
 - **Search, filter & pagination** — Paginated list endpoints with search, urgency scope filtering, and multi-column sorting
 - **Data Import & Export** — Export and import complete vehicle maintenance profiles (items + historical events) in standardized JSON format with atomic database transactions and automatic maintenance cycle recalculation
@@ -26,17 +26,18 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 
 ### Frontend
 
-- **Dashboard** — Summary metrics, upcoming/due maintenance alerts table with urgency filters, and recent maintenance activity with sorting
+- **Dashboard & Expenses Timeline Graph** — Summary metrics, predictive urgency alerts, recent maintenance activity, and an interactive SVG financial expenses timeline graph with period aggregation (`Lifetime`, `Last 24H`, `Last Week`, `Last Month`, `Last Year`), peak/average cost metrics, and smart popover tooltips
+- **Maintenance Logs View** — Dedicated system-wide service history tab (`/events`) with vehicle and period filters
 - **Quick Odometer Update Modal** — Update any vehicle's mileage directly from the dashboard to instantly trigger maintenance deadline recalculations
-- **Global Search with Floating Suggestions** — Real-time search across vehicles and installed items with category indicators, car badges, custom icons, and instant navigation
+- **Global Search with Keyboard Navigation** — Real-time search across vehicles and installed items with category indicators, car badges, custom icons, and full `ArrowUp`/`ArrowDown`/`Enter`/`Escape` keyboard navigation
 - **Header Notification System** — Interactive notification bell showing real-time pending alert counts and quick links to log maintenance records
 - **Cars** — List, add, edit, and view car details with linked items
-- **Items** — Add and edit maintenance items per vehicle with required installation dates
+- **Items** — Add and edit maintenance items per vehicle with interval clearing and direct post-submit routing to item service history
 - **Maintenance events** — View, add, and edit service records per item
 - **Interactive sorting & pagination** — Server-side sorting headers and responsive pagination controls
 - **Theme support** — Dark and light mode toggle with persistent local storage
 - **Responsive design** — Adaptive layout optimized for mobile, tablet, and desktop screens
-- **Data Import & Export Modal** — Seamless JSON backup and restoration with instant file pick, raw JSON textarea editor, sample template inserter, and dynamic button swapping (Import button for empty vehicles automatically replaces with Export when data exists)
+- **Data Import & Export Modal** — Seamless JSON backup and restoration with instant file pick, raw JSON textarea editor, sample template inserter, and dynamic button swapping
 - **Image lightbox & toast alerts** — Full-screen image preview and notification toasts
 - **Full API integration** — Angular services connected to NestJS backend via `HttpClient`
 
@@ -241,13 +242,14 @@ Defined in `Backend/app/src/modules/items/entities/item.entity.ts`
 | `carId` | int | FK → `cars.id` (CASCADE) |
 | `name` | string | required |
 | `description` | text | optional |
-| `serialNumber` | string | optional |
+| `manufacturer` | string | optional |
 | `photoPath` | string | filename in `/uploads` |
 | `installedDate` | datetime | optional |
 | `installedKm` | int | optional |
 | `expectedMaintenanceKm` | int | optional — interval in km |
 | `expectedMaintenanceMonths` | int | optional — interval in months |
 | `lastMaintenanceId` | int | optional — FK to latest record |
+| `lastMaintenanceDate` | datetime | optional |
 | `nextMaintenanceKm` | int | optional — computed |
 | `nextMaintenanceDate` | datetime | optional — computed |
 | `createdAt` | datetime | auto |
@@ -440,7 +442,10 @@ Frontend/src/app/
         ├── pagination/        # Responsive PaginationComponent
         ├── image-modal/       # Lightbox image preview modal
         ├── toast/             # Toast notification container
-        └── empty-state/       # Empty placeholder component
+        ├── empty-state/       # Empty placeholder component
+        ├── urgency-badge/     # Reusable status badge pill
+        ├── odometer-modal/    # Quick vehicle mileage update modal
+        └── import-modal/      # JSON vehicle data import & backup modal
 ```
 
 All components are **standalone** (no NgModules). Styling uses Tailwind utility classes and responsive breakpoints.
@@ -459,6 +464,7 @@ All components are **standalone** (no NgModules). Styling uses Tailwind utility 
 | `/cars/:carId/items/:itemId/events` | EventListComponent | Maintenance history table |
 | `/cars/:carId/items/:itemId/events/add` | EventFormComponent | Log new service event |
 | `/cars/:carId/items/:itemId/events/:eventId/edit` | EventFormComponent | Edit service record |
+| `/events` | AllEventsComponent | System-wide maintenance logs overview |
 
 All routes render inside `AdminLayoutComponent` (sidebar + header). Unknown paths redirect to `/dashboard`.
 
@@ -495,11 +501,11 @@ These TypeScript interfaces mirror the backend schema:
 - [x] Maintenance reminders engine & predictive urgency alerts (overdue, due soon, upcoming, healthy)
 - [x] Quick odometer update modal with real-time schedule recalculation
 - [x] Header notification bell with real-time pending badges and quick service actions
-- [x] Full car maintenance import & export system (JSON format with nested items & events)
+- [x] System-wide maintenance logs overview (`/events`)
+- [x] Financial expenses timeline graph & period analytics reports
+- [x] Docker support
 - [ ] JWT authentication
-- [ ] Cost analytics charts & reports
 - [ ] Export records as CSV/PDF
-- [ ] Docker support
 - [ ] Cloud storage for photos (S3 / Cloudinary)
 - [ ] Environment-based API URL configuration
 
