@@ -8,15 +8,18 @@ import { RequestLoggerMiddleware } from './common/middlewares/request-logger.mid
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { getDbPath } from './common/utils/paths.util';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: process.env.DB_PATH || 'data.sqlite',
-      autoLoadEntities: true,
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'sqlite' as const,
+        database: getDbPath(),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
     }),
     ItemsModule,
     MaintenanceRecordsModule,
