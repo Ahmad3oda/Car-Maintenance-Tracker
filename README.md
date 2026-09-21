@@ -50,7 +50,7 @@ The application provides a clean dashboard and structured views for managing veh
 A quick overview of the vehicle fleet, maintenance activity, upcoming maintenance, and recent service records.
 
 <p align="center">
-    <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/66c84e32-d433-4b2b-b679-4b4127126a33" />
+    <img width="1918" height="1036" alt="image" src="https://github.com/user-attachments/assets/18ef1696-98bd-45ea-9c7b-0acbc4d7e315" />
 </p>
 
 ---
@@ -60,7 +60,7 @@ A quick overview of the vehicle fleet, maintenance activity, upcoming maintenanc
 Manage all registered vehicles and quickly access their maintenance information.
 
 <p align="center">
-    <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/6cf30867-7772-4f4c-af72-0b14eb39934e" />
+    <img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/1d8a45b9-4f64-4cac-aa14-442c1865a661" />
 </p>
 
 ---
@@ -70,7 +70,7 @@ Manage all registered vehicles and quickly access their maintenance information.
 Each vehicle has its own maintenance items, such as engine oil, filters, brake pads, tires, batteries, and other serviceable components.
 
 <p align="center">
-    <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/56dac6f3-9063-4227-bcba-968e530e3ef0" />
+    <img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/6255e741-e1b3-4406-86cf-0b46f4a58e14" />
 </p>
 
 ---
@@ -80,7 +80,7 @@ Each vehicle has its own maintenance items, such as engine oil, filters, brake p
 Track every maintenance event per specific item with its date, mileage, item cost, additional expenses, and notes.
 
 <p align="center">
-    <img width="1919" height="878" alt="image" src="https://github.com/user-attachments/assets/70b5fa1d-7f60-4358-8109-44f1406ead41" />
+    <img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/c12fa0ea-aabc-4cfd-b509-2bd767c9e8ec" />
 </p>
 
 ---
@@ -90,7 +90,7 @@ Track every maintenance event per specific item with its date, mileage, item cos
 List tracking all maintenance events for better general tracking.
 
 <p align="center">
-    <img width="1919" height="878" alt="image" src="https://github.com/user-attachments/assets/4348599f-ea6f-434f-b0d9-e90afca40562" />
+    <img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/3e0fd48c-3906-4374-923a-c9a1f8f54ba9" />
 </p>
 
 ---
