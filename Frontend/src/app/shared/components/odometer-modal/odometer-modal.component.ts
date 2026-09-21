@@ -29,13 +29,14 @@ import { NotificationService } from '../../../core/services/notification.service
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/80 bg-gray-50/70 dark:bg-gray-800/90">
           <div class="flex items-center space-x-3">
             <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <img
+                src="assets/icons/odometer-purple.png"
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
+                alt="ODOMETER"
+              />
             </div>
             <div>
               <h3 class="text-base font-bold text-gray-900 dark:text-white">Quick Odometer Update</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Update current mileage to recalculate maintenance deadlines</p>
             </div>
           </div>
 

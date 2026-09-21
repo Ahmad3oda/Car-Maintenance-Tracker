@@ -82,9 +82,11 @@
               {{ car.plateNumber }}
             </span>
             <span class="inline-flex items-center font-semibold text-gray-700 dark:text-gray-300">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <img
+                src="assets/icons/odometer-black.png"
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
+                alt="ODOMETER"
+              />
               {{ car.currentKm | number }} KM
             </span>
           </div>

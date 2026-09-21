@@ -8,6 +8,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { CarDto, MaintenanceRecordDto, Page, PageMeta } from '../../../shared/models/api.models';
 import { DataTableComponent } from '../../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
+import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { ImageModalComponent } from '../../../shared/components/image-modal/image-modal.component';
 
 export type TimePeriod = 'lifetime' | 'day' | 'week' | 'month' | 'year';
@@ -21,6 +22,7 @@ export type TimePeriod = 'lifetime' | 'day' | 'week' | 'month' | 'year';
     RouterModule,
     DataTableComponent,
     SortHeaderComponent,
+    TableTextComponent,
     ImageModalComponent,
   ],
   templateUrl: './all-events.component.html',

@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex flex-col items-center justify-center p-12 text-center bg-white border border-gray-100 border-dashed rounded-xl dark:bg-gray-800 dark:border-gray-700">
+    <div class="flex flex-col items-center justify-center p-12 text-center bg-white border border-gray-00 rounded-xl dark:bg-gray-800 dark:border-gray-700">
       <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">
         <ng-content select="[icon]"></ng-content>
       </div>

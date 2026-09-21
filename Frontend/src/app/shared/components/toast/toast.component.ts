@@ -115,8 +115,8 @@ import { Observable } from 'rxjs';
       animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .toast-success {
-      background-color: #10b981 !important;
-      border-color: #059669 !important;
+      background-color:rgb(93, 215, 103) !important;
+      border-color:rgb(5, 150, 17) !important;
       color: #ffffff !important;
       box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4), 0 8px 10px -6px rgba(16, 185, 129, 0.3) !important;
     }
