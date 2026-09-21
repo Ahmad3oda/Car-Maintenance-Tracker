@@ -8,6 +8,7 @@ import { CarDto, ItemDto, PageMeta } from '../../../shared/models/api.models';
 import { ImageModalComponent } from '../../../shared/components/image-modal/image-modal.component';
 import { DataTableComponent } from '../../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
+import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { ImportModalComponent } from '../../../shared/components/import-modal/import-modal.component';
 
 @Component({
@@ -19,6 +20,7 @@ import { ImportModalComponent } from '../../../shared/components/import-modal/im
     ImageModalComponent,
     DataTableComponent,
     SortHeaderComponent,
+    TableTextComponent,
     ImportModalComponent,
   ],
   templateUrl: './car-details.component.html',

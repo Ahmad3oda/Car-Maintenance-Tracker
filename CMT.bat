@@ -6,4 +6,4 @@ start "Frontend" cmd /k "cd /d E:\Playground\dev-nestjs\Car-Maintenance-Tracker\
 
 timeout /t 5 /nobreak >nul
 
-start http://localhost:4200a
+start http://localhost:4200

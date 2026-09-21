@@ -9,7 +9,6 @@
     </a>
     <div>
       <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">Vehicle Details</h2>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">View information and installed items for this vehicle.</p>
     </div>
   </div>
 
@@ -54,9 +53,11 @@
           </span>
           <span
             class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-gray-700 bg-gray-100 rounded-md dark:text-gray-300 dark:bg-gray-700">
-            <svg class="w-3.5 h-3.5 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+            <img
+                src="assets/icons/odometer-black.png"
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
+                alt="ODOMETER"
+              />
             {{ car.currentKm | number }} KM
           </span>
         </div>
@@ -79,7 +80,6 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
     <div>
       <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">Installed Items</h3>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Track and monitor replacement cycles for all components.</p>
     </div>
     <div class="flex items-center space-x-2.5 shrink-0">
       <!-- Dynamic Swap: Import button when 0 items, Export button when items exist -->
@@ -177,11 +177,17 @@
               </div>
             </div>
           </td>
-          <td class="px-5 py-4">
-            <p class="font-semibold text-gray-800 dark:text-gray-200">{{ item.name }}</p>
-            <p *ngIf="item.description" class="text-xs text-gray-500 dark:text-gray-400">{{ item.description }}</p>
+          <td class="px-5 py-4 max-w-[14rem]">
+            <p class="font-semibold text-gray-800 dark:text-gray-200">
+              <app-table-text [value]="item.name" [limit]="32"></app-table-text>
+            </p>
+            <p *ngIf="item.description" class="text-xs text-gray-500 dark:text-gray-400">
+              <app-table-text [value]="item.description" [limit]="40" [empty]="''"></app-table-text>
+            </p>
           </td>
-          <td class="px-5 py-4 text-sm">{{ item.manufacturer || '-' }}</td>
+          <td class="px-5 py-4 text-sm max-w-[10rem]">
+            <app-table-text [value]="item.manufacturer" [limit]="24"></app-table-text>
+          </td>
           <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ getLastInstallmentDate(item) ?
             (getLastInstallmentDate(item) | date:'dd/MM/yy') : '-' }}</td>
           <!-- <td class="px-5 py-4 text-sm font-medium">{{ item.installedKm ? (item.installedKm | number) : '-' }}</td> -->

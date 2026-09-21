@@ -9,6 +9,8 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ImageModalComponent } from '../../../shared/components/image-modal/image-modal.component';
 import { DataTableComponent } from '../../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
+import { TableTextComponent } from '../../../shared/components/table/table-text.component';
+import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-event-list',
@@ -20,6 +22,8 @@ import { SortHeaderComponent } from '../../../shared/components/table/sort-heade
     ImageModalComponent,
     DataTableComponent,
     SortHeaderComponent,
+    TableTextComponent,
+    TruncatePipe,
   ],
   templateUrl: './event-list.component.html',
 })

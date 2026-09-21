@@ -38,8 +38,11 @@
         </p>
         <div class="flex flex-wrap gap-2 sm:gap-3">
           <span *ngIf="item.installedKm" class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-gray-700 bg-gray-100 rounded-md dark:text-gray-300 dark:bg-gray-700">
-            <svg class="w-3.5 h-3.5 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            Installed: {{ item.installedKm | number }} KM
+            <img
+            src="assets/icons/odometer-black.png"
+            class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
+            alt="ODOMETER"
+          />            Installed: {{ item.installedKm | number }} KM
           </span>
           <span *ngIf="item.expectedMaintenanceKm" class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
             <svg class="w-3.5 h-3.5 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -65,7 +68,6 @@
   <div class="flex items-center justify-between mb-4 sm:mb-6 gap-3">
     <div>
       <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">Maintenance Events</h3>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Complete log of all service records and part replacements.</p>
     </div>
     <a
       [routerLink]="['/cars', carId, 'items', itemId, 'events', 'add']"
@@ -121,8 +123,8 @@
           <td class="px-5 py-4 text-sm font-semibold text-gray-800 dark:text-gray-200"> {{ event.itemCost | number:'1.2-2' }} £ </td>
           <td class="px-5 py-4 text-sm">
             <div class="flex flex-wrap gap-1.5 max-w-xs" *ngIf="event.extraCosts && event.extraCosts.length > 0; else noExtra">
-              <span *ngFor="let cost of event.extraCosts" class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 shadow-2xs">
-                +{{ cost.cost }} £ {{ cost.name }}
+              <span *ngFor="let cost of event.extraCosts" class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 shadow-2xs" [title]="cost.name">
+                +{{ cost.cost }} £ {{ cost.name | truncate:18 }}
               </span>
             </div>
             <ng-template #noExtra>
@@ -132,10 +134,8 @@
           <td class="px-5 py-4 text-sm font-bold text-purple-600 dark:text-purple-400">
             {{ getTotalCost(event) | number:'1.2-2' }} £
           </td>
-          <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-            <div class="truncate max-w-xs" [title]="event.notes || ''">
-              {{ event.notes || '-' }}
-            </div>
+          <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-[14rem]">
+            <app-table-text [value]="event.notes"></app-table-text>
           </td>
           <td class="px-5 py-4 text-sm text-right">
             <div class="flex items-center justify-end space-x-2">
