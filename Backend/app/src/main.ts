@@ -2,8 +2,8 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { join } from 'path';
 import { AppModule } from './app.module';
+import { ensureUploadDir } from './common/utils/paths.util';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -18,12 +18,19 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Serve uploaded images statically
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+  const uploadDir = ensureUploadDir();
+  app.useStaticAssets(uploadDir, {
     prefix: '/uploads/',
   });
 
-  app.enableCors();
+  const frontendOrigins = process.env.FRONTEND_URL
+    ?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  app.enableCors({
+    origin: frontendOrigins?.length ? frontendOrigins : true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Car Maintenance Tracker')
@@ -33,9 +40,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  console.log(`Car Maintenance API running at http://localhost:${port}`);
+  const port = Number(process.env.PORT) || 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Car Maintenance API running on 0.0.0.0:${port}`);
   console.log(`Swagger docs at http://localhost:${port}/api`);
 }
 

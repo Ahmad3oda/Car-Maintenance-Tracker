@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+data.sqlite
+*.sqlite
+*.sqlite-journal
+uploads
+npm-debug.log*
+README.md

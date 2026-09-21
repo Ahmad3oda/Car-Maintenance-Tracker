@@ -1,9 +1,10 @@
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync, promises as fs } from 'fs';
+import { getUploadDir } from './paths.util';
 
 export const createMulterStorage = (subfolder: string) => {
-  const destination = join(process.cwd(), 'uploads', subfolder);
+  const destination = join(getUploadDir(), subfolder);
   if (!existsSync(destination)) {
     mkdirSync(destination, { recursive: true });
   }
@@ -28,7 +29,7 @@ export const deleteUploadedFile = async (
 ): Promise<void> => {
   if (!filename) return;
   try {
-    const filePath = join(process.cwd(), 'uploads', subfolder, filename);
+    const filePath = join(getUploadDir(), subfolder, filename);
     await fs.unlink(filePath);
   } catch {
     // Ignore if file doesn't exist or already removed

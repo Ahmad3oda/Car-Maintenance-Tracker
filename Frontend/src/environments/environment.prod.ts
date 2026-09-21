@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.yourdomain.com',
+  // No trailing slash. Replace with your Railway public URL, then redeploy Vercel.
+  apiUrl: 'https://YOUR-SERVICE.up.railway.app',
 };
