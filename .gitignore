@@ -45,9 +45,11 @@ Backend/app/build/
 *.sqlite
 *.sqlite3
 *.db
-*.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+data.sqlite
+*.sqlite-journal
+uploads/
 
 # User-uploaded files (keep folder via .gitkeep)
 **/uploads/**

@@ -141,8 +141,10 @@ Car-Maintenance-Tracker/
 │   │   ├── styles.css
 │   │   └── main.ts
 │   ├── angular.json
-│   ├── tailwind.config.js
+│   ├── Dockerfile
+│   ├── default.conf              # nginx config for the frontend container
 │   └── package.json
+├── docker-compose.yml            # Local full-stack run (API :3000, UI :4200)
 └── README.md
 ```
 
@@ -152,8 +154,8 @@ Car-Maintenance-Tracker/
 
 ### Prerequisites
 
-- **Node.js** v18 or higher
-- **npm** v9 or higher
+- **Docker Desktop** (or Docker Engine + Docker Compose v2)
+- For local development without Docker: **Node.js** v18+ and **npm** v9+
 
 ### 1. Clone the repository
 
@@ -162,60 +164,118 @@ git clone https://github.com/Ahmad3oda/car-maintenance-tracker.git
 cd car-maintenance-tracker
 ```
 
-### 2. Backend setup
+### 2. Run with Docker Compose (recommended)
+
+`docker-compose.yml` builds two containers from the project Dockerfiles:
+
+| Service | Image build context | Host port | Role |
+| ------- | ------------------- | --------- | ---- |
+| `backend` (`nest-backend`) | `./Backend/app` | **3000** → 3000 | NestJS API, SQLite, uploads |
+| `frontend` (`angular-frontend`) | `./Frontend` | **4200** → 80 | Angular app served by nginx |
+
+The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are bind-mounted into the backend container so they survive `docker compose down`.
+
+**Create the bind-mount targets before the first start** (Docker will create a *directory* named `data.sqlite` if the file is missing):
+
+```bash
+mkdir -p Backend/app/uploads
+touch Backend/app/data.sqlite
+```
+
+PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force Backend/app/uploads | Out-Null
+if (-not (Test-Path Backend/app/data.sqlite)) {
+  New-Item -ItemType File Backend/app/data.sqlite | Out-Null
+}
+```
+
+From the **repository root**:
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+- App: `http://localhost:4200`
+- API: `http://localhost:3000`
+- Swagger: `http://localhost:3000/api`
+- Uploads: `http://localhost:3000/uploads/<filename>`
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Rebuild after code changes:
+
+```bash
+docker compose up --build
+```
+
+Useful Compose commands:
+
+```bash
+docker compose logs -f          # both services
+docker compose logs -f backend  # API only
+docker compose ps
+```
+
+The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Those paths match the volumes in `docker-compose.yml`.
+
+### 3. Local development without Docker
+
+Use this when you want hot reload (`nest start --watch` / `ng serve`).
+
+**Backend**
 
 ```bash
 cd Backend/app
 npm install
 ```
 
-Create a `.env` file in `Backend/app/` (optional — defaults shown):
+Optional `.env` in `Backend/app/` (copy from `.env.example` and adjust). Local defaults:
 
 ```env
 PORT=3000
 DB_PATH=data.sqlite
+UPLOAD_DIR=uploads
+FRONTEND_URL=http://localhost:4200
 ```
-
-**Development (hot reload):**
 
 ```bash
 npm run start:dev
 ```
 
-**Production:**
+API: `http://localhost:3000` — Swagger: `http://localhost:3000/api`
 
-```bash
-npm run build
-npm run start:prod
-```
-
-The API runs at `http://localhost:3000`  
-Swagger docs at `http://localhost:3000/api`  
-Uploaded photos at `http://localhost:3000/uploads/<filename>`
-
-### 3. Frontend setup
+**Frontend**
 
 ```bash
 cd Frontend
 npm install
-```
-
-**Development server:**
-
-```bash
 npm start
 # or: ng serve
 ```
 
-The app runs at `http://localhost:4200`
+The dev server uses `Frontend/src/environments/environment.ts` (`apiUrl: http://localhost:3000`) and runs at `http://localhost:4200`.
 
-**Production build:**
+**Production build (without Docker):**
 
 ```bash
+cd Frontend
 npm run build
 ```
 
-Build output is written to `Frontend/dist/frontend/`.
+Output: `Frontend/dist/frontend/browser/`. That production build uses `environment.prod.ts` (hosted API URL), not the Docker compose URL.
+
+### Dockerfiles (used by Compose)
+
+- **`Backend/app/Dockerfile`** — Node 20, compiles `sqlite3`, runs `nest build`, starts `node dist/main.js` on port 3000.
+- **`Frontend/Dockerfile`** — builds Angular, then serves `dist/frontend/browser` with nginx (`Frontend/default.conf`). Pass `BUILD_CONFIGURATION` (Compose uses `docker`; omit it to use `production`).
 
 ---
 
@@ -548,7 +608,7 @@ These TypeScript interfaces mirror the backend schema:
 - [ ] JWT authentication
 - [ ] Cost analytics charts & reports
 - [ ] Export records as CSV/PDF
-- [ ] Docker support
+- [x] Docker support
 - [ ] Cloud storage for photos (S3 / Cloudinary)
 - [ ] Environment-based API URL configuration
 

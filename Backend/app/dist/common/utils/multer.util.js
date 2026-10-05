@@ -4,8 +4,9 @@ exports.deleteUploadedFile = exports.createMulterStorage = void 0;
 const multer_1 = require("multer");
 const path_1 = require("path");
 const fs_1 = require("fs");
+const paths_util_1 = require("./paths.util");
 const createMulterStorage = (subfolder) => {
-    const destination = (0, path_1.join)(process.cwd(), 'uploads', subfolder);
+    const destination = (0, path_1.join)((0, paths_util_1.getUploadDir)(), subfolder);
     if (!(0, fs_1.existsSync)(destination)) {
         (0, fs_1.mkdirSync)(destination, { recursive: true });
     }
@@ -27,7 +28,7 @@ const deleteUploadedFile = async (subfolder, filename) => {
     if (!filename)
         return;
     try {
-        const filePath = (0, path_1.join)(process.cwd(), 'uploads', subfolder, filename);
+        const filePath = (0, path_1.join)((0, paths_util_1.getUploadDir)(), subfolder, filename);
         await fs_1.promises.unlink(filePath);
     }
     catch {
