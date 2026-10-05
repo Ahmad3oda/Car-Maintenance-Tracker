@@ -16,6 +16,7 @@ const cars_module_1 = require("./modules/cars/cars.module");
 const request_logger_middleware_1 = require("./common/middlewares/request-logger.middleware");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const paths_util_1 = require("./common/utils/paths.util");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(request_logger_middleware_1.RequestLoggerMiddleware).forRoutes('*');
@@ -26,11 +27,13 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'sqlite',
-                database: process.env.DB_PATH || 'data.sqlite',
-                autoLoadEntities: true,
-                synchronize: true,
+            typeorm_1.TypeOrmModule.forRootAsync({
+                useFactory: () => ({
+                    type: 'sqlite',
+                    database: (0, paths_util_1.getDbPath)(),
+                    autoLoadEntities: true,
+                    synchronize: true,
+                }),
             }),
             items_module_1.ItemsModule,
             maintenance_records_module_1.MaintenanceRecordsModule,
