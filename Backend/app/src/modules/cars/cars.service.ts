@@ -20,6 +20,7 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
+import { addMonthsUtc } from '../../common/utils/date.util';
 
 @Injectable()
 export class CarsService {
@@ -202,9 +203,10 @@ export class CarsService {
 
         let nextMaintenanceDate: Date | null = null;
         if (itemDto.expectedMaintenanceMonths) {
-          const d = new Date(installedDate);
-          d.setMonth(d.getMonth() + Number(itemDto.expectedMaintenanceMonths));
-          nextMaintenanceDate = d;
+          nextMaintenanceDate = addMonthsUtc(
+            installedDate,
+            Number(itemDto.expectedMaintenanceMonths),
+          );
         }
 
         const itemEntity = manager.getRepository(Item).create({
@@ -267,11 +269,10 @@ export class CarsService {
 
             let finalNextDate: Date | null = null;
             if (savedItem.expectedMaintenanceMonths) {
-              const d = new Date(lastRecord.maintenanceDate);
-              d.setMonth(
-                d.getMonth() + Number(savedItem.expectedMaintenanceMonths),
+              finalNextDate = addMonthsUtc(
+                lastRecord.maintenanceDate,
+                Number(savedItem.expectedMaintenanceMonths),
               );
-              finalNextDate = d;
             }
 
             await manager.update(Item, savedItem.id, {

@@ -17,6 +17,7 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
+import { addMonthsUtc } from '../../common/utils/date.util';
 
 import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance-records.repository';
 
@@ -53,9 +54,10 @@ export class ItemsService {
 
     let nextMaintenanceDate: Date | null = null;
     if (dto.expectedMaintenanceMonths) {
-      const d = new Date(installedDate);
-      d.setMonth(d.getMonth() + Number(dto.expectedMaintenanceMonths));
-      nextMaintenanceDate = d;
+      nextMaintenanceDate = addMonthsUtc(
+        installedDate,
+        Number(dto.expectedMaintenanceMonths),
+      );
     }
 
     // 1. Create the item record
@@ -203,17 +205,19 @@ export class ItemsService {
     } else {
       updateData.expectedMaintenanceMonths = Number(expectedMonths);
       if (latestRecord) {
-        const d = new Date(latestRecord.maintenanceDate);
-        d.setMonth(d.getMonth() + Number(expectedMonths));
-        updateData.nextMaintenanceDate = d;
+        updateData.nextMaintenanceDate = addMonthsUtc(
+          latestRecord.maintenanceDate,
+          Number(expectedMonths),
+        );
       } else {
         const installedDate =
           dto.installedDate !== undefined && dto.installedDate !== null
             ? dto.installedDate
             : item.installedDate;
-        const d = installedDate ? new Date(installedDate) : new Date();
-        d.setMonth(d.getMonth() + Number(expectedMonths));
-        updateData.nextMaintenanceDate = d;
+        updateData.nextMaintenanceDate = addMonthsUtc(
+          installedDate ?? new Date(),
+          Number(expectedMonths),
+        );
       }
     }
 

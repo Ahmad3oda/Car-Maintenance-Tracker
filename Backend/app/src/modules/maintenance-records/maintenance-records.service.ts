@@ -10,6 +10,7 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
+import { addMonthsUtc } from '../../common/utils/date.util';
 
 @Injectable()
 export class MaintenanceRecordsService {
@@ -191,11 +192,10 @@ export class MaintenanceRecordsService {
         item.expectedMaintenanceMonths &&
         Number(item.expectedMaintenanceMonths) > 0
       ) {
-        const nextDate = new Date(latestRecord.maintenanceDate);
-        nextDate.setMonth(
-          nextDate.getMonth() + Number(item.expectedMaintenanceMonths),
+        updateData.nextMaintenanceDate = addMonthsUtc(
+          latestRecord.maintenanceDate,
+          Number(item.expectedMaintenanceMonths),
         );
-        updateData.nextMaintenanceDate = nextDate;
       } else {
         updateData.nextMaintenanceDate = null;
       }
@@ -220,11 +220,10 @@ export class MaintenanceRecordsService {
         item.expectedMaintenanceMonths &&
         Number(item.expectedMaintenanceMonths) > 0
       ) {
-        const nextDate = new Date(item.installedDate);
-        nextDate.setMonth(
-          nextDate.getMonth() + Number(item.expectedMaintenanceMonths),
+        updateData.nextMaintenanceDate = addMonthsUtc(
+          item.installedDate,
+          Number(item.expectedMaintenanceMonths),
         );
-        updateData.nextMaintenanceDate = nextDate;
       } else {
         updateData.nextMaintenanceDate = null;
       }
