@@ -177,14 +177,20 @@ export class MaintenanceRecordsService {
       updateData.lastMaintenanceId = latestRecord.id;
       updateData.lastMaintenanceDate = latestRecord.maintenanceDate;
 
-      if (item.expectedMaintenanceKm && Number(item.expectedMaintenanceKm) > 0) {
+      if (
+        item.expectedMaintenanceKm &&
+        Number(item.expectedMaintenanceKm) > 0
+      ) {
         updateData.nextMaintenanceKm =
           Number(latestRecord.kmCounter) + Number(item.expectedMaintenanceKm);
       } else {
         updateData.nextMaintenanceKm = null;
       }
 
-      if (item.expectedMaintenanceMonths && Number(item.expectedMaintenanceMonths) > 0) {
+      if (
+        item.expectedMaintenanceMonths &&
+        Number(item.expectedMaintenanceMonths) > 0
+      ) {
         const nextDate = new Date(latestRecord.maintenanceDate);
         nextDate.setMonth(
           nextDate.getMonth() + Number(item.expectedMaintenanceMonths),

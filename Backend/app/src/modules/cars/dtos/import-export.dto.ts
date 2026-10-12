@@ -158,6 +158,8 @@ export class ImportResultDto {
   @ApiProperty({ example: 8 })
   importedEvents: number;
 
-  @ApiProperty({ example: 'Successfully imported 3 items and 8 maintenance records' })
+  @ApiProperty({
+    example: 'Successfully imported 3 items and 8 maintenance records',
+  })
   message: string;
 }

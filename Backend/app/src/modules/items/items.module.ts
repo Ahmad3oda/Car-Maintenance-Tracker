@@ -9,10 +9,7 @@ import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance
 import { CarsModule } from '../cars/cars.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Item, MaintenanceRecord]),
-    CarsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Item, MaintenanceRecord]), CarsModule],
   controllers: [ItemsController],
   providers: [ItemsService, ItemsRepository, MaintenanceRecordsRepository],
   exports: [ItemsService, ItemsRepository],

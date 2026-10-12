@@ -196,7 +196,8 @@ export class CarsService {
 
         let nextMaintenanceKm: number | null = null;
         if (itemDto.expectedMaintenanceKm) {
-          nextMaintenanceKm = installedKm + Number(itemDto.expectedMaintenanceKm);
+          nextMaintenanceKm =
+            installedKm + Number(itemDto.expectedMaintenanceKm);
         }
 
         let nextMaintenanceDate: Date | null = null;

@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Car } from '../../cars/entities/car.entity';
 import { Item } from '../../items/entities/item.entity';
 
@@ -10,14 +18,18 @@ export class MaintenanceRecord {
   @Column()
   carId: number;
 
-  @ManyToOne(() => Car, (car) => car.maintenanceRecords, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Car, (car) => car.maintenanceRecords, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'carId' })
   car: Car;
 
   @Column()
   itemId: number;
 
-  @ManyToOne(() => Item, (item) => item.maintenanceRecords, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Item, (item) => item.maintenanceRecords, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'itemId' })
   item: Item;
 

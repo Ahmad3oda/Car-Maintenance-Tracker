@@ -120,16 +120,16 @@ export class CarsController {
   }
 
   @Get(':id/export')
-  @ApiOperation({ summary: 'Export full car maintenance data (items + events)' })
+  @ApiOperation({
+    summary: 'Export full car maintenance data (items + events)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Exported car data bundle in JSON format.',
     type: ExportCarDataDto,
   })
   @ApiResponse({ status: 404, description: 'Car not found.' })
-  exportData(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<ExportCarDataDto> {
+  exportData(@Param('id', ParseIntPipe) id: number): Promise<ExportCarDataDto> {
     return this.carsService.exportCarData(id);
   }
 

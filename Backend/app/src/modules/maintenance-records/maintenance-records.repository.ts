@@ -62,15 +62,25 @@ export class MaintenanceRecordsRepository {
       order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     if (sortBy === 'totalCost' || sortBy === 'itemCost') {
-      query.orderBy('record.itemCost', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.itemCost', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else if (sortBy === 'date' || sortBy === 'maintenanceDate') {
-      query.orderBy('record.maintenanceDate', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.maintenanceDate', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else if (sortBy === 'kmCounter') {
-      query.orderBy('record.kmCounter', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.kmCounter', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else if (sortBy === 'updatedAt') {
-      query.orderBy('record.updatedAt', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.updatedAt', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else {
-      query.orderBy('record.maintenanceDate', 'DESC').addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.maintenanceDate', 'DESC')
+        .addOrderBy('record.id', 'DESC');
     }
 
     query.skip((page - 1) * limit).take(limit);
@@ -85,7 +95,10 @@ export class MaintenanceRecordsRepository {
     });
   }
 
-  async update(id: number, record: Partial<MaintenanceRecord>): Promise<MaintenanceRecord | null> {
+  async update(
+    id: number,
+    record: Partial<MaintenanceRecord>,
+  ): Promise<MaintenanceRecord | null> {
     await this.repo.update(id, record);
     return this.findOne(id);
   }

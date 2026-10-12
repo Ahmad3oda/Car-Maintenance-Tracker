@@ -162,7 +162,11 @@ export class ItemsService {
         ? dto.expectedMaintenanceKm
         : item.expectedMaintenanceKm;
 
-    if (expectedKm === null || expectedKm === undefined || Number(expectedKm) <= 0) {
+    if (
+      expectedKm === null ||
+      expectedKm === undefined ||
+      Number(expectedKm) <= 0
+    ) {
       updateData.expectedMaintenanceKm = null;
       updateData.nextMaintenanceKm = null;
     } else {
@@ -189,7 +193,11 @@ export class ItemsService {
         ? dto.expectedMaintenanceMonths
         : item.expectedMaintenanceMonths;
 
-    if (expectedMonths === null || expectedMonths === undefined || Number(expectedMonths) <= 0) {
+    if (
+      expectedMonths === null ||
+      expectedMonths === undefined ||
+      Number(expectedMonths) <= 0
+    ) {
       updateData.expectedMaintenanceMonths = null;
       updateData.nextMaintenanceDate = null;
     } else {

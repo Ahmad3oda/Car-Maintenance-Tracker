@@ -47,9 +47,13 @@ export class ItemsRepository {
     if (sortBy === 'name') {
       query.orderBy('item.name', sortOrder);
     } else if (sortBy === 'installedKm') {
-      query.orderBy('item.installedKm', sortOrder).addOrderBy('item.id', 'DESC');
+      query
+        .orderBy('item.installedKm', sortOrder)
+        .addOrderBy('item.id', 'DESC');
     } else if (sortBy === 'nextMaintenanceKm') {
-      query.orderBy('item.nextMaintenanceKm', sortOrder).addOrderBy('item.id', 'DESC');
+      query
+        .orderBy('item.nextMaintenanceKm', sortOrder)
+        .addOrderBy('item.id', 'DESC');
     } else if (
       sortBy === 'lastInstallment' ||
       sortBy === 'lastMaintenanceDate' ||

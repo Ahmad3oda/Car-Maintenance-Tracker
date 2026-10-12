@@ -23,8 +23,7 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  const frontendOrigins = process.env.FRONTEND_URL
-    ?.split(',')
+  const frontendOrigins = process.env.FRONTEND_URL?.split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
 
