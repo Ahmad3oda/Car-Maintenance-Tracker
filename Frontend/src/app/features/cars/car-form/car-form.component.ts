@@ -37,7 +37,11 @@ export class CarFormComponent implements OnInit {
       model: ['', Validators.required],
       year: [
         '',
-        [Validators.required, Validators.min(1886), Validators.max(2100)],
+        [
+          Validators.required,
+          Validators.min(1900),
+          Validators.max(new Date().getFullYear() + 1),
+        ],
       ],
       currentKm: ['', [Validators.required, Validators.min(0)]],
     });
