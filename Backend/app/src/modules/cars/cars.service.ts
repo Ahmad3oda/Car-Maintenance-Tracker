@@ -38,7 +38,7 @@ export class CarsService {
     dto: CreateCarDto,
     photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber);
+    const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber, userId);
     if (dbCar) {
       if (photo) {
         await deleteUploadedFile('cars', photo.filename);
@@ -98,7 +98,7 @@ export class CarsService {
     }
 
     if (dto.plateNumber && dto.plateNumber !== car.plateNumber) {
-      if (await this.carsRepo.findOneByPlate(dto.plateNumber)) {
+      if (await this.carsRepo.findOneByPlate(dto.plateNumber, userId)) {
         if (photo) {
           await deleteUploadedFile('cars', photo.filename);
         }
@@ -332,10 +332,10 @@ export class CarsService {
     };
   }
 
-  /** Plates are unique across all users (see Car.plateNumber). */
+  /** Plates are unique within one user's cars. */
   private plateTaken(plateNumber: string) {
     return new BadRequestException(
-      `Car with plate number ${plateNumber} is already registered`,
+      `You already have a car with plate number ${plateNumber}`,
     );
   }
 }

@@ -11,17 +11,19 @@ import { RequestLoggerMiddleware } from './common/middlewares/request-logger.mid
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { getDbPath } from './common/utils/paths.util';
+import { dataSourceOptions } from './database/data-source';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
+      // Pending migrations run on every startup (local and Railway).
+      // A local SQLite file has no transient outages; retrying a failed
+      // migration only delays the crash.
       useFactory: () => ({
-        type: 'sqlite' as const,
-        database: getDbPath(),
-        autoLoadEntities: true,
-        synchronize: true,
+        ...dataSourceOptions,
+        migrationsRun: true,
+        retryAttempts: 0,
       }),
     }),
     ItemsModule,

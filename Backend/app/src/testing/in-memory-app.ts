@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { configureApp } from '../app.setup';
+import { dataSourceOptions } from '../database/data-source';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../modules/auth/entities/user.entity';
@@ -17,12 +18,11 @@ import { MaintenanceRecordsModule } from '../modules/maintenance-records/mainten
 export async function createInMemoryApp(): Promise<TestingModule> {
   return Test.createTestingModule({
     imports: [
+      // Same migrations as production, so tests exercise them too.
       TypeOrmModule.forRoot({
-        type: 'sqlite',
+        ...dataSourceOptions,
         database: ':memory:',
-        autoLoadEntities: true,
-        synchronize: true,
-        dropSchema: true,
+        migrationsRun: true,
       }),
       CarsModule,
       ItemsModule,

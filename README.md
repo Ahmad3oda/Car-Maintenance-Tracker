@@ -131,7 +131,7 @@ Car-Maintenance-Tracker/
 │       │   ├── app.module.ts
 │       │   └── main.ts
 │       ├── uploads/                  # Item photo storage (auto-created)
-│       ├── data.sqlite               # SQLite DB (auto-created on first run)
+│       ├── data.sqlite               # SQLite DB (created on first run by migrations)
 │       └── package.json
 ├── Frontend/                         # Angular SPA
 │   ├── src/
@@ -331,7 +331,23 @@ modules/
 
 ### Database
 
-SQLite with TypeORM. On first run, `data.sqlite` is created automatically (`synchronize: true` in dev).
+SQLite with TypeORM. The schema is managed by **migrations** in `Backend/app/src/database/migrations`, not `synchronize`. On every startup the API runs any pending migrations, so a new database file is created and brought up to date automatically (locally and on Railway).
+
+**Changing the schema:**
+
+1. Edit the entity.
+2. Generate a migration from the difference and review the SQL:
+
+   ```bash
+   cd Backend/app
+   npm run migration:generate -- src/database/migrations/AddCarColor
+   ```
+
+3. Commit it. It runs on the next start. `npm run migration:revert` undoes the last one.
+
+A test fails if an entity changes without a migration. On SQLite, changing an existing column makes TypeORM rebuild the table (copy, drop, rename) inside the migration; read the generated SQL before committing.
+
+**Databases from before migrations** (created with the old `synchronize: true`) are refused at startup with a message to delete the file. They only held test data.
 
 #### Entity relationships
 
@@ -441,7 +457,7 @@ Every endpoint needs an `Authorization: Bearer <token>` header except `POST /aut
 - **Password:** 6–72 characters (bcrypt ignores anything past 72 bytes). Stored as a bcrypt hash only.
 - **Tokens** last 7 days. A missing, invalid or expired token returns 401.
 
-**Per-user data:** cars belong to the user who created them; items and records belong to the user through their car. Lists, `/items/upcoming` and `/dashboard/stats` only include your own data, and another user's id returns the same 404 as an id that does not exist. Plate numbers are unique across all users, so a plate registered by one account cannot be registered by another.
+**Per-user data:** cars belong to the user who created them; items and records belong to the user through their car. Lists, `/items/upcoming` and `/dashboard/stats` only include your own data, and another user's id returns the same 404 as an id that does not exist. Plate numbers are unique within one user's cars; different users can register the same plate.
 
 **Photos** are served by `GET /uploads/<cars|items|maintenance-records>/<file>`, which requires login and returns a photo only to the user who owns its car (404 for anyone else). File names are random UUIDs. The frontend loads photos through `HttpClient` so the token is sent. Allowed: JPEG, PNG, WebP, GIF up to 5 MB.
 
@@ -519,9 +535,11 @@ Service counts exclude the automatic "Initial component installation" records; t
      password: 'password',
      database: 'car_maintenance',
      autoLoadEntities: true,
-     synchronize: true,
+     migrationsRun: true,
    }),
    ```
+
+3. The existing migrations contain SQLite SQL: delete them and generate a new baseline for the new database (`npm run migration:generate`).
 
 Entities, services, and controllers stay the same.
 

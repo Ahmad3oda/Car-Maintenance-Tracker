@@ -8,6 +8,8 @@ import {
   registerUser,
 } from '../../testing/in-memory-app';
 import { getUploadDir } from '../../common/utils/paths.util';
+import { DataSource } from 'typeorm';
+import { Car } from '../cars/entities/car.entity';
 
 interface Entity {
   id: number;
@@ -332,12 +334,40 @@ describe('Per-user data isolation (HTTP)', () => {
     expect(Object.values(stats).every((v) => v === 0)).toBe(true);
   });
 
-  it('plate numbers stay unique across users (documented limitation)', async () => {
-    const res = await as(alice, 'post', '/cars')
+  it('allows the same plate for different users, but not twice for one', async () => {
+    await as(alice, 'post', '/cars')
+      .send({ plateNumber: 'BOB-1', brand: 'Kia', model: 'Rio', year: 2020 })
+      .expect(201);
+
+    const again = await as(alice, 'post', '/cars')
       .send({ plateNumber: 'BOB-1', brand: 'Kia', model: 'Rio', year: 2020 })
       .expect(400);
-    expect(body<{ message: string }>(res).message).toBe(
-      'Car with plate number BOB-1 is already registered',
+    expect(body<{ message: string }>(again).message).toBe(
+      'You already have a car with plate number BOB-1',
+    );
+
+    const rename = await as(alice, 'patch', `/cars/${aliceCar}`)
+      .send({ plateNumber: 'BOB-1' })
+      .expect(400);
+    expect(body<{ message: string }>(rename).message).toBe(
+      'You already have a car with plate number BOB-1',
+    );
+    await expectBobUntouched();
+  });
+
+  it('enforces per-user plates in the database too', async () => {
+    const cars = app.get(DataSource).getRepository(Car);
+    const aliceId = (await cars.findOneByOrFail({ id: aliceCar })).userId;
+    await expect(
+      cars.insert({
+        userId: aliceId,
+        plateNumber: 'ALICE-1',
+        brand: 'x',
+        model: 'y',
+        year: 2020,
+      }),
+    ).rejects.toThrow(
+      /UNIQUE constraint failed: cars.userId, cars.plateNumber/,
     );
   });
 });

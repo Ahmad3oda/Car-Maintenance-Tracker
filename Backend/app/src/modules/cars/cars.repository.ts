@@ -69,10 +69,13 @@ export class CarsRepository {
     });
   }
 
-  /** Plates are unique across all users (see Car.plateNumber). */
-  async findOneByPlate(plateNumber: string): Promise<Car | null> {
+  /** Plates are unique within one user's cars. */
+  async findOneByPlate(
+    plateNumber: string,
+    userId: number,
+  ): Promise<Car | null> {
     return this.repo.findOne({
-      where: { plateNumber },
+      where: { plateNumber, userId },
     });
   }
 

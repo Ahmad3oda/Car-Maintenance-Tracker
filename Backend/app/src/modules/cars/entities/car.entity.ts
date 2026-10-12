@@ -8,28 +8,28 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  Unique,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Item } from '../../items/entities/item.entity';
 import { MaintenanceRecord } from '../../maintenance-records/entities/maintenance-record.entity';
 
 @Entity('cars')
+// Unique within one user's cars; different users may share a plate.
+@Unique('UQ_cars_user_plate', ['userId', 'plateNumber'])
 export class Car {
   @PrimaryGeneratedColumn()
   id: number;
 
-  /** Owner. Nullable only so pre-account rows survived the schema update. */
   @Index()
-  @Column({ type: 'int', nullable: true })
-  userId: number | null;
+  @Column({ type: 'int' })
+  userId: number;
 
   @ManyToOne(() => User, (user) => user.cars, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  // Globally unique, as before: SQLite schema sync cannot drop the existing
-  // constraint to make it per-user without a hand-written migration.
-  @Column({ unique: true })
+  @Column()
   plateNumber: string;
 
   @Column()
