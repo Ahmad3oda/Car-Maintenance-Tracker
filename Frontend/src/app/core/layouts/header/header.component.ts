@@ -19,11 +19,13 @@ import { CarService } from '../../services/car.service';
 import { ItemService } from '../../services/item.service';
 import { CarDto, ItemDto, UpcomingItemDto } from '../../../shared/models/api.models';
 import { UrgencyBadgeComponent } from '../../../shared/components/urgency-badge/urgency-badge.component';
+import { WheelSpinnerComponent } from '../../../shared/components/wheel-spinner/wheel-spinner.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
+  imports: [IconComponent, WheelSpinnerComponent, CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit {

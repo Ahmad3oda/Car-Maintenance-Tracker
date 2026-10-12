@@ -21,11 +21,14 @@ import { TableTextComponent } from '../../shared/components/table/table-text.com
 import { UrgencyBadgeComponent } from '../../shared/components/urgency-badge/urgency-badge.component';
 import { OdometerModalComponent } from '../../shared/components/odometer-modal/odometer-modal.component';
 import { ExpensesChartComponent } from '../../shared/components/expenses-chart/expenses-chart.component';
+import { IconComponent } from '../../shared/components/icon/icon.component';
+import { PlateComponent } from '../../shared/components/plate/plate.component';
+import { ServiceGaugeComponent } from '../../shared/components/service-gauge/service-gauge.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
+  imports: [ServiceGaugeComponent, PlateComponent, IconComponent, 
     CommonModule,
     RouterModule,
     FormsModule,

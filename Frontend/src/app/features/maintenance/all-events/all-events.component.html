@@ -127,10 +127,7 @@
                 <a [routerLink]="['/cars', event.carId]"
                   class="hover:text-purple-600 dark:hover:text-purple-400 hover:underline flex items-center gap-1.5">
                   <span>{{ event.car ? (event.car.brand + ' ' + event.car.model) : ('Car #' + event.carId) }}</span>
-                  <span *ngIf="event.car?.plateNumber"
-                    class="text-3xs font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                    {{ event.car?.plateNumber }}
-                  </span>
+                  <app-plate *ngIf="event.car?.plateNumber" [number]="event.car!.plateNumber" size="sm"></app-plate>
                 </a>
               </td>
 

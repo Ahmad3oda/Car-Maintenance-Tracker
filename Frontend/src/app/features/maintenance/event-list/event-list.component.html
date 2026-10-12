@@ -39,11 +39,7 @@
         </p>
         <div class="flex flex-wrap gap-2 sm:gap-3">
           <span *ngIf="item.installedKm" class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-gray-700 bg-gray-100 rounded-md dark:text-gray-300 dark:bg-gray-700">
-            <img
-            src="assets/icons/odometer-black.png"
-            class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-            alt="ODOMETER"
-          />            Installed: {{ item.installedKm | number }} KM
+            <app-icon name="odometer" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1"></app-icon>            Installed: {{ item.installedKm | number }} KM
           </span>
           <span *ngIf="item.expectedMaintenanceKm" class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
             <svg class="w-3.5 h-3.5 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>

@@ -1,11 +1,9 @@
 <div class="py-4 text-purple-200 dark:text-gray-400">
   <a class="ml-6 text-xl font-bold tracking-tight text-white dark:text-gray-200 flex items-center gap-2 hover:no-underline"
     routerLink="/dashboard">
-    <img
-            src="assets/icons/car-white.png"
-            class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-            alt="ODOMETER"
-          />
+    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 ring-1 ring-white/20 p-1" aria-hidden="true">
+      <app-icon name="car" class="w-full h-full"></app-icon>
+    </span>
     {{ appName }}
   </a>
   <ul class="mt-6">
@@ -22,13 +20,7 @@
         }"
         class="inline-flex items-center w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-lg hover:no-underline"
       >
-        <!-- PNG icon -->
-        <img
-          *ngIf="link.icon"
-          [src]="link.icon"
-          [alt]="link.name"
-          class="w-5 h-5 object-contain"
-        />
+        <app-icon *ngIf="link.icon" [name]="link.icon" class="w-5 h-5"></app-icon>
       
         <!-- SVG icon -->
         <svg

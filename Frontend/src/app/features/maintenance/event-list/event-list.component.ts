@@ -13,11 +13,12 @@ import { TableTextComponent } from '../../../shared/components/table/table-text.
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 import { DetailSkeletonComponent } from '../../../shared/components/detail-skeleton/detail-skeleton.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-event-list',
   standalone: true,
-  imports: [DetailSkeletonComponent, AuthImagePipe, 
+  imports: [IconComponent, DetailSkeletonComponent, AuthImagePipe, 
     CommonModule,
     RouterModule,
     EmptyStateComponent,
