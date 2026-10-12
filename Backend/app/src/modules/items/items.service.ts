@@ -198,6 +198,7 @@ export class ItemsService {
 
     if (targetCar.id !== item.carId) {
       await this.odometer.sync(targetCar.id);
+      await this.odometer.sync(item.carId, highestKm(item.maintenanceRecords));
     }
 
     const updatedItem = await this.itemsRepo.findOne(id);
@@ -215,6 +216,7 @@ export class ItemsService {
     }
 
     await this.itemsRepo.remove(id);
+    await this.odometer.sync(item.carId, highestKm(item.maintenanceRecords));
   }
 
   async getUpcoming(
@@ -404,4 +406,10 @@ export class ItemsService {
 
     return new PageDto(paged, pageMetaDto);
   }
+}
+
+function highestKm(records: { kmCounter: number }[] | undefined) {
+  return records?.length
+    ? Math.max(...records.map((r) => Number(r.kmCounter)))
+    : undefined;
 }

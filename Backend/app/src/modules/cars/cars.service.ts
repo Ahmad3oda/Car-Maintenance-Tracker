@@ -92,6 +92,17 @@ export class CarsService {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
 
+    if (dto.currentKm !== undefined) {
+      try {
+        await this.odometer.assertNotBelowRecords(id, dto.currentKm);
+      } catch (error) {
+        if (photo) {
+          await deleteUploadedFile('cars', photo.filename);
+        }
+        throw error;
+      }
+    }
+
     const updateData: Partial<any> = { ...dto };
     if (photo) {
       if (car.photoPath) {

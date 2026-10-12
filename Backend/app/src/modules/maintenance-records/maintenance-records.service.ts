@@ -140,7 +140,10 @@ export class MaintenanceRecordsService {
     if (dto.itemId && dto.itemId !== record.itemId) {
       await this.updateItemMaintenanceStatus(dto.itemId);
     }
-    await this.odometer.sync(item.carId);
+    await this.odometer.sync(item.carId, record.kmCounter);
+    if (record.carId !== item.carId) {
+      await this.odometer.sync(record.carId, record.kmCounter);
+    }
 
     return plainToInstance(MaintenanceRecordSerializer, updatedRecord);
   }
@@ -161,6 +164,7 @@ export class MaintenanceRecordsService {
 
     // Recalculate item maintenance status after record removal
     await this.updateItemMaintenanceStatus(itemId);
+    await this.odometer.sync(record.carId, record.kmCounter);
   }
 
   /** A record's car is always its item's car. */
