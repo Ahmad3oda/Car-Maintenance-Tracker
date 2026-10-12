@@ -6,7 +6,7 @@ import {
 import { MaintenanceRecordsRepository } from './maintenance-records.repository';
 import { MaintenanceRecord } from './entities/maintenance-record.entity';
 import { ItemsRepository } from '../items/items.repository';
-import { CarsRepository } from '../cars/cars.repository';
+import { OdometerService } from '../cars/odometer.service';
 import { CreateMaintenanceRecordDto } from './dtos/create-maintenance-record.dto';
 import { UpdateMaintenanceRecordDto } from './dtos/update-maintenance-record.dto';
 import { QueryMaintenanceRecordDto } from './dtos/query-maintenance-record.dto';
@@ -22,7 +22,7 @@ export class MaintenanceRecordsService {
   constructor(
     private readonly recordsRepo: MaintenanceRecordsRepository,
     private readonly itemsRepo: ItemsRepository,
-    private readonly carsRepo: CarsRepository,
+    private readonly odometer: OdometerService,
   ) {}
 
   async create(
@@ -54,6 +54,7 @@ export class MaintenanceRecordsService {
 
     // Recalculate item maintenance status
     await this.updateItemMaintenanceStatus(item.id);
+    await this.odometer.sync(item.carId);
 
     return plainToInstance(MaintenanceRecordSerializer, record);
   }
@@ -139,6 +140,7 @@ export class MaintenanceRecordsService {
     if (dto.itemId && dto.itemId !== record.itemId) {
       await this.updateItemMaintenanceStatus(dto.itemId);
     }
+    await this.odometer.sync(item.carId);
 
     return plainToInstance(MaintenanceRecordSerializer, updatedRecord);
   }

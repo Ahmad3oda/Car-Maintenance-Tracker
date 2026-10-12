@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ItemsRepository } from './items.repository';
 import { CarsRepository } from '../cars/cars.repository';
+import { OdometerService } from '../cars/odometer.service';
 import { CreateItemDto } from './dtos/create-item.dto';
 import { UpdateItemDto } from './dtos/update-item.dto';
 import { QueryItemDto } from './dtos/query-item.dto';
@@ -29,6 +30,7 @@ export class ItemsService {
     private readonly itemsRepo: ItemsRepository,
     private readonly carsRepo: CarsRepository,
     private readonly dataSource: DataSource,
+    private readonly odometer: OdometerService,
   ) {}
 
   async create(dto: CreateItemDto, photo?: string): Promise<ItemSerializer> {
@@ -84,6 +86,7 @@ export class ItemsService {
         }
         throw error;
       });
+    await this.odometer.sync(car.id);
 
     return plainToInstance(
       ItemSerializer,
@@ -192,6 +195,10 @@ export class ItemsService {
         );
       }
     });
+
+    if (targetCar.id !== item.carId) {
+      await this.odometer.sync(targetCar.id);
+    }
 
     const updatedItem = await this.itemsRepo.findOne(id);
     return plainToInstance(ItemSerializer, updatedItem);

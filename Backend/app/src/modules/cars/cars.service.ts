@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CarsRepository } from './cars.repository';
+import { OdometerService } from './odometer.service';
 import { CreateCarDto } from './dtos/create-car.dto';
 import { UpdateCarDto } from './dtos/update-car.dto';
 import { QueryCarDto } from './dtos/query-car.dto';
@@ -29,6 +30,7 @@ export class CarsService {
   constructor(
     private readonly carsRepo: CarsRepository,
     private readonly dataSource: DataSource,
+    private readonly odometer: OdometerService,
   ) {}
 
   async create(
@@ -293,6 +295,8 @@ export class CarsService {
         }
       }
     });
+
+    await this.odometer.sync(carId);
 
     return {
       success: true,

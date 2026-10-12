@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CarsService } from './cars.service';
 import { DataSource } from 'typeorm';
 import { CarsRepository } from './cars.repository';
+import { OdometerService } from './odometer.service';
 
 describe('CarsService', () => {
   let service: CarsService;
@@ -26,6 +27,12 @@ describe('CarsService', () => {
           useValue: {
             getRepository: jest.fn(),
             transaction: jest.fn(),
+          },
+        },
+        {
+          provide: OdometerService,
+          useValue: {
+            sync: jest.fn(),
           },
         },
       ],
