@@ -24,7 +24,7 @@
             <span class="sr-only">Choose item photo</span>
             <div class="relative flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-gray-300 border-dashed rounded-xl dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors overflow-hidden group">
               <ng-container *ngIf="photoPreview; else noPreview">
-                <img [src]="photoPreview" alt="Preview" class="object-cover w-full h-full" />
+                <img [src]="photoPreview | authImage | async" alt="Preview" class="object-cover w-full h-full" />
                 <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <span class="text-white font-medium flex items-center space-x-2 text-xs sm:text-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>

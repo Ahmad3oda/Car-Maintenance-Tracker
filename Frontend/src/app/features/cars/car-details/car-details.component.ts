@@ -10,11 +10,12 @@ import { DataTableComponent } from '../../../shared/components/table/data-table.
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { ImportModalComponent } from '../../../shared/components/import-modal/import-modal.component';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 
 @Component({
   selector: 'app-car-details',
   standalone: true,
-  imports: [
+  imports: [AuthImagePipe, 
     CommonModule,
     RouterModule,
     ImageModalComponent,

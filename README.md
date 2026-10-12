@@ -198,7 +198,7 @@ Then open:
 - App: `http://localhost:4200`
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
-- Uploads: `http://localhost:3000/uploads/<filename>`
+- Photos: `http://localhost:3000/uploads/<folder>/<file>` (login required)
 
 Stop the stack (data is kept):
 
@@ -443,7 +443,7 @@ Every endpoint needs an `Authorization: Bearer <token>` header except `POST /aut
 
 **Per-user data:** cars belong to the user who created them; items and records belong to the user through their car. Lists, `/items/upcoming` and `/dashboard/stats` only include your own data, and another user's id returns the same 404 as an id that does not exist. Plate numbers are unique across all users, so a plate registered by one account cannot be registered by another.
 
-**Photos** under `/uploads/...` are served without a login: anyone who has a photo's URL can open it. File names are random UUIDs, so URLs cannot be guessed, but a shared or leaked URL stays reachable.
+**Photos** are served by `GET /uploads/<cars|items|maintenance-records>/<file>`, which requires login and returns a photo only to the user who owns its car (404 for anyone else). File names are random UUIDs. The frontend loads photos through `HttpClient` so the token is sent. Allowed: JPEG, PNG, WebP, GIF up to 5 MB.
 
 #### Upgrading a database created before user accounts
 

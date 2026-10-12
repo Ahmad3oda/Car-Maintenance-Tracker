@@ -11,11 +11,12 @@ import { DataTableComponent } from '../../../shared/components/table/data-table.
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 
 @Component({
   selector: 'app-event-list',
   standalone: true,
-  imports: [
+  imports: [AuthImagePipe, 
     CommonModule,
     RouterModule,
     EmptyStateComponent,

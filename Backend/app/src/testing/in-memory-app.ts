@@ -9,6 +9,7 @@ import { User } from '../modules/auth/entities/user.entity';
 import { CarsModule } from '../modules/cars/cars.module';
 import { DashboardModule } from '../modules/dashboard/dashboard.module';
 import { AuthModule } from '../modules/auth/auth.module';
+import { PhotosModule } from '../modules/photos/photos.module';
 import { ItemsModule } from '../modules/items/items.module';
 import { MaintenanceRecordsModule } from '../modules/maintenance-records/maintenance-records.module';
 
@@ -28,6 +29,7 @@ export async function createInMemoryApp(): Promise<TestingModule> {
       MaintenanceRecordsModule,
       DashboardModule,
       AuthModule,
+      PhotosModule,
     ],
   }).compile();
 }

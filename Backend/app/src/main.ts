@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { Response } from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -11,15 +10,9 @@ async function bootstrap() {
 
   configureApp(app);
 
-  const uploadDir = ensureUploadDir();
-  app.useStaticAssets(uploadDir, {
-    prefix: '/uploads/',
-    // Uploads are served with their stored type only; never sniffed or run.
-    setHeaders: (res: Response) => {
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-      res.setHeader('Content-Security-Policy', "default-src 'none'");
-    },
-  });
+  // Photos are not served statically: GET /uploads/... (PhotosController)
+  // requires login and returns only the user's own photos.
+  ensureUploadDir();
 
   const frontendOrigins = process.env.FRONTEND_URL?.split(',')
     .map((origin) => origin.trim())

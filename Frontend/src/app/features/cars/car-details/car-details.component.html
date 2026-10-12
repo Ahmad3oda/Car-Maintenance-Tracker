@@ -19,7 +19,7 @@
       class="relative w-full sm:w-48 md:w-56 h-40 sm:h-36 md:h-40 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700/60 shrink-0 border border-gray-200/80 dark:border-gray-600/80 group">
       <img *ngIf="car.photoPath"
         class="object-cover w-full h-full cursor-pointer group-hover:scale-105 transition-transform duration-300"
-        [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model"
+        [src]="getCarPhotoUrl(car.photoPath) | authImage | async" [alt]="car.brand + ' ' + car.model"
         (click)="openImageModal(getCarPhotoUrl(car.photoPath), car.brand + ' ' + car.model)" />
       <div *ngIf="!car.photoPath"
         class="flex items-center justify-center w-full h-full bg-gray-100 rounded-xl dark:bg-gray-700 text-gray-400">
@@ -165,7 +165,7 @@
             <div
               class="relative w-14 h-11 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group border border-gray-200/60 dark:border-gray-600">
               <img *ngIf="item.photoPath" class="object-cover w-full h-full rounded-lg shadow-xs"
-                [src]="getItemPhotoUrl(item.photoPath)" alt="" loading="lazy"
+                [src]="getItemPhotoUrl(item.photoPath) | authImage | async" alt="" loading="lazy"
                 (click)="$event.stopPropagation(); openImageModal(getItemPhotoUrl(item.photoPath), item.name)" />
               <div *ngIf="!item.photoPath" class="flex items-center justify-center w-full h-full text-gray-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

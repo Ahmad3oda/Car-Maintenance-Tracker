@@ -27,7 +27,7 @@
         <div class="relative w-full h-48 sm:h-52 md:h-56 overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-700/60">
           <ng-container *ngIf="car.photoPath; else noPhoto">
             <img class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-              [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model" />
+              [src]="getCarPhotoUrl(car.photoPath) | authImage | async" [alt]="car.brand + ' ' + car.model" />
           </ng-container>
           <ng-template #noPhoto>
             <div class="flex items-center justify-center w-full h-full text-gray-400">

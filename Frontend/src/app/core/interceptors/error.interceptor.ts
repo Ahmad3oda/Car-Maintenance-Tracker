@@ -1,8 +1,15 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpContextToken,
+  HttpErrorResponse,
+  HttpInterceptorFn,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
+
+/** Requests that handle their own failures (e.g. photos) skip the toast. */
+export const SILENT_ERRORS = new HttpContextToken<boolean>(() => false);
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notifications = inject(NotificationService);
@@ -24,6 +31,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           notifications.showWarning('Your session has expired. Please log in again.');
           auth.logout('expired');
         }
+        return throwError(() => error);
+      }
+
+      if (req.context.get(SILENT_ERRORS)) {
         return throwError(() => error);
       }
 

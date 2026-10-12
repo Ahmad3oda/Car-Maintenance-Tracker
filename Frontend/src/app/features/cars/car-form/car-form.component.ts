@@ -10,11 +10,12 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../../../core/services/car.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CarDto } from '../../../shared/models/api.models';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 
 @Component({
   selector: 'app-car-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [AuthImagePipe, CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './car-form.component.html',
 })
 export class CarFormComponent implements OnInit {

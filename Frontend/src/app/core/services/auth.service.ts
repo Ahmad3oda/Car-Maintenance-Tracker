@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
+import { PhotoService } from './photo.service';
 
 export interface AuthUser {
   id: number;
@@ -27,6 +28,7 @@ const STORAGE_KEY = 'cmt.session';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly photos = inject(PhotoService);
 
   private readonly session = signal<StoredSession | null>(this.restore());
   private expiryTimer?: ReturnType<typeof setTimeout>;
@@ -62,6 +64,7 @@ export class AuthService {
   logout(reason?: 'expired'): void {
     clearTimeout(this.expiryTimer);
     this.session.set(null);
+    this.photos.clear();
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
