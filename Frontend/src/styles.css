@@ -64,6 +64,19 @@ body {
   min-height: 100vh;
 }
 
+/* Kept from daisyUI's base styles when it was removed. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  scrollbar-color: color-mix(in oklch, currentColor 35%, transparent) transparent;
+}
+
+*:hover {
+  scrollbar-color: color-mix(in oklch, currentColor 60%, transparent) transparent;
+}
+
 input,
 button,
 select,

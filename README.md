@@ -108,7 +108,7 @@ List tracking all maintenance events for better general tracking.
 | **API docs** | Swagger (`@nestjs/swagger`) |
 | **Validation** | class-validator, class-transformer |
 | **File uploads** | Multer |
-| **Frontend styling** | Tailwind CSS 3, DaisyUI 4, PostCSS |
+| **Frontend styling** | Tailwind CSS 3, PostCSS |
 | **Frontend fonts** | Inter, Fira Mono (`@fontsource/fira-mono`) |
 | **Frontend testing** | Karma + Jasmine |
 
@@ -555,7 +555,6 @@ Entities, services, and controllers stay the same.
 | Angular | 19.2 | Standalone components, routing, forms |
 | TypeScript | 5.7 | Strict mode enabled |
 | Tailwind CSS | 3.4 | Utility-first styling |
-| DaisyUI | 4.12 | UI component plugin (themes disabled; custom palette) |
 | PostCSS + Autoprefixer | — | CSS processing |
 | `@tailwindcss/typography` | 0.5 | Prose/typography utilities |
 | Karma + Jasmine | — | Unit tests |
@@ -567,7 +566,7 @@ Entities, services, and controllers stay the same.
 | ---- | ------- |
 | `angular.json` | Build/serve/test targets; output to `dist/frontend` |
 | `tsconfig.json` | Strict TS + Angular compiler options (`ES2022`, bundler resolution) |
-| `tailwind.config.js` | Custom color palette, Inter/Montserrat fonts, DaisyUI plugin, dark mode via `class` |
+| `tailwind.config.js` | Custom color palette, Inter/Montserrat fonts, dark mode via `class` |
 | `postcss.config.js` | Tailwind + Autoprefixer pipeline |
 | `.editorconfig` | Editor formatting defaults |
 
