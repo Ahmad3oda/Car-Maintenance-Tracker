@@ -74,4 +74,34 @@ describe('ItemsService (in-memory DB)', () => {
     expect((await items.findAll({ carId })).data).toHaveLength(0);
     expect((await records.findAll({ carId })).data).toHaveLength(0);
   });
+
+  it("moves an item's records when the item moves to another car", async () => {
+    const otherCar = await cars.create({
+      plateNumber: 'XYZ9',
+      brand: 'Kia',
+      model: 'Rio',
+      year: 2019,
+      currentKm: 60000,
+    });
+    const item = await items.create({
+      carId,
+      name: 'Oil',
+      installedDate: new Date('2026-01-01T00:00:00.000Z'),
+      installedKm: 45000,
+    });
+    await records.create({
+      carId,
+      itemId: item.id,
+      maintenanceDate: new Date('2026-03-01T00:00:00.000Z'),
+      kmCounter: 48000,
+      itemCost: 50,
+    });
+
+    await items.update(item.id, { carId: otherCar.id });
+
+    expect((await records.findAll({ carId })).data).toHaveLength(0);
+    const moved = await records.findAll({ carId: otherCar.id });
+    expect(moved.data).toHaveLength(2);
+    expect(moved.data.every((r) => r.itemId === item.id)).toBe(true);
+  });
 });

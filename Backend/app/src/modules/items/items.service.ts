@@ -142,7 +142,7 @@ export class ItemsService {
       targetCar = car;
     }
 
-    const updateData: Partial<any> = { ...dto };
+    const updateData: Partial<Item> = { ...dto };
     if (photo) {
       if (item.photoPath) {
         await deleteUploadedFile('items', item.photoPath);
@@ -181,7 +181,19 @@ export class ItemsService {
       ),
     );
 
-    const updatedItem = await this.itemsRepo.update(id, updateData);
+    // Records follow their item, so moving the item moves its history too.
+    await this.dataSource.transaction(async (manager) => {
+      await manager.update(Item, id, updateData);
+      if (targetCar.id !== item.carId) {
+        await manager.update(
+          MaintenanceRecord,
+          { itemId: id },
+          { carId: targetCar.id },
+        );
+      }
+    });
+
+    const updatedItem = await this.itemsRepo.findOne(id);
     return plainToInstance(ItemSerializer, updatedItem);
   }
 
