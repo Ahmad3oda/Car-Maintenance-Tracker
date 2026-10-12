@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MaintenanceRecordsRepository } from './maintenance-records.repository';
+import { MaintenanceRecord } from './entities/maintenance-record.entity';
 import { ItemsRepository } from '../items/items.repository';
 import { CarsRepository } from '../cars/cars.repository';
 import { CreateMaintenanceRecordDto } from './dtos/create-maintenance-record.dto';
@@ -32,18 +37,16 @@ export class MaintenanceRecordsService {
       throw new NotFoundException(`Item with ID ${dto.itemId} not found`);
     }
 
-    const carId = dto.carId || item.carId;
-    const car = await this.carsRepo.findOne(carId);
-    if (!car) {
+    if (dto.carId && dto.carId !== item.carId) {
       if (photo) {
         await deleteUploadedFile('maintenance-records', photo);
       }
-      throw new NotFoundException(`Car with ID ${carId} not found`);
+      throw this.carMismatch(item.id, item.carId, dto.carId);
     }
 
     const recordData = {
       ...dto,
-      carId,
+      carId: item.carId,
       photoPath: photo ?? null,
     };
 
@@ -99,27 +102,29 @@ export class MaintenanceRecordsService {
       throw new NotFoundException(`MaintenanceRecord with ID ${id} not found`);
     }
 
+    let item = record.item;
     if (dto.itemId && dto.itemId !== record.itemId) {
-      const item = await this.itemsRepo.findOne(dto.itemId);
-      if (!item) {
+      const newItem = await this.itemsRepo.findOne(dto.itemId);
+      if (!newItem) {
         if (photo) {
           await deleteUploadedFile('maintenance-records', photo);
         }
         throw new NotFoundException(`Item with ID ${dto.itemId} not found`);
       }
+      item = newItem;
     }
 
-    if (dto.carId && dto.carId !== record.carId) {
-      const car = await this.carsRepo.findOne(dto.carId);
-      if (!car) {
-        if (photo) {
-          await deleteUploadedFile('maintenance-records', photo);
-        }
-        throw new NotFoundException(`Car with ID ${dto.carId} not found`);
+    if (dto.carId && dto.carId !== item.carId) {
+      if (photo) {
+        await deleteUploadedFile('maintenance-records', photo);
       }
+      throw this.carMismatch(item.id, item.carId, dto.carId);
     }
 
-    const updateData: Partial<any> = { ...dto };
+    const updateData: Partial<MaintenanceRecord> = {
+      ...dto,
+      carId: item.carId,
+    };
     if (photo) {
       if (record.photoPath) {
         await deleteUploadedFile('maintenance-records', record.photoPath);
@@ -154,6 +159,13 @@ export class MaintenanceRecordsService {
 
     // Recalculate item maintenance status after record removal
     await this.updateItemMaintenanceStatus(itemId);
+  }
+
+  /** A record's car is always its item's car. */
+  private carMismatch(itemId: number, itemCarId: number, carId: number) {
+    return new BadRequestException(
+      `Item ${itemId} belongs to car ${itemCarId}, not car ${carId}`,
+    );
   }
 
   private async updateItemMaintenanceStatus(itemId: number): Promise<void> {
