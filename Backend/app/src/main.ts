@@ -33,9 +33,17 @@ async function bootstrap() {
     .setTitle('Car Maintenance Tracker')
     .setDescription('The Car Maintenance Tracker API description')
     .setVersion('1.0')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      description: 'Token from POST /auth/login or /auth/register',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: { persistAuthorization: true },
+  });
 
   const port = Number(process.env.PORT) || 3000;
   await app.listen(port, '0.0.0.0');

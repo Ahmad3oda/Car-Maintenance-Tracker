@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -18,7 +19,8 @@ import { getJwtSecret, JWT_EXPIRES_IN_SECONDS } from './jwt.config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard],
+  // Every route requires a valid token unless marked @Public().
+  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -31,6 +32,7 @@ import { MaintenanceRecordSerializer } from './serializers/maintenance-record.se
 import { PageDto } from '../../common/dtos/page.dto';
 import { createImageUploadOptions } from '../../common/utils/multer.util';
 
+@ApiBearerAuth()
 @ApiTags('Maintenance Records')
 @Controller('maintenance-records')
 export class MaintenanceRecordsController {

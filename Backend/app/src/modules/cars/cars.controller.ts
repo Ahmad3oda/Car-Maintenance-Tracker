@@ -15,6 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -36,6 +37,7 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createImageUploadOptions } from '../../common/utils/multer.util';
 
+@ApiBearerAuth()
 @ApiTags('Cars')
 @Controller('cars')
 export class CarsController {

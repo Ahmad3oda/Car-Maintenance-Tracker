@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
 import { App } from 'supertest/types';
 import { configureApp } from '../app.setup';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -37,4 +38,17 @@ export async function createInMemoryHttpApp(): Promise<INestApplication<App>> {
   configureApp(app);
   await app.init();
   return app;
+}
+
+/** Registers a user over HTTP and returns its Bearer token. */
+export async function registerUser(
+  app: INestApplication<App>,
+  username: string,
+  password = 'secret1',
+): Promise<string> {
+  const res = await request(app.getHttpServer())
+    .post('/auth/register')
+    .send({ username, password })
+    .expect(201);
+  return (res.body as { accessToken: string }).accessToken;
 }

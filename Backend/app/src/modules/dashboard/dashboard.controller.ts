@@ -1,8 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DashboardService } from './dashboard.service';
 import { DashboardStatsSerializer } from './dashboard-stats.serializer';
 
+@ApiBearerAuth()
 @ApiTags('Dashboard')
 @Controller('dashboard')
 export class DashboardController {

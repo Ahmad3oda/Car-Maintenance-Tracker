@@ -1,10 +1,24 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
-import { AuthResponseDto } from './dtos/auth-response.dto';
+import { AuthResponseDto, AuthUserDto } from './dtos/auth-response.dto';
 import { Public } from './public.decorator';
+import { CurrentUser } from './current-user.decorator';
+import type { AuthUser } from './auth-user';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -32,5 +46,17 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid username or password.' })
   login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(dto);
+  }
+
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'The logged-in user' })
+  @ApiResponse({ status: 200, type: AuthUserDto })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, invalid or expired token.',
+  })
+  me(@CurrentUser() user: AuthUser): AuthUserDto {
+    return { id: user.id, username: user.username };
   }
 }

@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -33,6 +34,7 @@ import { UpcomingItemSerializer } from './serializers/upcoming-item.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { createImageUploadOptions } from '../../common/utils/multer.util';
 
+@ApiBearerAuth()
 @ApiTags('Items')
 @Controller('items')
 export class ItemsController {

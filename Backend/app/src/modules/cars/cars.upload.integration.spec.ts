@@ -1,7 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { createInMemoryHttpApp } from '../../testing/in-memory-app';
+import {
+  createInMemoryHttpApp,
+  registerUser,
+} from '../../testing/in-memory-app';
 import { MAX_UPLOAD_BYTES } from '../../common/utils/multer.util';
 
 // Smallest valid PNG header is enough; multer checks the declared type.
@@ -9,9 +12,11 @@ const PNG = Buffer.from('89504e470d0a1a0a', 'hex');
 
 describe('Car photo uploads (HTTP)', () => {
   let app: INestApplication<App>;
+  let token: string;
 
   beforeEach(async () => {
     app = await createInMemoryHttpApp();
+    token = await registerUser(app, 'owner');
   });
 
   afterEach(async () => {
@@ -21,6 +26,7 @@ describe('Car photo uploads (HTTP)', () => {
   const postCar = () =>
     request(app.getHttpServer())
       .post('/cars')
+      .auth(token, { type: 'bearer' })
       .field('plateNumber', 'ABC123')
       .field('brand', 'Kia')
       .field('model', 'Rio')
