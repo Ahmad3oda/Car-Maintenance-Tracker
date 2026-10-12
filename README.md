@@ -301,6 +301,7 @@ modules/
 │   ├── items.service.ts        # Item management & urgency calculation engine
 │   ├── items.repository.ts
 │   └── items.module.ts
+├── dashboard/                  # GET /dashboard/stats
 └── maintenance-records/
     ├── dtos/
     ├── entities/               # MaintenanceRecord entity (maintenance_records table)
@@ -452,6 +453,14 @@ All list endpoints return a paginated envelope:
 **Extra query params:** `carId`, `itemId`
 
 **Create body:** `carId`, `itemId`, `maintenanceDate`, `kmCounter`, `itemCost`, `extraCosts?` (`[{ name, cost }]`), `notes?`
+
+#### Dashboard — `/dashboard`
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/dashboard/stats` | Car and item totals, services and spend in the last 30 / 365 days |
+
+Service counts exclude the automatic "Initial component installation" records; their cost still counts toward spend.
 
 ### Switching to PostgreSQL / MySQL
 

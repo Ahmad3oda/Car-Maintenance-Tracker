@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ItemsModule } from './modules/items/items.module';
 import { MaintenanceRecordsModule } from './modules/maintenance-records/maintenance-records.module';
 import { CarsModule } from './modules/cars/cars.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { RequestLoggerMiddleware } from './common/middlewares/request-logger.middleware';
 
 import { AppController } from './app.controller';
@@ -24,6 +25,7 @@ import { getDbPath } from './common/utils/paths.util';
     ItemsModule,
     MaintenanceRecordsModule,
     CarsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CarsModule } from '../modules/cars/cars.module';
+import { DashboardModule } from '../modules/dashboard/dashboard.module';
 import { ItemsModule } from '../modules/items/items.module';
 import { MaintenanceRecordsModule } from '../modules/maintenance-records/maintenance-records.module';
 
@@ -18,6 +19,7 @@ export async function createInMemoryApp(): Promise<TestingModule> {
       CarsModule,
       ItemsModule,
       MaintenanceRecordsModule,
+      DashboardModule,
     ],
   }).compile();
 }
