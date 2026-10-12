@@ -445,23 +445,6 @@ Every endpoint needs an `Authorization: Bearer <token>` header except `POST /aut
 
 **Photos** are served by `GET /uploads/<cars|items|maintenance-records>/<file>`, which requires login and returns a photo only to the user who owns its car (404 for anyone else). File names are random UUIDs. The frontend loads photos through `HttpClient` so the token is sent. Allowed: JPEG, PNG, WebP, GIF up to 5 MB.
 
-#### Upgrading a database created before user accounts
-
-On the first start of this version, TypeORM adds the `users` table and a nullable `cars.userId` column. On SQLite it rebuilds the `cars` table to do this, with foreign keys switched off, so no items or records are deleted; later starts change nothing. Existing cars keep their data but have **no owner**, so nobody can see them until they are assigned:
-
-1. Back up the database file (e.g. `cp data.sqlite data.sqlite.bak`, or `docker compose cp backend:/app/data/data.sqlite ./data.sqlite.bak`).
-2. Start the new version once, and register the account that should own the old cars.
-3. Preview, then assign every owner-less car to that account (the command writes another backup next to the database first):
-
-   ```bash
-   cd Backend/app
-   npm run build
-   npm run assign-cars -- <username> --dry-run
-   npm run assign-cars -- <username>
-   ```
-
-   With Docker: `docker compose exec backend node dist/scripts/assign-cars.js <username>`.
-
 #### Cars — `/cars`
 
 | Method | Endpoint | Description |

@@ -18,11 +18,7 @@ export class Car {
   @PrimaryGeneratedColumn()
   id: number;
 
-  /**
-   * Owner. Nullable only so existing rows survive the schema update; cars
-   * without an owner are visible to nobody until assigned
-   * (npm run assign-cars).
-   */
+  /** Owner. Nullable only so pre-account rows survived the schema update. */
   @Index()
   @Column({ type: 'int', nullable: true })
   userId: number | null;
