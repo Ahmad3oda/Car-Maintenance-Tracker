@@ -1,7 +1,7 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { createInMemoryApp } from '../../testing/in-memory-app';
+import { createInMemoryHttpApp } from '../../testing/in-memory-app';
 import { MAX_UPLOAD_BYTES } from '../../common/utils/multer.util';
 
 // Smallest valid PNG header is enough; multer checks the declared type.
@@ -11,15 +11,7 @@ describe('Car photo uploads (HTTP)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    app = (await createInMemoryApp()).createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        transform: true,
-        forbidNonWhitelisted: true,
-      }),
-    );
-    await app.init();
+    app = await createInMemoryHttpApp();
   });
 
   afterEach(async () => {

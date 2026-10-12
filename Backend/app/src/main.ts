@@ -1,23 +1,15 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { Response } from 'express';
-import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { configureApp } from './app.setup';
 import { ensureUploadDir } from './common/utils/paths.util';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  configureApp(app);
 
   const uploadDir = ensureUploadDir();
   app.useStaticAssets(uploadDir, {

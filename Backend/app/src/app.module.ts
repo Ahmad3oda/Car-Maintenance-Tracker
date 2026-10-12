@@ -5,6 +5,7 @@ import { ItemsModule } from './modules/items/items.module';
 import { MaintenanceRecordsModule } from './modules/maintenance-records/maintenance-records.module';
 import { CarsModule } from './modules/cars/cars.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { RequestLoggerMiddleware } from './common/middlewares/request-logger.middleware';
 
 import { AppController } from './app.controller';
@@ -26,6 +27,7 @@ import { getDbPath } from './common/utils/paths.util';
     MaintenanceRecordsModule,
     CarsModule,
     DashboardModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
