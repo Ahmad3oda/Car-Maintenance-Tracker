@@ -15,17 +15,18 @@ module.exports = {
       transparent: 'transparent',
       white: '#ffffff',
       black: '#000000',
+      // Palette tokens (src/styles.css); class names kept so templates are unchanged.
       gray: {
-        50: '#f9fafb',
-        100: '#f4f5f7',
-        200: '#e5e7eb',
-        300: '#d5d6d7',
-        400: '#9e9e9e',
-        500: '#707275',
-        600: '#4c4f52',
-        700: '#24262d',
-        800: '#1a1c23',
-        900: '#121317'
+        50: 'rgb(var(--neutral-50) / <alpha-value>)',
+        100: 'rgb(var(--neutral-100) / <alpha-value>)',
+        200: 'rgb(var(--neutral-200) / <alpha-value>)',
+        300: 'rgb(var(--neutral-300) / <alpha-value>)',
+        400: 'rgb(var(--neutral-400) / <alpha-value>)',
+        500: 'rgb(var(--neutral-500) / <alpha-value>)',
+        600: 'rgb(var(--neutral-600) / <alpha-value>)',
+        700: 'rgb(var(--neutral-700) / <alpha-value>)',
+        800: 'rgb(var(--neutral-800) / <alpha-value>)',
+        900: 'rgb(var(--neutral-900) / <alpha-value>)',
       },
       'cool-gray': {
         50: '#fbfdfe',
@@ -123,17 +124,18 @@ module.exports = {
         800: '#42389d',
         900: '#362f78'
       },
+      // Palette tokens (src/styles.css); class names kept so templates are unchanged.
       purple: {
-        50: '#f6f5ff',
-        100: '#edebfe',
-        200: '#dcd7fe',
-        300: '#cabffd',
-        400: '#ac94fa',
-        500: '#9061f9',
-        600: '#7e3af2',
-        700: '#6c2bd9',
-        800: '#5521b5',
-        900: '#4a1d96'
+        50: 'rgb(var(--brand-50) / <alpha-value>)',
+        100: 'rgb(var(--brand-100) / <alpha-value>)',
+        200: 'rgb(var(--brand-200) / <alpha-value>)',
+        300: 'rgb(var(--brand-300) / <alpha-value>)',
+        400: 'rgb(var(--brand-400) / <alpha-value>)',
+        500: 'rgb(var(--brand-500) / <alpha-value>)',
+        600: 'rgb(var(--brand-600) / <alpha-value>)',
+        700: 'rgb(var(--brand-700) / <alpha-value>)',
+        800: 'rgb(var(--brand-800) / <alpha-value>)',
+        900: 'rgb(var(--brand-900) / <alpha-value>)',
       },
       pink: {
         50: '#fdf2f8',

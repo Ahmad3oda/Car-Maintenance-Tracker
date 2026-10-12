@@ -4,6 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Palette tokens as "R G B" so Tailwind can apply opacity
+   (see tailwind.config.js: gray -> neutral, purple -> brand). */
+:root {
+  --brand-50: 246 245 255;
+  --brand-100: 237 235 254;
+  --brand-200: 220 215 254;
+  --brand-300: 202 191 253;
+  --brand-400: 172 148 250;
+  --brand-500: 144 97 249;
+  --brand-600: 126 58 242;
+  --brand-700: 108 43 217;
+  --brand-800: 85 33 181;
+  --brand-900: 74 29 150;
+  --neutral-50: 249 250 251;
+  --neutral-100: 244 245 247;
+  --neutral-200: 229 231 235;
+  --neutral-300: 213 214 215;
+  --neutral-400: 158 158 158;
+  --neutral-500: 112 114 117;
+  --neutral-600: 76 79 82;
+  --neutral-700: 36 38 45;
+  --neutral-800: 26 28 35;
+  --neutral-900: 18 19 23;
+}
+
 .bg-blog {
   @apply bg-blue-500;
 }
