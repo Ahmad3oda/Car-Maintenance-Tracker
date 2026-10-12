@@ -2,8 +2,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Car } from '../../cars/entities/car.entity';
 
 @Entity('users')
 export class User {
@@ -24,4 +26,7 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => Car, (car) => car.user)
+  cars: Car[];
 }

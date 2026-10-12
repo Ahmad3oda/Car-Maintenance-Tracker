@@ -26,10 +26,11 @@ export class MaintenanceRecordsService {
   ) {}
 
   async create(
+    userId: number,
     dto: CreateMaintenanceRecordDto,
     photo?: string,
   ): Promise<MaintenanceRecordSerializer> {
-    const item = await this.itemsRepo.findOne(dto.itemId);
+    const item = await this.itemsRepo.findOne(dto.itemId, userId);
     if (!item) {
       if (photo) {
         await deleteUploadedFile('maintenance-records', photo);
@@ -53,16 +54,18 @@ export class MaintenanceRecordsService {
     const record = await this.recordsRepo.create(recordData);
 
     // Recalculate item maintenance status
-    await this.updateItemMaintenanceStatus(item.id);
+    await this.updateItemMaintenanceStatus(item.id, userId);
     await this.odometer.sync(item.carId);
 
     return plainToInstance(MaintenanceRecordSerializer, record);
   }
 
   async findAll(
+    userId: number,
     query: QueryMaintenanceRecordDto,
   ): Promise<PageDto<MaintenanceRecordSerializer>> {
     const [records, itemCount] = await this.recordsRepo.findAll(
+      userId,
       query.page,
       query.limit,
       query.search,
@@ -82,8 +85,11 @@ export class MaintenanceRecordsService {
     return new PageDto(serializedRecords, pageMetaDto);
   }
 
-  async findOne(id: number): Promise<MaintenanceRecordSerializer> {
-    const record = await this.recordsRepo.findOne(id);
+  async findOne(
+    userId: number,
+    id: number,
+  ): Promise<MaintenanceRecordSerializer> {
+    const record = await this.recordsRepo.findOne(id, userId);
     if (!record) {
       throw new NotFoundException(`MaintenanceRecord with ID ${id} not found`);
     }
@@ -91,11 +97,12 @@ export class MaintenanceRecordsService {
   }
 
   async update(
+    userId: number,
     id: number,
     dto: UpdateMaintenanceRecordDto,
     photo?: string,
   ): Promise<MaintenanceRecordSerializer> {
-    const record = await this.recordsRepo.findOne(id);
+    const record = await this.recordsRepo.findOne(id, userId);
     if (!record) {
       if (photo) {
         await deleteUploadedFile('maintenance-records', photo);
@@ -105,7 +112,7 @@ export class MaintenanceRecordsService {
 
     let item = record.item;
     if (dto.itemId && dto.itemId !== record.itemId) {
-      const newItem = await this.itemsRepo.findOne(dto.itemId);
+      const newItem = await this.itemsRepo.findOne(dto.itemId, userId);
       if (!newItem) {
         if (photo) {
           await deleteUploadedFile('maintenance-records', photo);
@@ -133,12 +140,13 @@ export class MaintenanceRecordsService {
       updateData.photoPath = photo;
     }
 
-    const updatedRecord = await this.recordsRepo.update(id, updateData);
+    await this.recordsRepo.update(id, updateData);
+    const updatedRecord = await this.recordsRepo.findOne(id, userId);
 
     // Recalculate item maintenance status
-    await this.updateItemMaintenanceStatus(record.itemId);
+    await this.updateItemMaintenanceStatus(record.itemId, userId);
     if (dto.itemId && dto.itemId !== record.itemId) {
-      await this.updateItemMaintenanceStatus(dto.itemId);
+      await this.updateItemMaintenanceStatus(dto.itemId, userId);
     }
     await this.odometer.sync(item.carId, record.kmCounter);
     if (record.carId !== item.carId) {
@@ -148,8 +156,8 @@ export class MaintenanceRecordsService {
     return plainToInstance(MaintenanceRecordSerializer, updatedRecord);
   }
 
-  async remove(id: number): Promise<void> {
-    const record = await this.recordsRepo.findOne(id);
+  async remove(userId: number, id: number): Promise<void> {
+    const record = await this.recordsRepo.findOne(id, userId);
     if (!record) {
       throw new NotFoundException(`MaintenanceRecord with ID ${id} not found`);
     }
@@ -163,7 +171,7 @@ export class MaintenanceRecordsService {
     await this.recordsRepo.remove(id);
 
     // Recalculate item maintenance status after record removal
-    await this.updateItemMaintenanceStatus(itemId);
+    await this.updateItemMaintenanceStatus(itemId, userId);
     await this.odometer.sync(record.carId, record.kmCounter);
   }
 
@@ -174,8 +182,11 @@ export class MaintenanceRecordsService {
     );
   }
 
-  private async updateItemMaintenanceStatus(itemId: number): Promise<void> {
-    const item = await this.itemsRepo.findOne(itemId);
+  private async updateItemMaintenanceStatus(
+    itemId: number,
+    userId: number,
+  ): Promise<void> {
+    const item = await this.itemsRepo.findOne(itemId, userId);
     if (!item) return;
 
     await this.itemsRepo.update(

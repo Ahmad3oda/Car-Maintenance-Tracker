@@ -2,13 +2,14 @@ import { TestingModule } from '@nestjs/testing';
 import { EntityManager } from 'typeorm';
 import { MaintenanceRecordsService } from '../maintenance-records/maintenance-records.service';
 import { UpcomingScope } from './dtos/query-upcoming-item.dto';
-import { createInMemoryApp } from '../../testing/in-memory-app';
+import { createInMemoryApp, createTestUser } from '../../testing/in-memory-app';
 import { CarsService } from '../cars/cars.service';
 import { ItemsService } from './items.service';
 
 describe('ItemsService (in-memory DB)', () => {
   const originalTz = process.env.TZ;
   let app: TestingModule;
+  let userId: number;
   let cars: CarsService;
   let items: ItemsService;
   let records: MaintenanceRecordsService;
@@ -24,10 +25,11 @@ describe('ItemsService (in-memory DB)', () => {
 
   beforeEach(async () => {
     app = await createInMemoryApp();
+    userId = await createTestUser(app);
     cars = app.get(CarsService);
     items = app.get(ItemsService);
     records = app.get(MaintenanceRecordsService);
-    const car = await cars.create({
+    const car = await cars.create(userId, {
       plateNumber: 'ABC123',
       brand: 'Toyota',
       model: 'Corolla',
@@ -42,7 +44,7 @@ describe('ItemsService (in-memory DB)', () => {
   });
 
   it('computes the next maintenance date without a DST shift', async () => {
-    const item = await items.create({
+    const item = await items.create(userId, {
       carId,
       name: 'Oil',
       installedDate: new Date('2026-01-01T00:00:00.000Z'),
@@ -64,7 +66,7 @@ describe('ItemsService (in-memory DB)', () => {
       .mockRejectedValueOnce(new Error('disk full'));
 
     await expect(
-      items.create({
+      items.create(userId, {
         carId,
         name: 'Oil',
         installedDate: new Date('2026-01-01T00:00:00.000Z'),
@@ -72,25 +74,25 @@ describe('ItemsService (in-memory DB)', () => {
     ).rejects.toThrow('disk full');
     spy.mockRestore();
 
-    expect((await items.findAll({ carId })).data).toHaveLength(0);
-    expect((await records.findAll({ carId })).data).toHaveLength(0);
+    expect((await items.findAll(userId, { carId })).data).toHaveLength(0);
+    expect((await records.findAll(userId, { carId })).data).toHaveLength(0);
   });
 
   it("moves an item's records when the item moves to another car", async () => {
-    const otherCar = await cars.create({
+    const otherCar = await cars.create(userId, {
       plateNumber: 'XYZ9',
       brand: 'Kia',
       model: 'Rio',
       year: 2019,
       currentKm: 60000,
     });
-    const item = await items.create({
+    const item = await items.create(userId, {
       carId,
       name: 'Oil',
       installedDate: new Date('2026-01-01T00:00:00.000Z'),
       installedKm: 45000,
     });
-    await records.create({
+    await records.create(userId, {
       carId,
       itemId: item.id,
       maintenanceDate: new Date('2026-03-01T00:00:00.000Z'),
@@ -98,17 +100,17 @@ describe('ItemsService (in-memory DB)', () => {
       itemCost: 50,
     });
 
-    await items.update(item.id, { carId: otherCar.id });
+    await items.update(userId, item.id, { carId: otherCar.id });
 
-    expect((await records.findAll({ carId })).data).toHaveLength(0);
-    const moved = await records.findAll({ carId: otherCar.id });
+    expect((await records.findAll(userId, { carId })).data).toHaveLength(0);
+    const moved = await records.findAll(userId, { carId: otherCar.id });
     expect(moved.data).toHaveLength(2);
     expect(moved.data.every((r) => r.itemId === item.id)).toBe(true);
   });
 
   it('sorts upcoming items by urgency when sorting by status', async () => {
     const install = (name: string, installedKm: number) =>
-      items.create({
+      items.create(userId, {
         carId,
         name,
         installedDate: new Date('2026-01-01T00:00:00.000Z'),
@@ -119,7 +121,7 @@ describe('ItemsService (in-memory DB)', () => {
     await install('overdue', 40000); // -5000 km
     await install('dueSoon', 45500); // 500 km left
 
-    const page = await items.getUpcoming({
+    const page = await items.getUpcoming(userId, {
       scope: UpcomingScope.ALL,
       sortBy: 'status',
       order: undefined,

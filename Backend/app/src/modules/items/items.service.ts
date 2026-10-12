@@ -34,8 +34,12 @@ export class ItemsService {
     private readonly odometer: OdometerService,
   ) {}
 
-  async create(dto: CreateItemDto, photo?: string): Promise<ItemSerializer> {
-    const car = await this.carsRepo.findOne(dto.carId);
+  async create(
+    userId: number,
+    dto: CreateItemDto,
+    photo?: string,
+  ): Promise<ItemSerializer> {
+    const car = await this.carsRepo.findOne(dto.carId, userId);
     if (!car) {
       if (photo) {
         await deleteUploadedFile('items', photo);
@@ -91,12 +95,16 @@ export class ItemsService {
 
     return plainToInstance(
       ItemSerializer,
-      await this.itemsRepo.findOne(itemId),
+      await this.itemsRepo.findOne(itemId, userId),
     );
   }
 
-  async findAll(query: QueryItemDto): Promise<PageDto<ItemSerializer>> {
+  async findAll(
+    userId: number,
+    query: QueryItemDto,
+  ): Promise<PageDto<ItemSerializer>> {
     const [items, itemCount] = await this.itemsRepo.findAll(
+      userId,
       query.page,
       query.limit,
       query.search,
@@ -113,8 +121,8 @@ export class ItemsService {
     return new PageDto(serializedItems, pageMetaDto);
   }
 
-  async findOne(id: number): Promise<ItemSerializer> {
-    const item = await this.itemsRepo.findOne(id);
+  async findOne(userId: number, id: number): Promise<ItemSerializer> {
+    const item = await this.itemsRepo.findOne(id, userId);
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
@@ -122,11 +130,12 @@ export class ItemsService {
   }
 
   async update(
+    userId: number,
     id: number,
     dto: UpdateItemDto,
     photo?: string,
   ): Promise<ItemSerializer> {
-    const item = await this.itemsRepo.findOne(id);
+    const item = await this.itemsRepo.findOne(id, userId);
     if (!item) {
       if (photo) {
         await deleteUploadedFile('items', photo);
@@ -136,7 +145,7 @@ export class ItemsService {
 
     let targetCar = item.car;
     if (dto.carId && dto.carId !== item.carId) {
-      const car = await this.carsRepo.findOne(dto.carId);
+      const car = await this.carsRepo.findOne(dto.carId, userId);
       if (!car) {
         if (photo) {
           await deleteUploadedFile('items', photo);
@@ -202,12 +211,12 @@ export class ItemsService {
       await this.odometer.sync(item.carId, highestKm(item.maintenanceRecords));
     }
 
-    const updatedItem = await this.itemsRepo.findOne(id);
+    const updatedItem = await this.itemsRepo.findOne(id, userId);
     return plainToInstance(ItemSerializer, updatedItem);
   }
 
-  async remove(id: number): Promise<void> {
-    const item = await this.itemsRepo.findOne(id);
+  async remove(userId: number, id: number): Promise<void> {
+    const item = await this.itemsRepo.findOne(id, userId);
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
@@ -221,9 +230,11 @@ export class ItemsService {
   }
 
   async getUpcoming(
+    userId: number,
     query: QueryUpcomingItemDto,
   ): Promise<PageDto<UpcomingItemSerializer>> {
     const candidates = await this.itemsRepo.findUpcomingCandidates(
+      userId,
       query.carId,
       query.search,
     );

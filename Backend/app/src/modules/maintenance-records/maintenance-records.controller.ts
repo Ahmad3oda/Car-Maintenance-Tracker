@@ -31,6 +31,8 @@ import { QueryMaintenanceRecordDto } from './dtos/query-maintenance-record.dto';
 import { MaintenanceRecordSerializer } from './serializers/maintenance-record.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { createImageUploadOptions } from '../../common/utils/multer.util';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user';
 
 @ApiBearerAuth()
 @ApiTags('Maintenance Records')
@@ -57,6 +59,7 @@ export class MaintenanceRecordsController {
   )
   @SerializeOptions({ type: MaintenanceRecordSerializer })
   create(
+    @CurrentUser() user: AuthUser,
     @Body() createDto: CreateMaintenanceRecordDto,
     @UploadedFiles()
     files?: {
@@ -65,7 +68,7 @@ export class MaintenanceRecordsController {
     },
   ): Promise<MaintenanceRecordSerializer> {
     const photo = files?.photoPath?.[0] || files?.photo?.[0];
-    return this.recordsService.create(createDto, photo?.filename);
+    return this.recordsService.create(user.id, createDto, photo?.filename);
   }
 
   @Get()
@@ -90,9 +93,10 @@ export class MaintenanceRecordsController {
   })
   @SerializeOptions({ type: PageDto<MaintenanceRecordSerializer> })
   findAll(
+    @CurrentUser() user: AuthUser,
     @Query() query: QueryMaintenanceRecordDto,
   ): Promise<PageDto<MaintenanceRecordSerializer>> {
-    return this.recordsService.findAll(query);
+    return this.recordsService.findAll(user.id, query);
   }
 
   @Get(':id')
@@ -105,9 +109,10 @@ export class MaintenanceRecordsController {
   @ApiResponse({ status: 404, description: 'Record not found.' })
   @SerializeOptions({ type: MaintenanceRecordSerializer })
   findOne(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<MaintenanceRecordSerializer> {
-    return this.recordsService.findOne(id);
+    return this.recordsService.findOne(user.id, id);
   }
 
   @Patch(':id')
@@ -130,6 +135,7 @@ export class MaintenanceRecordsController {
   )
   @SerializeOptions({ type: MaintenanceRecordSerializer })
   update(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateMaintenanceRecordDto,
     @UploadedFiles()
@@ -139,7 +145,7 @@ export class MaintenanceRecordsController {
     },
   ): Promise<MaintenanceRecordSerializer> {
     const photo = files?.photoPath?.[0] || files?.photo?.[0];
-    return this.recordsService.update(id, updateDto, photo?.filename);
+    return this.recordsService.update(user.id, id, updateDto, photo?.filename);
   }
 
   @Delete(':id')
@@ -150,7 +156,10 @@ export class MaintenanceRecordsController {
     description: 'The record has been successfully deleted.',
   })
   @ApiResponse({ status: 404, description: 'Record not found.' })
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.recordsService.remove(id);
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.recordsService.remove(user.id, id);
   }
 }

@@ -1,5 +1,5 @@
 import { TestingModule } from '@nestjs/testing';
-import { createInMemoryApp } from '../../testing/in-memory-app';
+import { createInMemoryApp, createTestUser } from '../../testing/in-memory-app';
 import { CarsService } from '../cars/cars.service';
 import { ItemsService } from '../items/items.service';
 import { MaintenanceRecordsService } from '../maintenance-records/maintenance-records.service';
@@ -8,6 +8,7 @@ import { DashboardService } from './dashboard.service';
 describe('DashboardService (in-memory DB)', () => {
   const now = new Date('2026-10-13T12:00:00.000Z');
   let app: TestingModule;
+  let userId: number;
   let dashboard: DashboardService;
   let records: MaintenanceRecordsService;
   let carId: number;
@@ -15,10 +16,11 @@ describe('DashboardService (in-memory DB)', () => {
 
   beforeEach(async () => {
     app = await createInMemoryApp();
+    userId = await createTestUser(app);
     dashboard = app.get(DashboardService);
     records = app.get(MaintenanceRecordsService);
     carId = (
-      await app.get(CarsService).create({
+      await app.get(CarsService).create(userId, {
         plateNumber: 'ABC123',
         brand: 'Toyota',
         model: 'Corolla',
@@ -28,7 +30,7 @@ describe('DashboardService (in-memory DB)', () => {
     ).id;
     // Creates an initial installation record dated 10 days ago.
     itemId = (
-      await app.get(ItemsService).create({
+      await app.get(ItemsService).create(userId, {
         carId,
         name: 'Oil',
         installedDate: new Date('2026-10-03T00:00:00.000Z'),
@@ -42,7 +44,7 @@ describe('DashboardService (in-memory DB)', () => {
   });
 
   const log = (date: string, itemCost: number, extra = 0) =>
-    records.create({
+    records.create(userId, {
       carId,
       itemId,
       maintenanceDate: new Date(date),
@@ -57,7 +59,7 @@ describe('DashboardService (in-memory DB)', () => {
     await log('2025-01-01T00:00:00.000Z', 999); // older than a year
     await log('2026-12-01T00:00:00.000Z', 999); // future-dated
 
-    expect(await dashboard.getStats(now)).toEqual({
+    expect(await dashboard.getStats(userId, now)).toEqual({
       totalCars: 1,
       totalItems: 1,
       itemsReplacedLastMonth: 1,
@@ -68,10 +70,10 @@ describe('DashboardService (in-memory DB)', () => {
   });
 
   it('includes the cost of an installation record', async () => {
-    const page = await records.findAll({ itemId });
-    await records.update(page.data[0].id, { itemCost: 80 });
+    const page = await records.findAll(userId, { itemId });
+    await records.update(userId, page.data[0].id, { itemCost: 80 });
 
-    const stats = await dashboard.getStats(now);
+    const stats = await dashboard.getStats(userId, now);
     expect(stats.itemsReplacedLastMonth).toBe(0);
     expect(stats.costSpentLastMonth).toBe(80);
   });
@@ -80,7 +82,7 @@ describe('DashboardService (in-memory DB)', () => {
     for (let i = 0; i < 510; i++) {
       await log('2026-09-20T00:00:00.000Z', 1);
     }
-    const stats = await dashboard.getStats(now);
+    const stats = await dashboard.getStats(userId, now);
     expect(stats.itemsReplacedLastMonth).toBe(510);
   });
 });

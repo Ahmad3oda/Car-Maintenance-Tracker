@@ -3,7 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { configureApp } from '../app.setup';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../modules/auth/entities/user.entity';
 import { CarsModule } from '../modules/cars/cars.module';
 import { DashboardModule } from '../modules/dashboard/dashboard.module';
 import { AuthModule } from '../modules/auth/auth.module';
@@ -51,4 +53,20 @@ export async function registerUser(
     .send({ username, password })
     .expect(201);
   return (res.body as { accessToken: string }).accessToken;
+}
+
+/** Inserts a user directly (no HTTP) and returns its id. */
+export async function createTestUser(
+  moduleRef: TestingModule,
+  username = 'owner',
+): Promise<number> {
+  const users = moduleRef.get<Repository<User>>(getRepositoryToken(User));
+  const user = await users.save(
+    users.create({
+      username,
+      usernameKey: username.toLowerCase(),
+      passwordHash: 'not-a-real-hash',
+    }),
+  );
+  return user.id;
 }

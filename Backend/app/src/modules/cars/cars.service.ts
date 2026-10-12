@@ -34,6 +34,7 @@ export class CarsService {
   ) {}
 
   async create(
+    userId: number,
     dto: CreateCarDto,
     photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
@@ -42,20 +43,23 @@ export class CarsService {
       if (photo) {
         await deleteUploadedFile('cars', photo.filename);
       }
-      throw new BadRequestException(
-        `Car with plate number ${dto.plateNumber} is already registered`,
-      );
+      throw this.plateTaken(dto.plateNumber);
     }
 
     const car = await this.carsRepo.create({
       ...dto,
+      userId,
       photoPath: photo?.filename ?? null,
     });
     return car;
   }
 
-  async findAll(query: QueryCarDto): Promise<PageDto<CarSerializer>> {
+  async findAll(
+    userId: number,
+    query: QueryCarDto,
+  ): Promise<PageDto<CarSerializer>> {
     const [cars, itemCount] = await this.carsRepo.findAll(
+      userId,
       query.page,
       query.limit,
       query.search,
@@ -71,8 +75,8 @@ export class CarsService {
     return new PageDto(serializedCars, pageMetaDto);
   }
 
-  async findOne(id: number): Promise<CarSerializer> {
-    const car = await this.carsRepo.findOne(id);
+  async findOne(userId: number, id: number): Promise<CarSerializer> {
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
@@ -80,16 +84,26 @@ export class CarsService {
   }
 
   async update(
+    userId: number,
     id: number,
     dto: UpdateCarDto,
     photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    const car = await this.carsRepo.findOne(id);
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       if (photo) {
         await deleteUploadedFile('cars', photo.filename);
       }
       throw new NotFoundException(`Car with ID ${id} not found`);
+    }
+
+    if (dto.plateNumber && dto.plateNumber !== car.plateNumber) {
+      if (await this.carsRepo.findOneByPlate(dto.plateNumber)) {
+        if (photo) {
+          await deleteUploadedFile('cars', photo.filename);
+        }
+        throw this.plateTaken(dto.plateNumber);
+      }
     }
 
     if (dto.currentKm !== undefined) {
@@ -111,7 +125,7 @@ export class CarsService {
       updateData.photoPath = photo.filename;
     }
 
-    const updatedCar = await this.carsRepo.update(id, updateData);
+    const updatedCar = await this.carsRepo.update(id, userId, updateData);
 
     if (!updatedCar) {
       throw new BadRequestException(`Failed to update car with ID ${id}`);
@@ -119,19 +133,19 @@ export class CarsService {
     return updatedCar;
   }
 
-  async remove(id: number): Promise<void> {
-    const car = await this.carsRepo.findOne(id);
+  async remove(userId: number, id: number): Promise<void> {
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
     if (car.photoPath) {
       await deleteUploadedFile('cars', car.photoPath);
     }
-    await this.carsRepo.remove(id);
+    await this.carsRepo.remove(id, userId);
   }
 
-  async exportCarData(id: number): Promise<ExportCarDataDto> {
-    const car = await this.carsRepo.findOne(id);
+  async exportCarData(userId: number, id: number): Promise<ExportCarDataDto> {
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
@@ -182,10 +196,11 @@ export class CarsService {
   }
 
   async importCarData(
+    userId: number,
     carId: number,
     dto: ImportCarDataDto,
   ): Promise<ImportResultDto> {
-    const car = await this.carsRepo.findOne(carId);
+    const car = await this.carsRepo.findOne(carId, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${carId} not found`);
     }
@@ -315,5 +330,12 @@ export class CarsService {
       importedEvents: totalEventsCount,
       message: `Successfully imported ${totalItemsCount} item${totalItemsCount === 1 ? '' : 's'} and ${totalEventsCount} maintenance record${totalEventsCount === 1 ? '' : 's'}.`,
     };
+  }
+
+  /** Plates are unique across all users (see Car.plateNumber). */
+  private plateTaken(plateNumber: string) {
+    return new BadRequestException(
+      `Car with plate number ${plateNumber} is already registered`,
+    );
   }
 }

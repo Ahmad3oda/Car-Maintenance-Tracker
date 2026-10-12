@@ -12,16 +12,20 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export class DashboardService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async getStats(now = new Date()): Promise<DashboardStatsSerializer> {
+  /** Counts only the given user's cars, items and records. */
+  async getStats(
+    userId: number,
+    now = new Date(),
+  ): Promise<DashboardStatsSerializer> {
     const monthAgo = new Date(now.getTime() - 30 * DAY_MS);
     const yearAgo = new Date(now.getTime() - 365 * DAY_MS);
 
     const [totalCars, totalItems, records] = await Promise.all([
-      this.dataSource.getRepository(Car).count(),
-      this.dataSource.getRepository(Item).count(),
+      this.dataSource.getRepository(Car).countBy({ userId }),
+      this.dataSource.getRepository(Item).countBy({ car: { userId } }),
       this.dataSource.getRepository(MaintenanceRecord).find({
         select: ['maintenanceDate', 'itemCost', 'extraCosts', 'notes'],
-        where: { maintenanceDate: Between(yearAgo, now) },
+        where: { maintenanceDate: Between(yearAgo, now), car: { userId } },
       }),
     ]);
 
