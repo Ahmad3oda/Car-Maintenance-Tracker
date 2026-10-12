@@ -10,7 +10,7 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
-import { addMonthsUtc } from '../../common/utils/date.util';
+import { computeMaintenanceSchedule } from '../items/maintenance-schedule.util';
 
 @Injectable()
 export class MaintenanceRecordsService {
@@ -160,75 +160,9 @@ export class MaintenanceRecordsService {
     const item = await this.itemsRepo.findOne(itemId);
     if (!item) return;
 
-    // Find all maintenance records for this item sorted by date descending
-    const [records] = await this.recordsRepo.findAll(
-      1,
-      1000,
-      undefined,
-      'maintenanceDate',
-      'DESC',
-      undefined,
-      itemId,
+    await this.itemsRepo.update(
+      item.id,
+      computeMaintenanceSchedule(item, item.maintenanceRecords),
     );
-
-    const latestRecord = records[0];
-    const updateData: Partial<any> = {};
-
-    if (latestRecord) {
-      updateData.lastMaintenanceId = latestRecord.id;
-      updateData.lastMaintenanceDate = latestRecord.maintenanceDate;
-
-      if (
-        item.expectedMaintenanceKm &&
-        Number(item.expectedMaintenanceKm) > 0
-      ) {
-        updateData.nextMaintenanceKm =
-          Number(latestRecord.kmCounter) + Number(item.expectedMaintenanceKm);
-      } else {
-        updateData.nextMaintenanceKm = null;
-      }
-
-      if (
-        item.expectedMaintenanceMonths &&
-        Number(item.expectedMaintenanceMonths) > 0
-      ) {
-        updateData.nextMaintenanceDate = addMonthsUtc(
-          latestRecord.maintenanceDate,
-          Number(item.expectedMaintenanceMonths),
-        );
-      } else {
-        updateData.nextMaintenanceDate = null;
-      }
-    } else {
-      updateData.lastMaintenanceId = null;
-      updateData.lastMaintenanceDate = null;
-
-      if (
-        item.installedKm !== null &&
-        item.installedKm !== undefined &&
-        item.expectedMaintenanceKm &&
-        Number(item.expectedMaintenanceKm) > 0
-      ) {
-        updateData.nextMaintenanceKm =
-          Number(item.installedKm) + Number(item.expectedMaintenanceKm);
-      } else {
-        updateData.nextMaintenanceKm = null;
-      }
-
-      if (
-        item.installedDate &&
-        item.expectedMaintenanceMonths &&
-        Number(item.expectedMaintenanceMonths) > 0
-      ) {
-        updateData.nextMaintenanceDate = addMonthsUtc(
-          item.installedDate,
-          Number(item.expectedMaintenanceMonths),
-        );
-      } else {
-        updateData.nextMaintenanceDate = null;
-      }
-    }
-
-    await this.itemsRepo.update(item.id, updateData);
   }
 }

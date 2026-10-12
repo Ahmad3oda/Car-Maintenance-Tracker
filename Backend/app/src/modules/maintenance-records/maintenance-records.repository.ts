@@ -68,7 +68,8 @@ export class MaintenanceRecordsRepository {
     } else if (sortBy === 'date' || sortBy === 'maintenanceDate') {
       query
         .orderBy('record.maintenanceDate', sortOrder)
-        .addOrderBy('record.id', 'DESC');
+        .addOrderBy('record.kmCounter', sortOrder)
+        .addOrderBy('record.id', sortOrder);
     } else if (sortBy === 'kmCounter') {
       query
         .orderBy('record.kmCounter', sortOrder)
@@ -80,6 +81,7 @@ export class MaintenanceRecordsRepository {
     } else {
       query
         .orderBy('record.maintenanceDate', 'DESC')
+        .addOrderBy('record.kmCounter', 'DESC')
         .addOrderBy('record.id', 'DESC');
     }
 

@@ -18,6 +18,7 @@ import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
 import { addMonthsUtc } from '../../common/utils/date.util';
+import { computeMaintenanceSchedule } from './maintenance-schedule.util';
 
 import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance-records.repository';
 
@@ -149,77 +150,36 @@ export class ItemsService {
       updateData.photoPath = photo;
     }
 
-    // Recalculate nextMaintenanceKm and nextMaintenanceDate based on updated values
-    const records = item.maintenanceRecords || [];
-    const sortedRecords = [...records].sort(
-      (a, b) =>
-        new Date(b.maintenanceDate).getTime() -
-        new Date(a.maintenanceDate).getTime(),
-    );
-    const latestRecord = sortedRecords[0];
-
-    // Determine expectedMaintenanceKm
     const expectedKm =
       dto.expectedMaintenanceKm !== undefined
         ? dto.expectedMaintenanceKm
         : item.expectedMaintenanceKm;
-
-    if (
-      expectedKm === null ||
-      expectedKm === undefined ||
-      Number(expectedKm) <= 0
-    ) {
-      updateData.expectedMaintenanceKm = null;
-      updateData.nextMaintenanceKm = null;
-    } else {
-      updateData.expectedMaintenanceKm = Number(expectedKm);
-      if (latestRecord) {
-        updateData.nextMaintenanceKm =
-          Number(latestRecord.kmCounter) + Number(expectedKm);
-      } else {
-        const installedKm =
-          dto.installedKm !== undefined && dto.installedKm !== null
-            ? dto.installedKm
-            : item.installedKm;
-        const baseKm =
-          installedKm !== undefined && installedKm !== null
-            ? Number(installedKm)
-            : Number(targetCar?.currentKm || 0);
-        updateData.nextMaintenanceKm = baseKm + Number(expectedKm);
-      }
-    }
-
-    // Determine expectedMaintenanceMonths
     const expectedMonths =
       dto.expectedMaintenanceMonths !== undefined
         ? dto.expectedMaintenanceMonths
         : item.expectedMaintenanceMonths;
+    const intervalKm =
+      expectedKm && Number(expectedKm) > 0 ? Number(expectedKm) : null;
+    const intervalMonths =
+      expectedMonths && Number(expectedMonths) > 0
+        ? Number(expectedMonths)
+        : null;
+    updateData.expectedMaintenanceKm = intervalKm;
+    updateData.expectedMaintenanceMonths = intervalMonths;
 
-    if (
-      expectedMonths === null ||
-      expectedMonths === undefined ||
-      Number(expectedMonths) <= 0
-    ) {
-      updateData.expectedMaintenanceMonths = null;
-      updateData.nextMaintenanceDate = null;
-    } else {
-      updateData.expectedMaintenanceMonths = Number(expectedMonths);
-      if (latestRecord) {
-        updateData.nextMaintenanceDate = addMonthsUtc(
-          latestRecord.maintenanceDate,
-          Number(expectedMonths),
-        );
-      } else {
-        const installedDate =
-          dto.installedDate !== undefined && dto.installedDate !== null
-            ? dto.installedDate
-            : item.installedDate;
-        updateData.nextMaintenanceDate = addMonthsUtc(
-          installedDate ?? new Date(),
-          Number(expectedMonths),
-        );
-      }
-    }
+    const installedKm = dto.installedKm ?? item.installedKm;
+    Object.assign(
+      updateData,
+      computeMaintenanceSchedule(
+        {
+          installedKm: installedKm ?? Number(targetCar?.currentKm || 0),
+          installedDate: dto.installedDate ?? item.installedDate ?? new Date(),
+          expectedMaintenanceKm: intervalKm,
+          expectedMaintenanceMonths: intervalMonths,
+        },
+        item.maintenanceRecords,
+      ),
+    );
 
     const updatedItem = await this.itemsRepo.update(id, updateData);
     return plainToInstance(ItemSerializer, updatedItem);

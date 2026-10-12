@@ -21,6 +21,7 @@ import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
 import { addMonthsUtc } from '../../common/utils/date.util';
+import { computeMaintenanceSchedule } from '../items/maintenance-schedule.util';
 
 @Injectable()
 export class CarsService {
@@ -237,7 +238,7 @@ export class CarsService {
               new Date(b.maintenanceDate).getTime(),
           );
 
-          let lastRecord: MaintenanceRecord | null = null;
+          const savedRecords: MaintenanceRecord[] = [];
 
           for (const eventDto of sortedEvents) {
             const eventDate = new Date(eventDto.maintenanceDate);
@@ -256,32 +257,17 @@ export class CarsService {
                 notes: eventDto.notes || undefined,
               });
 
-            lastRecord = await manager.save(MaintenanceRecord, recordEntity);
+            savedRecords.push(
+              await manager.save(MaintenanceRecord, recordEntity),
+            );
             totalEventsCount++;
           }
 
-          if (lastRecord) {
-            let finalNextKm: number | null = null;
-            if (savedItem.expectedMaintenanceKm) {
-              finalNextKm =
-                lastRecord.kmCounter + Number(savedItem.expectedMaintenanceKm);
-            }
-
-            let finalNextDate: Date | null = null;
-            if (savedItem.expectedMaintenanceMonths) {
-              finalNextDate = addMonthsUtc(
-                lastRecord.maintenanceDate,
-                Number(savedItem.expectedMaintenanceMonths),
-              );
-            }
-
-            await manager.update(Item, savedItem.id, {
-              lastMaintenanceId: lastRecord.id,
-              lastMaintenanceDate: lastRecord.maintenanceDate,
-              nextMaintenanceKm: finalNextKm,
-              nextMaintenanceDate: finalNextDate,
-            });
-          }
+          await manager.update(
+            Item,
+            savedItem.id,
+            computeMaintenanceSchedule(savedItem, savedRecords),
+          );
         } else {
           const initialRecord = manager
             .getRepository(MaintenanceRecord)
