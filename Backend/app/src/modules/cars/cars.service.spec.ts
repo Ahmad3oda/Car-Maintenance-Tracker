@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CarsService } from './cars.service';
+import { DataSource } from 'typeorm';
 import { CarsRepository } from './cars.repository';
 
 describe('CarsService', () => {
@@ -18,6 +19,13 @@ describe('CarsService', () => {
             findOneByPlate: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
+          },
+        },
+        {
+          provide: DataSource,
+          useValue: {
+            getRepository: jest.fn(),
+            transaction: jest.fn(),
           },
         },
       ],

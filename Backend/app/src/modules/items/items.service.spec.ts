@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ItemsService } from './items.service';
 import { ItemsRepository } from './items.repository';
 import { CarsRepository } from '../cars/cars.repository';
+import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance-records.repository';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -25,6 +26,12 @@ describe('ItemsService', () => {
           provide: CarsRepository,
           useValue: {
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: MaintenanceRecordsRepository,
+          useValue: {
+            create: jest.fn(),
           },
         },
       ],
