@@ -20,6 +20,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Photo upload** — Attach a photo to cars and items (stored locally in `/uploads`)
 - **Search, filter & pagination** — Paginated list endpoints with search, urgency scope filtering, and multi-column sorting
 - **Data Import & Export** — Export and import complete vehicle maintenance profiles (items + historical events) in standardized JSON format with atomic database transactions and automatic maintenance cycle recalculation
+- **User accounts** — Register / log in with username and password (bcrypt-hashed); JWT-protected API where each user only sees their own cars, items and records
 - **Validation** — Strong DTO validation with `class-validator`
 - **Swagger / OpenAPI** — Interactive API docs at `/api`
 - **CORS enabled** — Connected to the Angular frontend
@@ -180,6 +181,12 @@ The frontend image is built with `--configuration docker` so the browser calls `
 | `sqlite_data` | `/app/data` | `data.sqlite` |
 | `uploads_data` | `/app/uploads` | Car, item and record photos |
 
+Create a `.env` file in the **repository root** with the JWT signing secret (Compose refuses to start without it; `.env` is git-ignored):
+
+```bash
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
+```
+
 From the **repository root**:
 
 ```bash
@@ -225,7 +232,7 @@ docker compose logs -f backend  # API only
 docker compose ps
 ```
 
-The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
+The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `JWT_SECRET` from `.env`, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
 
 ### 3. Local development without Docker
 
@@ -238,14 +245,23 @@ cd Backend/app
 npm install
 ```
 
-Optional `.env` in `Backend/app/` (copy from `.env.example` and adjust). Local defaults:
+Create `.env` in `Backend/app/` (copy from `.env.example` and adjust). `JWT_SECRET` is required; the other values are the local defaults:
 
 ```env
 PORT=3000
 DB_PATH=data.sqlite
 UPLOAD_DIR=uploads
 FRONTEND_URL=http://localhost:4200
+JWT_SECRET=<output of: openssl rand -hex 32>
 ```
+
+| Variable | Required | Description |
+| -------- | -------- | ----------- |
+| `JWT_SECRET` | **yes** | Signs login tokens. At least 32 characters; the API refuses to start without it. Keep it secret: anyone with it can log in as any user. Changing it logs everyone out. |
+| `DB_PATH` / `DATA_DIR` | no | SQLite file location (default `data.sqlite` in the working directory) |
+| `UPLOAD_DIR` | no | Photo folder (default `uploads`) |
+| `FRONTEND_URL` | no | Allowed CORS origin(s), comma-separated |
+| `PORT` | no | Default `3000` |
 
 ```bash
 npm run start:dev
@@ -410,6 +426,41 @@ All list endpoints return a paginated envelope:
 | `order` | `ASC` \| `DESC` | `ASC` | Sort direction |
 | `search` | string | — | Full-text search |
 | `sortBy` | string | — | Field to sort by |
+
+#### Authentication — `/auth`
+
+Every endpoint needs an `Authorization: Bearer <token>` header except `POST /auth/register`, `POST /auth/login` and `GET /` (public health check used by Railway). In Swagger (`/api`), log in, copy `accessToken` and paste it into **Authorize**.
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| POST | `/auth/register` | Create an account; returns `{ accessToken, expiresIn, user }` |
+| POST | `/auth/login` | Log in; same response. Wrong username or password both return 401 `Invalid username or password` |
+| GET | `/auth/me` | The logged-in user |
+
+- **Username:** 3–30 characters, starts with a letter, only English letters, digits and `_`. Unique ignoring case (`Ahmed` = `ahmed`); a taken name returns 409 `Username "x" is already taken`.
+- **Password:** 6–72 characters (bcrypt ignores anything past 72 bytes). Stored as a bcrypt hash only.
+- **Tokens** last 7 days. A missing, invalid or expired token returns 401.
+
+**Per-user data:** cars belong to the user who created them; items and records belong to the user through their car. Lists, `/items/upcoming` and `/dashboard/stats` only include your own data, and another user's id returns the same 404 as an id that does not exist. Plate numbers are unique across all users, so a plate registered by one account cannot be registered by another.
+
+**Photos** under `/uploads/...` are served without a login: anyone who has a photo's URL can open it. File names are a timestamp plus a random number, so they are hard to guess, but they are not cryptographically random and a shared or leaked URL stays reachable.
+
+#### Upgrading a database created before user accounts
+
+On the first start of this version, TypeORM adds the `users` table and a nullable `cars.userId` column. On SQLite it rebuilds the `cars` table to do this, with foreign keys switched off, so no items or records are deleted; later starts change nothing. Existing cars keep their data but have **no owner**, so nobody can see them until they are assigned:
+
+1. Back up the database file (e.g. `cp data.sqlite data.sqlite.bak`, or `docker compose cp backend:/app/data/data.sqlite ./data.sqlite.bak`).
+2. Start the new version once, and register the account that should own the old cars.
+3. Preview, then assign every owner-less car to that account (the command writes another backup next to the database first):
+
+   ```bash
+   cd Backend/app
+   npm run build
+   npm run assign-cars -- <username> --dry-run
+   npm run assign-cars -- <username>
+   ```
+
+   With Docker: `docker compose exec backend node dist/scripts/assign-cars.js <username>`.
 
 #### Cars — `/cars`
 
@@ -615,7 +666,7 @@ These TypeScript interfaces mirror the backend schema:
 - [x] Quick odometer update modal with real-time schedule recalculation
 - [x] Header notification bell with real-time pending badges and quick service actions
 - [x] Full car maintenance import & export system (JSON format with nested items & events)
-- [ ] JWT authentication
+- [x] JWT authentication & per-user data
 - [ ] Cost analytics charts & reports
 - [ ] Export records as CSV/PDF
 - [x] Docker support
