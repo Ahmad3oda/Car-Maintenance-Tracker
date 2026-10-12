@@ -1,6 +1,7 @@
 import { diskStorage } from 'multer';
 import { BadRequestException } from '@nestjs/common';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
+import { randomUUID } from 'crypto';
 import { join } from 'path';
 import { existsSync, mkdirSync, promises as fs } from 'fs';
 import { getUploadDir } from './paths.util';
@@ -28,11 +29,11 @@ export const createMulterStorage = (subfolder: string) => {
       }
       cb(null, destination);
     },
-    // Extension comes from the accepted MIME type, never the client's file
-    // name, so an upload can't be served back as HTML or script.
+    // Random UUID names cannot be guessed. The extension comes from the
+    // accepted MIME type, never the client's file name, so an upload can't
+    // be served back as HTML or script.
     filename: (req, file, cb) => {
-      const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      cb(null, `${unique}${IMAGE_EXTENSIONS[file.mimetype]}`);
+      cb(null, `${randomUUID()}${IMAGE_EXTENSIONS[file.mimetype]}`);
     },
   });
 };
