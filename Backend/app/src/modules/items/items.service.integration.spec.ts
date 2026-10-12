@@ -1,6 +1,7 @@
 import { TestingModule } from '@nestjs/testing';
 import { EntityManager } from 'typeorm';
 import { MaintenanceRecordsService } from '../maintenance-records/maintenance-records.service';
+import { UpcomingScope } from './dtos/query-upcoming-item.dto';
 import { createInMemoryApp } from '../../testing/in-memory-app';
 import { CarsService } from '../cars/cars.service';
 import { ItemsService } from './items.service';
@@ -103,5 +104,30 @@ describe('ItemsService (in-memory DB)', () => {
     const moved = await records.findAll({ carId: otherCar.id });
     expect(moved.data).toHaveLength(2);
     expect(moved.data.every((r) => r.itemId === item.id)).toBe(true);
+  });
+
+  it('sorts upcoming items by urgency when sorting by status', async () => {
+    const install = (name: string, installedKm: number) =>
+      items.create({
+        carId,
+        name,
+        installedDate: new Date('2026-01-01T00:00:00.000Z'),
+        installedKm,
+        expectedMaintenanceKm: 5000,
+      });
+    await install('ok', 50000); // 5000 km left
+    await install('overdue', 40000); // -5000 km
+    await install('dueSoon', 45500); // 500 km left
+
+    const page = await items.getUpcoming({
+      scope: UpcomingScope.ALL,
+      sortBy: 'status',
+      order: undefined,
+    });
+    expect(page.data.map((i) => i.status)).toEqual([
+      'OVERDUE',
+      'DUE_SOON',
+      'OK',
+    ]);
   });
 });

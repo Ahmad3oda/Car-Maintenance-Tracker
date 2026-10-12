@@ -8,6 +8,7 @@ import { QueryItemDto } from './dtos/query-item.dto';
 import {
   QueryUpcomingItemDto,
   UpcomingScope,
+  UpcomingSortField,
 } from './dtos/query-upcoming-item.dto';
 import { ItemSerializer } from './serializers/item.serializer';
 import {
@@ -329,13 +330,6 @@ export class ItemsService {
     }
 
     // Sort evaluated list
-    const statusWeight: Record<string, number> = {
-      OVERDUE: 1,
-      DUE_SOON: 2,
-      UPCOMING: 3,
-      OK: 4,
-    };
-
     const order =
       query.order && query.order.toString().toUpperCase() === 'DESC'
         ? 'DESC'
@@ -343,16 +337,9 @@ export class ItemsService {
 
     evaluatedList.sort((a, b) => {
       if (query.sortBy) {
-        let valA: any = (a as any)[query.sortBy];
-        let valB: any = (b as any)[query.sortBy];
-
-        if (query.sortBy === 'car') {
-          valA = a.car?.brand || '';
-          valB = b.car?.brand || '';
-        }
-
-        if (valA === null || valA === undefined) valA = 9999999;
-        if (valB === null || valB === undefined) valB = 9999999;
+        // Missing values sort as largest, as before.
+        const valA = sortValue(a, query.sortBy) ?? Infinity;
+        const valB = sortValue(b, query.sortBy) ?? Infinity;
 
         if (valA < valB) return order === 'ASC' ? -1 : 1;
         if (valA > valB) return order === 'ASC' ? 1 : -1;
@@ -360,8 +347,8 @@ export class ItemsService {
       }
 
       // Default sorting: Urgency first (OVERDUE -> DUE_SOON -> UPCOMING -> OK)
-      const weightA = statusWeight[a.status] || 5;
-      const weightB = statusWeight[b.status] || 5;
+      const weightA = STATUS_URGENCY[a.status] || 5;
+      const weightB = STATUS_URGENCY[b.status] || 5;
 
       if (weightA !== weightB) {
         return weightA - weightB;
@@ -412,4 +399,29 @@ function highestKm(records: { kmCounter: number }[] | undefined) {
   return records?.length
     ? Math.max(...records.map((r) => Number(r.kmCounter)))
     : undefined;
+}
+
+const STATUS_URGENCY: Record<string, number> = {
+  OVERDUE: 1,
+  DUE_SOON: 2,
+  UPCOMING: 3,
+  OK: 4,
+};
+
+function sortValue(
+  item: UpcomingItemSerializer,
+  field: UpcomingSortField,
+): string | number | null | undefined {
+  switch (field) {
+    case 'car':
+      return item.car?.brand || '';
+    case 'status':
+      return STATUS_URGENCY[item.status];
+    case 'nextMaintenanceDate':
+      return item.nextMaintenanceDate
+        ? new Date(item.nextMaintenanceDate).getTime()
+        : null;
+    default:
+      return item[field];
+  }
 }

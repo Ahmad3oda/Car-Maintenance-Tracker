@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional } from 'class-validator';
 import { PageOptionsDto } from '../../../common/dtos/page-options.dto';
 
 export enum UpcomingScope {
@@ -11,7 +11,23 @@ export enum UpcomingScope {
   ALL = 'all',
 }
 
+export const UPCOMING_SORT_FIELDS = [
+  'car',
+  'name',
+  'nextMaintenanceKm',
+  'nextMaintenanceDate',
+  'remainingKm',
+  'remainingDays',
+  'status',
+] as const;
+export type UpcomingSortField = (typeof UPCOMING_SORT_FIELDS)[number];
+
 export class QueryUpcomingItemDto extends PageOptionsDto {
+  @ApiPropertyOptional({ enum: UPCOMING_SORT_FIELDS })
+  @IsIn(UPCOMING_SORT_FIELDS)
+  @IsOptional()
+  readonly sortBy?: UpcomingSortField = undefined;
+
   @ApiPropertyOptional()
   @Type(() => Number)
   @IsInt()
