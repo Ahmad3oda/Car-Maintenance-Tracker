@@ -10,6 +10,11 @@ import {
 import { Car } from '../../cars/entities/car.entity';
 import { Item } from '../../items/entities/item.entity';
 
+export interface ExtraCost {
+  name: string;
+  cost: number;
+}
+
 @Entity('maintenance_records')
 export class MaintenanceRecord {
   @PrimaryGeneratedColumn()
@@ -43,7 +48,7 @@ export class MaintenanceRecord {
   itemCost: number;
 
   @Column({ type: 'simple-json', nullable: true })
-  extraCosts: any;
+  extraCosts: ExtraCost[] | null;
 
   @Column({ type: 'text', nullable: true })
   notes: string;

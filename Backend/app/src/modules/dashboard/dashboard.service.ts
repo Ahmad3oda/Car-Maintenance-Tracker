@@ -53,10 +53,7 @@ export class DashboardService {
 }
 
 function recordCost(record: MaintenanceRecord): number {
-  const extras = Array.isArray(record.extraCosts)
-    ? (record.extraCosts as { cost?: number }[])
-    : [];
-  return extras.reduce(
+  return (record.extraCosts ?? []).reduce(
     (sum, extra) => sum + Number(extra.cost || 0),
     Number(record.itemCost || 0),
   );
