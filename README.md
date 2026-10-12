@@ -35,7 +35,10 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Items** — Add and edit maintenance items per vehicle with required installation dates
 - **Maintenance events** — View, add, and edit service records per item
 - **Interactive sorting & pagination** — Server-side sorting headers and responsive pagination controls
-- **Theme support** — Dark and light mode toggle with persistent local storage
+- **Theme support** — Light and dark themes; follows the system setting until you pick one in the header, then remembers it. No flash of the wrong theme on load
+- **Design tokens** — Every colour is a CSS variable in `Frontend/src/styles.css` (Petrol & Graphite palette; `gray` = neutral, `purple` = brand in Tailwind class names). Change the palette there, not in components
+- **Motion** — Calm CSS-only page transitions, staggered fade-ins, skeleton loaders and hover effects; all disabled when the OS asks for reduced motion
+- **Car details** — Odometer-style numbers, fuel-gauge service bars, warning-light status badges, licence-plate badges and a wheel spinner (original inline SVGs; fonts are bundled, no external requests)
 - **Responsive design** — Adaptive layout optimized for mobile, tablet, and desktop screens
 - **Data Import & Export Modal** — Seamless JSON backup and restoration with instant file pick, raw JSON textarea editor, sample template inserter, and dynamic button swapping (Import button for empty vehicles automatically replaces with Export when data exists)
 - **Image lightbox & toast alerts** — Full-screen image preview and notification toasts
