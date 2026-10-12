@@ -31,7 +31,7 @@ import { QueryUpcomingItemDto } from './dtos/query-upcoming-item.dto';
 import { ItemSerializer } from './serializers/item.serializer';
 import { UpcomingItemSerializer } from './serializers/upcoming-item.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
-import { createMulterStorage } from '../../common/utils/multer.util';
+import { createImageUploadOptions } from '../../common/utils/multer.util';
 
 @ApiTags('Items')
 @Controller('items')
@@ -52,7 +52,7 @@ export class ItemsController {
         { name: 'photoPath', maxCount: 1 },
         { name: 'photo', maxCount: 1 },
       ],
-      { storage: createMulterStorage('items') },
+      createImageUploadOptions('items'),
     ),
   )
   @SerializeOptions({ type: ItemSerializer })
@@ -144,7 +144,7 @@ export class ItemsController {
         { name: 'photoPath', maxCount: 1 },
         { name: 'photo', maxCount: 1 },
       ],
-      { storage: createMulterStorage('items') },
+      createImageUploadOptions('items'),
     ),
   )
   @SerializeOptions({ type: ItemSerializer })

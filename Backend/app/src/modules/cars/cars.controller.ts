@@ -34,7 +34,7 @@ import {
 import { CarSerializer } from './serializers/car.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createMulterStorage } from '../../common/utils/multer.util';
+import { createImageUploadOptions } from '../../common/utils/multer.util';
 
 @ApiTags('Cars')
 @Controller('cars')
@@ -50,9 +50,7 @@ export class CarsController {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
-    FileInterceptor('photoPath', {
-      storage: createMulterStorage('cars'),
-    }),
+    FileInterceptor('photoPath', createImageUploadOptions('cars')),
   )
   @SerializeOptions({ type: CarSerializer })
   create(
@@ -105,9 +103,7 @@ export class CarsController {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
-    FileInterceptor('photoPath', {
-      storage: createMulterStorage('cars'),
-    }),
+    FileInterceptor('photoPath', createImageUploadOptions('cars')),
   )
   @ApiResponse({ status: 404, description: 'Car not found.' })
   @SerializeOptions({ type: CarSerializer })

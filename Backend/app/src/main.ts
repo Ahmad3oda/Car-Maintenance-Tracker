@@ -1,4 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+import { Response } from 'express';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -21,6 +22,11 @@ async function bootstrap() {
   const uploadDir = ensureUploadDir();
   app.useStaticAssets(uploadDir, {
     prefix: '/uploads/',
+    // Uploads are served with their stored type only; never sniffed or run.
+    setHeaders: (res: Response) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'");
+    },
   });
 
   const frontendOrigins = process.env.FRONTEND_URL?.split(',')

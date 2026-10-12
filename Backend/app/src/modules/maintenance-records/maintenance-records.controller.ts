@@ -29,7 +29,7 @@ import { UpdateMaintenanceRecordDto } from './dtos/update-maintenance-record.dto
 import { QueryMaintenanceRecordDto } from './dtos/query-maintenance-record.dto';
 import { MaintenanceRecordSerializer } from './serializers/maintenance-record.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
-import { createMulterStorage } from '../../common/utils/multer.util';
+import { createImageUploadOptions } from '../../common/utils/multer.util';
 
 @ApiTags('Maintenance Records')
 @Controller('maintenance-records')
@@ -50,7 +50,7 @@ export class MaintenanceRecordsController {
         { name: 'photoPath', maxCount: 1 },
         { name: 'photo', maxCount: 1 },
       ],
-      { storage: createMulterStorage('maintenance-records') },
+      createImageUploadOptions('maintenance-records'),
     ),
   )
   @SerializeOptions({ type: MaintenanceRecordSerializer })
@@ -123,7 +123,7 @@ export class MaintenanceRecordsController {
         { name: 'photoPath', maxCount: 1 },
         { name: 'photo', maxCount: 1 },
       ],
-      { storage: createMulterStorage('maintenance-records') },
+      createImageUploadOptions('maintenance-records'),
     ),
   )
   @SerializeOptions({ type: MaintenanceRecordSerializer })
