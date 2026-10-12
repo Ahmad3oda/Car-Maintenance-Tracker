@@ -173,23 +173,12 @@ cd car-maintenance-tracker
 | `backend` (`nest-backend`) | `./Backend/app` | **3000** → 3000 | NestJS API, SQLite, uploads |
 | `frontend` (`angular-frontend`) | `./Frontend` | **4200** → 80 | Angular app served by nginx |
 
-The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are bind-mounted into the backend container so they survive `docker compose down`.
+The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are stored in two named Docker volumes, so they survive `docker compose down` and rebuilds. No setup is needed before the first start.
 
-**Create the bind-mount targets before the first start** (Docker will create a *directory* named `data.sqlite` if the file is missing):
-
-```bash
-mkdir -p Backend/app/uploads
-touch Backend/app/data.sqlite
-```
-
-PowerShell:
-
-```powershell
-New-Item -ItemType Directory -Force Backend/app/uploads | Out-Null
-if (-not (Test-Path Backend/app/data.sqlite)) {
-  New-Item -ItemType File Backend/app/data.sqlite | Out-Null
-}
-```
+| Volume | Mounted at | Contents |
+| ------ | ---------- | -------- |
+| `sqlite_data` | `/app/data` | `data.sqlite` |
+| `uploads_data` | `/app/uploads` | Car, item and record photos |
 
 From the **repository root**:
 
@@ -204,10 +193,22 @@ Then open:
 - Swagger: `http://localhost:3000/api`
 - Uploads: `http://localhost:3000/uploads/<filename>`
 
-Stop the stack:
+Stop the stack (data is kept):
 
 ```bash
 docker compose down
+```
+
+Stop and **delete all data** (removes both volumes):
+
+```bash
+docker compose down -v
+```
+
+Back up the database:
+
+```bash
+docker compose cp backend:/app/data/data.sqlite ./data.sqlite.bak
 ```
 
 Rebuild after code changes:
@@ -224,7 +225,7 @@ docker compose logs -f backend  # API only
 docker compose ps
 ```
 
-The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Those paths match the volumes in `docker-compose.yml`.
+The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
 
 ### 3. Local development without Docker
 
