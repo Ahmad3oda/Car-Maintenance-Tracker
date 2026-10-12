@@ -9,6 +9,9 @@ module.exports = {
   theme: {
     fontSize: {
       ...defaultTheme.fontSize,
+      // Used by templates but never defined before; rendered at full size.
+      '3xs': ['0.625rem', { lineHeight: '0.875rem' }],
+      '2xs': ['0.6875rem', { lineHeight: '1rem' }],
       '10xl': '10rem'
     },
     // Every colour is a CSS variable defined in src/styles.css ("R G B", so
