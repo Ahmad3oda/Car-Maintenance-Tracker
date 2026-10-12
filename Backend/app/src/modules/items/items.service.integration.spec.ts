@@ -1,4 +1,6 @@
 import { TestingModule } from '@nestjs/testing';
+import { EntityManager } from 'typeorm';
+import { MaintenanceRecordsService } from '../maintenance-records/maintenance-records.service';
 import { createInMemoryApp } from '../../testing/in-memory-app';
 import { CarsService } from '../cars/cars.service';
 import { ItemsService } from './items.service';
@@ -8,6 +10,7 @@ describe('ItemsService (in-memory DB)', () => {
   let app: TestingModule;
   let cars: CarsService;
   let items: ItemsService;
+  let records: MaintenanceRecordsService;
   let carId: number;
 
   beforeAll(() => {
@@ -22,6 +25,7 @@ describe('ItemsService (in-memory DB)', () => {
     app = await createInMemoryApp();
     cars = app.get(CarsService);
     items = app.get(ItemsService);
+    records = app.get(MaintenanceRecordsService);
     const car = await cars.create({
       plateNumber: 'ABC123',
       brand: 'Toyota',
@@ -50,5 +54,24 @@ describe('ItemsService (in-memory DB)', () => {
       '2026-07-01T00:00:00.000Z',
     );
     expect(item.nextMaintenanceKm).toBe(50000);
+  });
+
+  it('rolls back the item and its initial record if a later write fails', async () => {
+    // Fails the schedule update, after the item and record were inserted.
+    const spy = jest
+      .spyOn(EntityManager.prototype, 'update')
+      .mockRejectedValueOnce(new Error('disk full'));
+
+    await expect(
+      items.create({
+        carId,
+        name: 'Oil',
+        installedDate: new Date('2026-01-01T00:00:00.000Z'),
+      }),
+    ).rejects.toThrow('disk full');
+    spy.mockRestore();
+
+    expect((await items.findAll({ carId })).data).toHaveLength(0);
+    expect((await records.findAll({ carId })).data).toHaveLength(0);
   });
 });

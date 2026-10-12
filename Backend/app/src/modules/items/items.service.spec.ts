@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ItemsService } from './items.service';
 import { ItemsRepository } from './items.repository';
 import { CarsRepository } from '../cars/cars.repository';
-import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance-records.repository';
+import { DataSource } from 'typeorm';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -29,9 +29,9 @@ describe('ItemsService', () => {
           },
         },
         {
-          provide: MaintenanceRecordsRepository,
+          provide: DataSource,
           useValue: {
-            create: jest.fn(),
+            transaction: jest.fn(),
           },
         },
       ],

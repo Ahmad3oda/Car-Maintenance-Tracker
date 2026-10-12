@@ -22,6 +22,7 @@ import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
 import { addMonthsUtc } from '../../common/utils/date.util';
 import { computeMaintenanceSchedule } from '../items/maintenance-schedule.util';
+import { INITIAL_INSTALLATION_NOTE } from '../maintenance-records/maintenance-records.constants';
 
 @Injectable()
 export class CarsService {
@@ -277,7 +278,7 @@ export class CarsService {
               maintenanceDate: installedDate,
               kmCounter: installedKm,
               itemCost: 0,
-              notes: 'Initial component installation',
+              notes: INITIAL_INSTALLATION_NOTE,
             });
           const savedInitial = await manager.save(
             MaintenanceRecord,

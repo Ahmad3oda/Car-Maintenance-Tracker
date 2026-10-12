@@ -17,17 +17,18 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
-import { addMonthsUtc } from '../../common/utils/date.util';
 import { computeMaintenanceSchedule } from './maintenance-schedule.util';
-
-import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance-records.repository';
+import { DataSource } from 'typeorm';
+import { Item } from './entities/item.entity';
+import { MaintenanceRecord } from '../maintenance-records/entities/maintenance-record.entity';
+import { INITIAL_INSTALLATION_NOTE } from '../maintenance-records/maintenance-records.constants';
 
 @Injectable()
 export class ItemsService {
   constructor(
     private readonly itemsRepo: ItemsRepository,
     private readonly carsRepo: CarsRepository,
-    private readonly recordsRepo: MaintenanceRecordsRepository,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(dto: CreateItemDto, photo?: string): Promise<ItemSerializer> {
@@ -48,47 +49,46 @@ export class ItemsService {
       ? new Date(dto.installedDate)
       : new Date();
 
-    let nextMaintenanceKm: number | null = null;
-    if (dto.expectedMaintenanceKm) {
-      nextMaintenanceKm = installedKm + Number(dto.expectedMaintenanceKm);
-    }
+    // Item, its initial installation record and the schedule are written
+    // together so a failure never leaves an item without a baseline record.
+    const itemId = await this.dataSource
+      .transaction(async (manager) => {
+        const savedItem = await manager.save(
+          manager.create(Item, {
+            ...dto,
+            installedKm,
+            installedDate,
+            photoPath: photo ?? null,
+          }),
+        );
+        const initialRecord = await manager.save(
+          manager.create(MaintenanceRecord, {
+            carId: car.id,
+            itemId: savedItem.id,
+            maintenanceDate: installedDate,
+            kmCounter: installedKm,
+            itemCost: 0,
+            notes: INITIAL_INSTALLATION_NOTE,
+          }),
+        );
+        await manager.update(
+          Item,
+          savedItem.id,
+          computeMaintenanceSchedule(savedItem, [initialRecord]),
+        );
+        return savedItem.id;
+      })
+      .catch(async (error: unknown) => {
+        if (photo) {
+          await deleteUploadedFile('items', photo);
+        }
+        throw error;
+      });
 
-    let nextMaintenanceDate: Date | null = null;
-    if (dto.expectedMaintenanceMonths) {
-      nextMaintenanceDate = addMonthsUtc(
-        installedDate,
-        Number(dto.expectedMaintenanceMonths),
-      );
-    }
-
-    // 1. Create the item record
-    const itemData = {
-      ...dto,
-      installedKm,
-      installedDate,
-      nextMaintenanceKm,
-      nextMaintenanceDate,
-      photoPath: photo ?? null,
-    };
-    const savedItem = await this.itemsRepo.create(itemData);
-
-    // 2. Automatically create the first maintenance event (Initial Installation)
-    const initialRecord = await this.recordsRepo.create({
-      carId: dto.carId,
-      itemId: savedItem.id,
-      maintenanceDate: installedDate,
-      kmCounter: installedKm,
-      itemCost: 0,
-      notes: 'Initial component installation',
-    });
-
-    // 3. Link item to the newly created initial maintenance event
-    const updatedItem = await this.itemsRepo.update(savedItem.id, {
-      lastMaintenanceId: initialRecord.id,
-      lastMaintenanceDate: installedDate,
-    });
-
-    return plainToInstance(ItemSerializer, updatedItem || savedItem);
+    return plainToInstance(
+      ItemSerializer,
+      await this.itemsRepo.findOne(itemId),
+    );
   }
 
   async findAll(query: QueryItemDto): Promise<PageDto<ItemSerializer>> {
