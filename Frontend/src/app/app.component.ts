@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/components/toast/toast.component';
 
@@ -8,16 +8,6 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'Frontend';
-
-  // TEMP-PALETTE: temporary palette preview, loaded in its own chunk.
-  // Remove this hook and the palette-switcher folder after choosing.
-  private readonly viewContainer = inject(ViewContainerRef);
-
-  ngOnInit(): void {
-    void import(
-      './shared/components/palette-switcher/palette-switcher.component'
-    ).then((m) => this.viewContainer.createComponent(m.PaletteSwitcherComponent));
-  }
 }

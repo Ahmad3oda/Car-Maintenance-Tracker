@@ -7,26 +7,26 @@
 /* Palette tokens as "R G B" so Tailwind can apply opacity
    (see tailwind.config.js: gray -> neutral, purple -> brand). */
 :root {
-  --brand-50: 246 245 255;
-  --brand-100: 237 235 254;
-  --brand-200: 220 215 254;
-  --brand-300: 202 191 253;
-  --brand-400: 172 148 250;
-  --brand-500: 144 97 249;
-  --brand-600: 126 58 242;
-  --brand-700: 108 43 217;
-  --brand-800: 85 33 181;
-  --brand-900: 74 29 150;
-  --neutral-50: 249 250 251;
-  --neutral-100: 244 245 247;
-  --neutral-200: 229 231 235;
-  --neutral-300: 213 214 215;
-  --neutral-400: 158 158 158;
-  --neutral-500: 112 114 117;
-  --neutral-600: 76 79 82;
-  --neutral-700: 36 38 45;
-  --neutral-800: 26 28 35;
-  --neutral-900: 18 19 23;
+  --brand-50: 239 252 252;
+  --brand-100: 211 244 245;
+  --brand-200: 168 231 234;
+  --brand-300: 111 209 215;
+  --brand-400: 47 179 189;
+  --brand-500: 15 147 158;
+  --brand-600: 13 118 128;
+  --brand-700: 15 95 104;
+  --brand-800: 18 77 85;
+  --brand-900: 18 63 71;
+  --neutral-50: 248 249 250;
+  --neutral-100: 241 243 244;
+  --neutral-200: 227 230 232;
+  --neutral-300: 207 212 215;
+  --neutral-400: 154 161 166;
+  --neutral-500: 107 115 120;
+  --neutral-600: 74 82 87;
+  --neutral-700: 35 40 44;
+  --neutral-800: 25 29 32;
+  --neutral-900: 16 19 21;
 }
 
 .bg-blog {
