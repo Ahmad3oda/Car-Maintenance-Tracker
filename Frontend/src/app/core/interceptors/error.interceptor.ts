@@ -8,6 +8,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      const isAuthForm = /\/auth\/(login|register)$/.test(req.url);
+
+      // The login/register pages show these next to the fields.
+      if (isAuthForm && [400, 401, 409].includes(error.status)) {
+        return throwError(() => error);
+      }
+
       let message = '';
 
       // 1. Connection / Network errors (status 0)
