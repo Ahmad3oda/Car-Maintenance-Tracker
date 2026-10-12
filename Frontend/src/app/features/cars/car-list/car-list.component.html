@@ -15,11 +15,24 @@
     </a>
   </div>
 
+  <!-- Loading: placeholder cards instead of an empty page -->
+  <div *ngIf="loading" class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Loading cars">
+    <div *ngFor="let n of [1, 2, 3]" class="min-w-0 bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+      <div class="skeleton h-48 sm:h-52 md:h-56 rounded-none"></div>
+      <div class="p-4 sm:p-5 space-y-3">
+        <div class="skeleton h-5 w-2/3"></div>
+        <div class="skeleton h-3 w-1/4"></div>
+        <div class="skeleton h-8 w-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading">
   <ng-container *ngIf="cars.length > 0; else emptyState">
     <!-- Cards grid -->
-    <div class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <div class="stagger grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
       <div *ngFor="let car of cars"
-        class="relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition-shadow">
+        class="hover-lift relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800">
 
         <!-- Make the entire card clickable to navigate to Car Details -->
         <a [routerLink]="['/cars', car.id]" class="block absolute inset-0 z-10" aria-label="View Car Details"></a>
@@ -104,4 +117,5 @@
       </svg>
     </app-empty-state>
   </ng-template>
+  </ng-container>
 </div>

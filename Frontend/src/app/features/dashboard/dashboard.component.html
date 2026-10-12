@@ -32,8 +32,17 @@
     </div>
   </div>
 
-  <!-- Primary Metrics Cards -->
-  <div class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch" *ngIf="stats">
+  <!-- Primary Metrics Cards (placeholders while loading) -->
+  <div *ngIf="!stats" class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" role="status" aria-label="Loading statistics">
+    <div *ngFor="let n of [1, 2, 3, 4]" class="flex items-center p-4 sm:p-5 min-h-[96px] sm:min-h-[105px] bg-white rounded-2xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700/70">
+      <div class="skeleton w-11 h-11 sm:w-12 sm:h-12 mr-3 sm:mr-4 rounded-xl shrink-0"></div>
+      <div class="flex-1 space-y-2">
+        <div class="skeleton h-3 w-3/4"></div>
+        <div class="skeleton h-6 w-1/2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stagger grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch" *ngIf="stats">
     <!-- Items Replaced Last Month -->
     <app-stat-card title="Items Replaced (Last Month)" [value]="stats.itemsReplacedLastMonth" color="orange">
       <svg icon class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

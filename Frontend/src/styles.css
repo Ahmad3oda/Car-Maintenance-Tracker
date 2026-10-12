@@ -232,3 +232,143 @@ textarea {
 button:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* ---------------------------------------------------------------------
+ * Motion. Calm and short; all of it is switched off for users who ask
+ * for reduced motion (bottom of this file).
+ * ------------------------------------------------------------------- */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Page transitions (Angular withViewTransitions): only the page content
+   moves; header and sidebar stay still. */
+.page-transition {
+  view-transition-name: page;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 150ms;
+}
+
+::view-transition-old(page) {
+  animation: 120ms ease-in both fade-out;
+}
+
+::view-transition-new(page) {
+  animation: 260ms var(--ease-out) both fade-up;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@layer components {
+  /* Clickable cards rise slightly on hover. */
+  .hover-lift {
+    transition: transform 200ms var(--ease-out), box-shadow 200ms ease,
+      border-color 200ms ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px rgb(var(--black) / 0.25);
+  }
+
+  /* Children fade in one after another (first 12 staggered). */
+  .stagger > * {
+    animation: fade-up 320ms var(--ease-out) both;
+  }
+  .stagger > :nth-child(2) { animation-delay: 40ms; }
+  .stagger > :nth-child(3) { animation-delay: 80ms; }
+  .stagger > :nth-child(4) { animation-delay: 120ms; }
+  .stagger > :nth-child(5) { animation-delay: 160ms; }
+  .stagger > :nth-child(6) { animation-delay: 200ms; }
+  .stagger > :nth-child(7) { animation-delay: 240ms; }
+  .stagger > :nth-child(8) { animation-delay: 280ms; }
+  .stagger > :nth-child(9) { animation-delay: 320ms; }
+  .stagger > :nth-child(10) { animation-delay: 360ms; }
+  .stagger > :nth-child(11) { animation-delay: 400ms; }
+  .stagger > :nth-child(n + 12) { animation-delay: 440ms; }
+
+  /* Placeholder shapes while data loads. */
+  .skeleton {
+    border-radius: 0.5rem;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(var(--skeleton-shine) / 0.8) 50%,
+        transparent 100%
+      )
+      rgb(var(--skeleton));
+    background-size: 200% 100%;
+    animation: skeleton-shine 1.4s ease-in-out infinite;
+  }
+
+  /* Shows a loading state only if loading takes longer than a blink,
+     so fast responses do not flicker. */
+  .appear-delayed {
+    animation: fade-in 200ms ease 150ms both;
+  }
+}
+
+@keyframes skeleton-shine {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Buttons: gentle lift on hover for filled buttons, and a press on click. */
+:is(button, a)[class*='bg-purple-600'] {
+  transition: transform 150ms var(--ease-out), box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+:is(button, a)[class*='bg-purple-600']:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -6px rgb(var(--brand-600) / 0.55);
+}
+:is(button, a):not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .hover-lift:hover,
+  :is(button, a):hover,
+  :is(button, a):active {
+    transform: none !important;
+  }
+}

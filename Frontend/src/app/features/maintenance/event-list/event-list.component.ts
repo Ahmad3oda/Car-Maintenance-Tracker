@@ -12,11 +12,12 @@ import { SortHeaderComponent } from '../../../shared/components/table/sort-heade
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
+import { DetailSkeletonComponent } from '../../../shared/components/detail-skeleton/detail-skeleton.component';
 
 @Component({
   selector: 'app-event-list',
   standalone: true,
-  imports: [AuthImagePipe, 
+  imports: [DetailSkeletonComponent, AuthImagePipe, 
     CommonModule,
     RouterModule,
     EmptyStateComponent,

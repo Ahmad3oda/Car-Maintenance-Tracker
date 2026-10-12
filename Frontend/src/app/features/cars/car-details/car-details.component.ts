@@ -11,11 +11,12 @@ import { SortHeaderComponent } from '../../../shared/components/table/sort-heade
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { ImportModalComponent } from '../../../shared/components/import-modal/import-modal.component';
 import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
+import { DetailSkeletonComponent } from '../../../shared/components/detail-skeleton/detail-skeleton.component';
 
 @Component({
   selector: 'app-car-details',
   standalone: true,
-  imports: [AuthImagePipe, 
+  imports: [DetailSkeletonComponent, AuthImagePipe, 
     CommonModule,
     RouterModule,
     ImageModalComponent,
