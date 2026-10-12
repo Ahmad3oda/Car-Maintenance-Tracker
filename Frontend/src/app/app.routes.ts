@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './core/layouts/admin-layout/admin-layout.component';
+import { authGuard, guestGuard } from './core/guards/auth.guards';
 
 // Feature pages are lazy-loaded so the initial bundle only carries the shell.
 export const routes: Routes = [
   {
     path: 'login',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component').then(
         (m) => m.LoginComponent,
@@ -12,6 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'register',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/register/register.component').then(
         (m) => m.RegisterComponent,
@@ -20,6 +23,8 @@ export const routes: Routes = [
   {
     path: '',
     component: AdminLayoutComponent,
+    // Every app page requires login.
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
