@@ -13,6 +13,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, forkJoin, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ThemeService } from '../../services/theme.service';
+import { AuthService } from '../../services/auth.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CarService } from '../../services/car.service';
 import { ItemService } from '../../services/item.service';
@@ -29,6 +30,7 @@ export class HeaderComponent implements OnInit {
   @Output() menuClick = new EventEmitter<void>();
 
   private themeService = inject(ThemeService);
+  private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
   private carService = inject(CarService);
   private itemService = inject(ItemService);
@@ -58,6 +60,20 @@ export class HeaderComponent implements OnInit {
     totalDue: 0,
     items: [],
   };
+
+  readonly user = this.authService.user;
+
+  /** Up to two letters for the profile badge, drawn locally (no third-party call). */
+  get initials(): string {
+    const name = this.user()?.username ?? '';
+    const parts = name.split('_').filter(Boolean);
+    return (parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)).toUpperCase();
+  }
+
+  logout(): void {
+    this.closeMenus();
+    this.authService.logout();
+  }
 
   get isDark(): boolean {
     return this.themeService.isDark();
