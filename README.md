@@ -177,6 +177,7 @@ cd car-maintenance-tracker
 | `backend` (`nest-backend`) | `./Backend/app` | **3000** → 3000 | NestJS API, SQLite, uploads |
 | `frontend` (`angular-frontend`) | `./Frontend` | **4200** → 80 | Angular app served by nginx |
 
+<<<<<<< HEAD
 The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are stored in two named Docker volumes, so they survive `docker compose down` and rebuilds. No setup is needed before the first start.
 
 | Volume | Mounted at | Contents |
@@ -188,6 +189,24 @@ Create a `.env` file in the **repository root** with the JWT signing secret (Com
 
 ```bash
 echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
+=======
+The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are bind-mounted into the backend container so they survive `docker compose down`.
+
+**Create the bind-mount targets before the first start** (Docker will create a *directory* named `data.sqlite` if the file is missing):
+
+```bash
+mkdir -p Backend/app/uploads
+touch Backend/app/data.sqlite
+```
+
+PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force Backend/app/uploads | Out-Null
+if (-not (Test-Path Backend/app/data.sqlite)) {
+  New-Item -ItemType File Backend/app/data.sqlite | Out-Null
+}
+>>>>>>> origin/main
 ```
 
 From the **repository root**:
@@ -201,14 +220,21 @@ Then open:
 - App: `http://localhost:4200`
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
+<<<<<<< HEAD
 - Photos: `http://localhost:3000/uploads/<folder>/<file>` (login required)
 
 Stop the stack (data is kept):
+=======
+- Uploads: `http://localhost:3000/uploads/<filename>`
+
+Stop the stack:
+>>>>>>> origin/main
 
 ```bash
 docker compose down
 ```
 
+<<<<<<< HEAD
 Stop and **delete all data** (removes both volumes):
 
 ```bash
@@ -221,6 +247,8 @@ Back up the database:
 docker compose cp backend:/app/data/data.sqlite ./data.sqlite.bak
 ```
 
+=======
+>>>>>>> origin/main
 Rebuild after code changes:
 
 ```bash
@@ -235,7 +263,11 @@ docker compose logs -f backend  # API only
 docker compose ps
 ```
 
+<<<<<<< HEAD
 The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `JWT_SECRET` from `.env`, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
+=======
+The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Those paths match the volumes in `docker-compose.yml`.
+>>>>>>> origin/main
 
 ### 3. Local development without Docker
 
@@ -248,13 +280,18 @@ cd Backend/app
 npm install
 ```
 
+<<<<<<< HEAD
 Create `.env` in `Backend/app/` (copy from `.env.example` and adjust). `JWT_SECRET` is required; the other values are the local defaults:
+=======
+Optional `.env` in `Backend/app/` (copy from `.env.example` and adjust). Local defaults:
+>>>>>>> origin/main
 
 ```env
 PORT=3000
 DB_PATH=data.sqlite
 UPLOAD_DIR=uploads
 FRONTEND_URL=http://localhost:4200
+<<<<<<< HEAD
 JWT_SECRET=<output of: openssl rand -hex 32>
 ```
 
@@ -266,6 +303,10 @@ JWT_SECRET=<output of: openssl rand -hex 32>
 | `FRONTEND_URL` | no | Allowed CORS origin(s), comma-separated |
 | `PORT` | no | Default `3000` |
 
+=======
+```
+
+>>>>>>> origin/main
 ```bash
 npm run start:dev
 ```

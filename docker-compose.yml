@@ -25,10 +25,14 @@ services:
     volumes:
       - sqlite_data:/app/data
       - uploads_data:/app/uploads
+      - sqlite_data:/app/data
+      - uploads_data:/app/uploads
 
   frontend:
     build:
       context: ./Frontend
+      args:
+        BUILD_CONFIGURATION: docker
       args:
         BUILD_CONFIGURATION: docker
     container_name: angular-frontend
@@ -41,6 +45,9 @@ services:
     depends_on:
       - backend
 
+volumes:
+  sqlite_data:
+  uploads_data:
 volumes:
   sqlite_data:
   uploads_data:
