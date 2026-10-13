@@ -3,10 +3,8 @@
     
     <!-- Left: Mobile Hamburger -->
     <div class="flex items-center">
-      <button (click)="onMenuClick()" class="p-1.5 mr-2 sm:mr-4 rounded-lg md:hidden hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none transition-colors" aria-label="Menu">
-        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-        </svg>
+      <button (click)="onMenuClick()" class="hamburger p-2 mr-2 sm:mr-4 rounded-lg md:hidden hover:bg-white/50 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 focus:outline-none transition-colors" [class.is-open]="menuOpen" [attr.aria-expanded]="menuOpen" aria-label="Menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
       <!-- Logo mark; on wider screens the sidebar shows it. -->
       <a routerLink="/dashboard" class="md:hidden flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-purple-600 text-white shrink-0" aria-label="Dashboard">

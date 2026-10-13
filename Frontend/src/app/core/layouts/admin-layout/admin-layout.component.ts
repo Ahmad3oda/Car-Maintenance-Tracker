@@ -5,14 +5,18 @@ import { filter } from 'rxjs/operators';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
 
+const SIDEBAR_COLLAPSED_KEY = 'car_tracker_sidebar_collapsed';
+
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
   imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent],
-  templateUrl: './admin-layout.component.html'
+  templateUrl: './admin-layout.component.html',
+  styleUrl: './admin-layout.component.css'
 })
 export class AdminLayoutComponent {
   isSideMenuOpen = false;
+  isSidebarCollapsed = this.readCollapsed();
 
   constructor(private router: Router) {
     this.router.events.pipe(
@@ -28,5 +32,22 @@ export class AdminLayoutComponent {
 
   closeSideMenu() {
     this.isSideMenuOpen = false;
+  }
+
+  toggleSidebarCollapsed() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    try {
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(this.isSidebarCollapsed));
+    } catch {
+      // Storage unavailable: the choice lasts until the page is closed.
+    }
+  }
+
+  private readCollapsed(): boolean {
+    try {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
+    } catch {
+      return false;
+    }
   }
 }

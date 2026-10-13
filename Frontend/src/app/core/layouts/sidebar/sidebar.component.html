@@ -1,31 +1,30 @@
-<div class="py-4 text-purple-200 dark:text-gray-400">
-  <a class="ml-6 text-xl font-bold tracking-tight text-white dark:text-gray-200 flex items-center gap-2 hover:no-underline"
-    routerLink="/dashboard">
-    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 ring-1 ring-white/20 p-1" aria-hidden="true">
+<div class="flex flex-col h-full py-4 text-gray-600 dark:text-gray-300">
+  <a class="flex items-center gap-3 px-4 text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100 hover:no-underline"
+    routerLink="/dashboard" [attr.title]="collapsed ? appName : null">
+    <span class="logo-mark flex items-center justify-center w-9 h-9 shrink-0 rounded-xl bg-purple-600 text-white p-1.5 shadow-lg shadow-purple-600/30" aria-hidden="true">
       <app-icon name="car" class="w-full h-full"></app-icon>
     </span>
-    {{ appName }}
+    <span class="nav-label whitespace-nowrap" [class.is-hidden]="collapsed">{{ appName }}</span>
   </a>
-  <ul class="mt-6">
-    <li class="relative px-6 py-3" *ngFor="let link of links">
-      <span *ngIf="isMainLink(link.url)"
-        class="absolute inset-y-0 left-0 w-1.5 bg-purple-300 rounded-tr-lg rounded-br-lg shadow-[0_0_8px_rgb(var(--brand-300)/0.6)]"
-        aria-hidden="true"></span>
 
-        <a
+  <ul class="mt-8 space-y-1 px-3">
+    <li class="relative" *ngFor="let link of links">
+      <a
         [routerLink]="link.url"
+        [attr.title]="collapsed ? link.name : null"
+        [attr.aria-label]="collapsed ? link.name : null"
         [ngClass]="{
-          'text-white bg-purple-800/50 shadow-sm': isMainLink(link.url),
-          'text-purple-200 hover:text-white hover:bg-purple-800/30': !isMainLink(link.url)
+          'text-purple-700 dark:text-purple-200 bg-white/70 dark:bg-white/10 shadow-sm ring-1 ring-white/80 dark:ring-white/10': isMainLink(link.url),
+          'hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5': !isMainLink(link.url)
         }"
-        class="inline-flex items-center w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-lg hover:no-underline"
+        class="flex items-center h-11 px-3 text-sm font-semibold transition-colors duration-200 rounded-xl hover:no-underline"
       >
-        <app-icon *ngIf="link.icon" [name]="link.icon" class="w-5 h-5"></app-icon>
-      
+        <app-icon *ngIf="link.icon" [name]="link.icon" class="w-5 h-5 shrink-0"></app-icon>
+
         <!-- SVG icon -->
         <svg
           *ngIf="link.svg"
-          class="w-5 h-5"
+          class="w-5 h-5 shrink-0"
           aria-hidden="true"
           [attr.fill]="link.fill ? 'currentColor' : 'none'"
           [attr.stroke]="link.fill ? 'none' : 'currentColor'"
@@ -41,8 +40,8 @@
             [attr.clip-rule]="link.fill ? 'evenodd' : null"
           ></path>
         </svg>
-      
-        <span class="ml-4">{{ link.name }}</span>
+
+        <span class="nav-label ml-3 whitespace-nowrap" [class.is-hidden]="collapsed">{{ link.name }}</span>
       </a>
     </li>
   </ul>

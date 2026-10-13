@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -21,10 +21,24 @@ interface SidebarLink {
     :host {
       display: block;
       width: 100%;
+      height: 100%;
+    }
+    /* Labels slide and fade instead of popping when the rail collapses. */
+    .nav-label {
+      transition: opacity 200ms ease 80ms, transform 300ms var(--ease-out);
+    }
+    .nav-label.is-hidden {
+      opacity: 0;
+      transform: translateX(-8px);
+      pointer-events: none;
+      transition-delay: 0ms;
     }
   `]
 })
 export class SidebarComponent {
+  /** Icon-only rail (desktop). */
+  @Input() collapsed = false;
+
   appName = 'Car Maintenance';
   activeUrl = '';
 
