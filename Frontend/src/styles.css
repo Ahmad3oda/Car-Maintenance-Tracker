@@ -149,6 +149,17 @@
   --skeleton: var(--neutral-200);
   --skeleton-shine: var(--neutral-100);
 
+  /* Frosted glass surfaces (sidebar, header, menus). */
+  --glass-bg: 255 255 255;
+  --glass-alpha: 0.62;
+  --glass-border: 255 255 255;
+  --glass-border-alpha: 0.7;
+  --glass-shadow: 0 8px 32px -12px rgb(var(--brand-900) / 0.18);
+  --aurora-1: var(--brand-300);
+  --aurora-2: var(--indigo-300);
+  --aurora-3: var(--teal-200);
+  --aurora-alpha: 0.45;
+
   color-scheme: light;
 }
 
@@ -179,6 +190,16 @@ html.dark {
 
   --skeleton: var(--neutral-700);
   --skeleton-shine: var(--neutral-600);
+
+  --glass-bg: var(--neutral-800);
+  --glass-alpha: 0.55;
+  --glass-border: 255 255 255;
+  --glass-border-alpha: 0.08;
+  --glass-shadow: 0 8px 32px -12px rgb(var(--black) / 0.6);
+  --aurora-1: var(--brand-700);
+  --aurora-2: var(--indigo-800);
+  --aurora-3: var(--teal-800);
+  --aurora-alpha: 0.35;
 
   color-scheme: dark;
 }
@@ -319,6 +340,63 @@ button:focus:not(:focus-visible) {
   .appear-delayed {
     animation: fade-in 200ms ease 150ms both;
   }
+
+  /* Frosted glass: translucent fill, blur, a light top edge like a lens. */
+  .glass {
+    background: rgb(var(--glass-bg) / var(--glass-alpha));
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: blur(18px) saturate(170%);
+    border-color: rgb(var(--glass-border) / var(--glass-border-alpha));
+    box-shadow: var(--glass-shadow),
+      inset 0 1px 0 0 rgb(var(--glass-border) / calc(var(--glass-border-alpha) * 0.9));
+  }
+
+  /* Slow drifting colour blobs behind the app, so the glass has
+     something to blur. Fixed and non-interactive. */
+  .aurora {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .aurora > span {
+    position: absolute;
+    width: 42vmax;
+    height: 42vmax;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: var(--aurora-alpha);
+    will-change: transform;
+  }
+  .aurora > span:nth-child(1) {
+    top: -12vmax;
+    left: -8vmax;
+    background: rgb(var(--aurora-1));
+    animation: aurora-drift-1 26s ease-in-out infinite alternate;
+  }
+  .aurora > span:nth-child(2) {
+    top: 20%;
+    right: -14vmax;
+    background: rgb(var(--aurora-2));
+    animation: aurora-drift-2 32s ease-in-out infinite alternate;
+  }
+  .aurora > span:nth-child(3) {
+    bottom: -18vmax;
+    left: 30%;
+    background: rgb(var(--aurora-3));
+    animation: aurora-drift-3 38s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes aurora-drift-1 {
+  to { transform: translate(14vmax, 10vmax) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  to { transform: translate(-12vmax, 8vmax) scale(0.9); }
+}
+@keyframes aurora-drift-3 {
+  to { transform: translate(-10vmax, -12vmax) scale(1.2); }
 }
 
 @keyframes skeleton-shine {
