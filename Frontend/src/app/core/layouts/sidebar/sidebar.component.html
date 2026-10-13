@@ -7,17 +7,24 @@
     <span class="nav-label whitespace-nowrap" [class.is-hidden]="collapsed">{{ appName }}</span>
   </a>
 
-  <ul class="mt-8 space-y-1 px-3">
+  <ul class="relative mt-8 space-y-1 px-3">
+    <!-- One pill that glides to the active link -->
+    <span
+      *ngIf="activeIndex >= 0"
+      class="nav-pill absolute left-3 right-3 top-1 h-11 rounded-xl bg-white/70 dark:bg-white/10 shadow-sm ring-1 ring-white/80 dark:ring-white/10"
+      [style.transform]="'translateY(' + activeIndex * 48 + 'px)'"
+      aria-hidden="true"
+    ></span>
     <li class="relative" *ngFor="let link of links">
       <a
         [routerLink]="link.url"
         [attr.title]="collapsed ? link.name : null"
         [attr.aria-label]="collapsed ? link.name : null"
         [ngClass]="{
-          'text-purple-700 dark:text-purple-200 bg-white/70 dark:bg-white/10 shadow-sm ring-1 ring-white/80 dark:ring-white/10': isMainLink(link.url),
+          'text-purple-700 dark:text-purple-200': isMainLink(link.url),
           'hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5': !isMainLink(link.url)
         }"
-        class="flex items-center h-11 px-3 text-sm font-semibold transition-colors duration-200 rounded-xl hover:no-underline"
+        class="relative flex items-center h-11 px-3 text-sm font-semibold transition-colors duration-200 rounded-xl hover:no-underline"
       >
         <app-icon *ngIf="link.icon" [name]="link.icon" class="w-5 h-5 shrink-0"></app-icon>
 
