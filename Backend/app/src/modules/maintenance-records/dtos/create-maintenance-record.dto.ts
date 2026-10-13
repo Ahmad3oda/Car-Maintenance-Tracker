@@ -59,11 +59,11 @@ export class CreateMaintenanceRecordDto {
   photoPath?: any;
 
   @ApiPropertyOptional({ type: [ExtraCostDto] })
-  @Transform(({ value }) => {
+  @Transform(({ value }: { value: unknown }) => {
     let parsed = value;
     if (typeof value === 'string') {
       try {
-        parsed = JSON.parse(value);
+        parsed = JSON.parse(value) as unknown;
       } catch {
         return value;
       }

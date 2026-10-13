@@ -15,11 +15,24 @@
     </a>
   </div>
 
+  <!-- Loading: placeholder cards instead of an empty page -->
+  <div *ngIf="loading" class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Loading cars">
+    <div *ngFor="let n of [1, 2, 3]" class="min-w-0 bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+      <div class="skeleton h-48 sm:h-52 md:h-56 rounded-none"></div>
+      <div class="p-4 sm:p-5 space-y-3">
+        <div class="skeleton h-5 w-2/3"></div>
+        <div class="skeleton h-3 w-1/4"></div>
+        <div class="skeleton h-8 w-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading">
   <ng-container *ngIf="cars.length > 0; else emptyState">
     <!-- Cards grid -->
-    <div class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <div class="stagger grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
       <div *ngFor="let car of cars"
-        class="relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition-shadow">
+        class="hover-lift relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800">
 
         <!-- Make the entire card clickable to navigate to Car Details -->
         <a [routerLink]="['/cars', car.id]" class="block absolute inset-0 z-10" aria-label="View Car Details"></a>
@@ -27,7 +40,7 @@
         <div class="relative w-full h-48 sm:h-52 md:h-56 overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-700/60">
           <ng-container *ngIf="car.photoPath; else noPhoto">
             <img class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-              [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model" />
+              [src]="getCarPhotoUrl(car.photoPath) | authImage | async" [alt]="car.brand + ' ' + car.model" />
           </ng-container>
           <ng-template #noPhoto>
             <div class="flex items-center justify-center w-full h-full text-gray-400">
@@ -73,20 +86,9 @@
           </div>
 
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
-            <span
-              class="inline-flex items-center px-2 py-1 font-semibold leading-tight text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-              </svg>
-              {{ car.plateNumber }}
-            </span>
+            <app-plate [number]="car.plateNumber"></app-plate>
             <span class="inline-flex items-center font-semibold text-gray-700 dark:text-gray-300">
-              <img
-                src="assets/icons/odometer-black.png"
-                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-                alt="ODOMETER"
-              />
+              <app-icon name="odometer" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1"></app-icon>
               {{ car.currentKm | number }} KM
             </span>
           </div>
@@ -96,12 +98,10 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <app-empty-state title="No cars found"
-      message="You haven't added any cars to track yet. Get started by adding your first vehicle."
-      actionLabel="Add your first Car" (action)="navigateToAddCar()">
-      <svg icon class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.4 8.6C0.6 8.6 0.1 9.2 0.1 10.2V11.5C0.1 13 0.8 14 2 14H2.3A3.1 3.1 0 0 1 8.3 14H15.7A3.1 3.1 0 0 1 21.7 14H22.4C23.4 14 23.9 13 23.9 11.5C23.9 10 22.8 9.1 21.1 8.9L18.6 8.4L15.8 5.3C15.4 4.7 14.5 4.3 13.7 4.3H7C6.1 4.3 5.4 4.7 4.9 5.3L3.5 7.7L1.4 8.6ZM6.7 5.6L5.2 8C5 8.3 5.2 8.5 5.5 8.5H8.2C8.4 8.5 8.5 8.3 8.5 8V5.9C8.5 5.6 8.4 5.5 8.1 5.5H6.7ZM9.5 5.6V8C9.5 8.3 9.6 8.5 9.9 8.5H17.5C17.8 8.5 18 8.3 17.9 8L15.7 5.6H9.9C9.6 5.6 9.5 5.6 9.5 5.6ZM10.3 9.6H11.5C11.9 9.6 12.1 9.9 12.1 10.2C12.1 10.5 11.9 10.8 11.5 10.8H10.3C10 10.8 9.7 10.5 9.7 10.2C9.7 9.9 10 9.6 10.3 9.6ZM5.3 11A3 3 0 1 0 5.3 17A3 3 0 1 0 5.3 11ZM5.3 12.6A1.4 1.4 0 1 1 5.3 15.4A1.4 1.4 0 1 1 5.3 12.6ZM18.7 11A3 3 0 1 0 18.7 17A3 3 0 1 0 18.7 11ZM18.7 12.6A1.4 1.4 0 1 1 18.7 15.4A1.4 1.4 0 1 1 18.7 12.6Z"/>
-      </svg>
+    <app-empty-state illustration="car" title="No cars yet"
+      message="Add your first car to start tracking its parts and services."
+      actionLabel="Add your first car" (action)="navigateToAddCar()">
     </app-empty-state>
   </ng-template>
+  </ng-container>
 </div>

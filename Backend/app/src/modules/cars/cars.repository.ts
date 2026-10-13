@@ -15,18 +15,23 @@ export class CarsRepository {
     return this.repo.save(newCar);
   }
 
+  /** Every query is scoped to the owner; other users' cars do not exist. */
   async findAll(
+    userId: number,
     page: number = 1,
     limit: number = 10,
     search?: string,
     sortBy?: string,
     order: 'ASC' | 'DESC' = 'DESC',
   ): Promise<[Car[], number]> {
-    const query = this.repo.createQueryBuilder('car');
+    const query = this.repo
+      .createQueryBuilder('car')
+      .where('car.userId = :userId', { userId });
 
     if (search) {
-      query.where(
-        'car.plateNumber LIKE :search OR car.brand LIKE :search OR car.model LIKE :search',
+      // Parenthesized so the OR cannot escape the owner filter.
+      query.andWhere(
+        '(car.plateNumber LIKE :search OR car.brand LIKE :search OR car.model LIKE :search)',
         {
           search: `%${search}%`,
         },
@@ -57,25 +62,33 @@ export class CarsRepository {
     return query.getManyAndCount();
   }
 
-  async findOne(id: number): Promise<Car | null> {
+  async findOne(id: number, userId: number): Promise<Car | null> {
     return this.repo.findOne({
-      where: { id },
+      where: { id, userId },
       relations: ['items', 'maintenanceRecords'],
     });
   }
 
-  async findOneByPlate(plateNumber: string): Promise<Car | null> {
+  /** Plates are unique within one user's cars. */
+  async findOneByPlate(
+    plateNumber: string,
+    userId: number,
+  ): Promise<Car | null> {
     return this.repo.findOne({
-      where: { plateNumber },
+      where: { plateNumber, userId },
     });
   }
 
-  async update(id: number, car: Partial<Car>): Promise<Car | null> {
-    await this.repo.update(id, car);
-    return this.findOne(id);
+  async update(
+    id: number,
+    userId: number,
+    car: Partial<Car>,
+  ): Promise<Car | null> {
+    await this.repo.update({ id, userId }, car);
+    return this.findOne(id, userId);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.repo.delete(id);
+  async remove(id: number, userId: number): Promise<void> {
+    await this.repo.delete({ id, userId });
   }
 }

@@ -11,11 +11,14 @@ import { DataTableComponent } from '../../../shared/components/table/data-table.
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
+import { DetailSkeletonComponent } from '../../../shared/components/detail-skeleton/detail-skeleton.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-event-list',
   standalone: true,
-  imports: [
+  imports: [IconComponent, DetailSkeletonComponent, AuthImagePipe, 
     CommonModule,
     RouterModule,
     EmptyStateComponent,

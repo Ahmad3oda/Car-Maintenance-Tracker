@@ -14,17 +14,25 @@ services:
 
     environment:
       PORT: "3000"
-      DB_PATH: /app/data.sqlite
+      # Must live inside the sqlite_data volume (/app/data) to persist.
+      DB_PATH: /app/data/data.sqlite
       UPLOAD_DIR: /app/uploads
       FRONTEND_URL: http://localhost:4200
+      # Required. Set it in a .env file next to this one (never commit it):
+      #   JWT_SECRET=<output of: openssl rand -hex 32>
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (openssl rand -hex 32)}
 
     volumes:
+      - sqlite_data:/app/data
+      - uploads_data:/app/uploads
       - sqlite_data:/app/data
       - uploads_data:/app/uploads
 
   frontend:
     build:
       context: ./Frontend
+      args:
+        BUILD_CONFIGURATION: docker
       args:
         BUILD_CONFIGURATION: docker
     container_name: angular-frontend
@@ -37,6 +45,9 @@ services:
     depends_on:
       - backend
 
+volumes:
+  sqlite_data:
+  uploads_data:
 volumes:
   sqlite_data:
   uploads_data:

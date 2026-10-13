@@ -18,15 +18,17 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { DataTableComponent } from '../../shared/components/table/data-table.component';
 import { SortHeaderComponent } from '../../shared/components/table/sort-header.component';
 import { TableTextComponent } from '../../shared/components/table/table-text.component';
-import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
 import { UrgencyBadgeComponent } from '../../shared/components/urgency-badge/urgency-badge.component';
 import { OdometerModalComponent } from '../../shared/components/odometer-modal/odometer-modal.component';
 import { ExpensesChartComponent } from '../../shared/components/expenses-chart/expenses-chart.component';
+import { IconComponent } from '../../shared/components/icon/icon.component';
+import { PlateComponent } from '../../shared/components/plate/plate.component';
+import { ServiceGaugeComponent } from '../../shared/components/service-gauge/service-gauge.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
+  imports: [ServiceGaugeComponent, PlateComponent, IconComponent, 
     CommonModule,
     RouterModule,
     FormsModule,
@@ -35,7 +37,6 @@ import { ExpensesChartComponent } from '../../shared/components/expenses-chart/e
     DataTableComponent,
     SortHeaderComponent,
     TableTextComponent,
-    TruncatePipe,
     UrgencyBadgeComponent,
     OdometerModalComponent,
     ExpensesChartComponent,

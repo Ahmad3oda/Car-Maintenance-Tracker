@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { MaxModelYear } from '../../../common/validators/max-model-year.validator';
 
 export class CreateCarDto {
   @ApiProperty({ example: 'ABC-1234' })
@@ -22,6 +23,7 @@ export class CreateCarDto {
   @Type(() => Number)
   @IsInt()
   @Min(1900)
+  @MaxModelYear()
   year: number;
 
   @ApiPropertyOptional({ example: 100000 })

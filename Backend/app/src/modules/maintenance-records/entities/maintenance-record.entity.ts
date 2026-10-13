@@ -1,6 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Car } from '../../cars/entities/car.entity';
 import { Item } from '../../items/entities/item.entity';
+
+export interface ExtraCost {
+  name: string;
+  cost: number;
+}
 
 @Entity('maintenance_records')
 export class MaintenanceRecord {
@@ -10,14 +23,18 @@ export class MaintenanceRecord {
   @Column()
   carId: number;
 
-  @ManyToOne(() => Car, (car) => car.maintenanceRecords, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Car, (car) => car.maintenanceRecords, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'carId' })
   car: Car;
 
   @Column()
   itemId: number;
 
-  @ManyToOne(() => Item, (item) => item.maintenanceRecords, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Item, (item) => item.maintenanceRecords, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'itemId' })
   item: Item;
 
@@ -31,7 +48,7 @@ export class MaintenanceRecord {
   itemCost: number;
 
   @Column({ type: 'simple-json', nullable: true })
-  extraCosts: any;
+  extraCosts: ExtraCost[] | null;
 
   @Column({ type: 'text', nullable: true })
   notes: string;

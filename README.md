@@ -20,6 +20,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Photo upload** — Attach a photo to cars and items (stored locally in `/uploads`)
 - **Search, filter & pagination** — Paginated list endpoints with search, urgency scope filtering, and multi-column sorting
 - **Data Import & Export** — Export and import complete vehicle maintenance profiles (items + historical events) in standardized JSON format with atomic database transactions and automatic maintenance cycle recalculation
+- **User accounts** — Register / log in with username and password (bcrypt-hashed); JWT-protected API where each user only sees their own cars, items and records
 - **Validation** — Strong DTO validation with `class-validator`
 - **Swagger / OpenAPI** — Interactive API docs at `/api`
 - **CORS enabled** — Connected to the Angular frontend
@@ -34,7 +35,10 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Items** — Add and edit maintenance items per vehicle with required installation dates
 - **Maintenance events** — View, add, and edit service records per item
 - **Interactive sorting & pagination** — Server-side sorting headers and responsive pagination controls
-- **Theme support** — Dark and light mode toggle with persistent local storage
+- **Theme support** — Light and dark themes; follows the system setting until you pick one in the header, then remembers it. No flash of the wrong theme on load
+- **Design tokens** — Every colour is a CSS variable in `Frontend/src/styles.css` (Petrol & Graphite palette; `gray` = neutral, `purple` = brand in Tailwind class names). Change the palette there, not in components
+- **Motion** — Calm CSS-only page transitions, staggered fade-ins, skeleton loaders and hover effects; all disabled when the OS asks for reduced motion
+- **Car details** — Odometer-style numbers, fuel-gauge service bars, warning-light status badges, licence-plate badges and a wheel spinner (original inline SVGs; fonts are bundled, no external requests)
 - **Responsive design** — Adaptive layout optimized for mobile, tablet, and desktop screens
 - **Data Import & Export Modal** — Seamless JSON backup and restoration with instant file pick, raw JSON textarea editor, sample template inserter, and dynamic button swapping (Import button for empty vehicles automatically replaces with Export when data exists)
 - **Image lightbox & toast alerts** — Full-screen image preview and notification toasts
@@ -107,7 +111,7 @@ List tracking all maintenance events for better general tracking.
 | **API docs** | Swagger (`@nestjs/swagger`) |
 | **Validation** | class-validator, class-transformer |
 | **File uploads** | Multer |
-| **Frontend styling** | Tailwind CSS 3, DaisyUI 4, PostCSS |
+| **Frontend styling** | Tailwind CSS 3, PostCSS |
 | **Frontend fonts** | Inter, Fira Mono (`@fontsource/fira-mono`) |
 | **Frontend testing** | Karma + Jasmine |
 
@@ -130,7 +134,7 @@ Car-Maintenance-Tracker/
 │       │   ├── app.module.ts
 │       │   └── main.ts
 │       ├── uploads/                  # Item photo storage (auto-created)
-│       ├── data.sqlite               # SQLite DB (auto-created on first run)
+│       ├── data.sqlite               # SQLite DB (created on first run by migrations)
 │       └── package.json
 ├── Frontend/                         # Angular SPA
 │   ├── src/
@@ -173,6 +177,19 @@ cd car-maintenance-tracker
 | `backend` (`nest-backend`) | `./Backend/app` | **3000** → 3000 | NestJS API, SQLite, uploads |
 | `frontend` (`angular-frontend`) | `./Frontend` | **4200** → 80 | Angular app served by nginx |
 
+<<<<<<< HEAD
+The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are stored in two named Docker volumes, so they survive `docker compose down` and rebuilds. No setup is needed before the first start.
+
+| Volume | Mounted at | Contents |
+| ------ | ---------- | -------- |
+| `sqlite_data` | `/app/data` | `data.sqlite` |
+| `uploads_data` | `/app/uploads` | Car, item and record photos |
+
+Create a `.env` file in the **repository root** with the JWT signing secret (Compose refuses to start without it; `.env` is git-ignored):
+
+```bash
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
+=======
 The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are bind-mounted into the backend container so they survive `docker compose down`.
 
 **Create the bind-mount targets before the first start** (Docker will create a *directory* named `data.sqlite` if the file is missing):
@@ -189,6 +206,7 @@ New-Item -ItemType Directory -Force Backend/app/uploads | Out-Null
 if (-not (Test-Path Backend/app/data.sqlite)) {
   New-Item -ItemType File Backend/app/data.sqlite | Out-Null
 }
+>>>>>>> origin/main
 ```
 
 From the **repository root**:
@@ -202,14 +220,35 @@ Then open:
 - App: `http://localhost:4200`
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
+<<<<<<< HEAD
+- Photos: `http://localhost:3000/uploads/<folder>/<file>` (login required)
+
+Stop the stack (data is kept):
+=======
 - Uploads: `http://localhost:3000/uploads/<filename>`
 
 Stop the stack:
+>>>>>>> origin/main
 
 ```bash
 docker compose down
 ```
 
+<<<<<<< HEAD
+Stop and **delete all data** (removes both volumes):
+
+```bash
+docker compose down -v
+```
+
+Back up the database:
+
+```bash
+docker compose cp backend:/app/data/data.sqlite ./data.sqlite.bak
+```
+
+=======
+>>>>>>> origin/main
 Rebuild after code changes:
 
 ```bash
@@ -224,7 +263,11 @@ docker compose logs -f backend  # API only
 docker compose ps
 ```
 
+<<<<<<< HEAD
+The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `JWT_SECRET` from `.env`, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
+=======
 The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Those paths match the volumes in `docker-compose.yml`.
+>>>>>>> origin/main
 
 ### 3. Local development without Docker
 
@@ -237,15 +280,33 @@ cd Backend/app
 npm install
 ```
 
+<<<<<<< HEAD
+Create `.env` in `Backend/app/` (copy from `.env.example` and adjust). `JWT_SECRET` is required; the other values are the local defaults:
+=======
 Optional `.env` in `Backend/app/` (copy from `.env.example` and adjust). Local defaults:
+>>>>>>> origin/main
 
 ```env
 PORT=3000
 DB_PATH=data.sqlite
 UPLOAD_DIR=uploads
 FRONTEND_URL=http://localhost:4200
+<<<<<<< HEAD
+JWT_SECRET=<output of: openssl rand -hex 32>
 ```
 
+| Variable | Required | Description |
+| -------- | -------- | ----------- |
+| `JWT_SECRET` | **yes** | Signs login tokens. At least 32 characters; the API refuses to start without it. Keep it secret: anyone with it can log in as any user. Changing it logs everyone out. |
+| `DB_PATH` / `DATA_DIR` | no | SQLite file location (default `data.sqlite` in the working directory) |
+| `UPLOAD_DIR` | no | Photo folder (default `uploads`) |
+| `FRONTEND_URL` | no | Allowed CORS origin(s), comma-separated |
+| `PORT` | no | Default `3000` |
+
+=======
+```
+
+>>>>>>> origin/main
 ```bash
 npm run start:dev
 ```
@@ -301,6 +362,7 @@ modules/
 │   ├── items.service.ts        # Item management & urgency calculation engine
 │   ├── items.repository.ts
 │   └── items.module.ts
+├── dashboard/                  # GET /dashboard/stats
 └── maintenance-records/
     ├── dtos/
     ├── entities/               # MaintenanceRecord entity (maintenance_records table)
@@ -313,7 +375,23 @@ modules/
 
 ### Database
 
-SQLite with TypeORM. On first run, `data.sqlite` is created automatically (`synchronize: true` in dev).
+SQLite with TypeORM. The schema is managed by **migrations** in `Backend/app/src/database/migrations`, not `synchronize`. On every startup the API runs any pending migrations, so a new database file is created and brought up to date automatically (locally and on Railway).
+
+**Changing the schema:**
+
+1. Edit the entity.
+2. Generate a migration from the difference and review the SQL:
+
+   ```bash
+   cd Backend/app
+   npm run migration:generate -- src/database/migrations/AddCarColor
+   ```
+
+3. Commit it. It runs on the next start. `npm run migration:revert` undoes the last one.
+
+A test fails if an entity changes without a migration. On SQLite, changing an existing column makes TypeORM rebuild the table (copy, drop, rename) inside the migration; read the generated SQL before committing.
+
+**Databases from before migrations** (created with the old `synchronize: true`) are refused at startup with a message to delete the file. They only held test data.
 
 #### Entity relationships
 
@@ -409,6 +487,24 @@ All list endpoints return a paginated envelope:
 | `search` | string | — | Full-text search |
 | `sortBy` | string | — | Field to sort by |
 
+#### Authentication — `/auth`
+
+Every endpoint needs an `Authorization: Bearer <token>` header except `POST /auth/register`, `POST /auth/login` and `GET /` (public health check used by Railway). In Swagger (`/api`), log in, copy `accessToken` and paste it into **Authorize**.
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| POST | `/auth/register` | Create an account; returns `{ accessToken, expiresIn, user }` |
+| POST | `/auth/login` | Log in; same response. Wrong username or password both return 401 `Invalid username or password` |
+| GET | `/auth/me` | The logged-in user |
+
+- **Username:** 3–30 characters, starts with a letter, only English letters, digits and `_`. Unique ignoring case (`Ahmed` = `ahmed`); a taken name returns 409 `Username "x" is already taken`.
+- **Password:** 6–72 characters (bcrypt ignores anything past 72 bytes). Stored as a bcrypt hash only.
+- **Tokens** last 7 days. A missing, invalid or expired token returns 401.
+
+**Per-user data:** cars belong to the user who created them; items and records belong to the user through their car. Lists, `/items/upcoming` and `/dashboard/stats` only include your own data, and another user's id returns the same 404 as an id that does not exist. Plate numbers are unique within one user's cars; different users can register the same plate.
+
+**Photos** are served by `GET /uploads/<cars|items|maintenance-records>/<file>`, which requires login and returns a photo only to the user who owns its car (404 for anyone else). File names are random UUIDs. The frontend loads photos through `HttpClient` so the token is sent. Allowed: JPEG, PNG, WebP, GIF up to 5 MB.
+
 #### Cars — `/cars`
 
 | Method | Endpoint | Description |
@@ -453,6 +549,14 @@ All list endpoints return a paginated envelope:
 
 **Create body:** `carId`, `itemId`, `maintenanceDate`, `kmCounter`, `itemCost`, `extraCosts?` (`[{ name, cost }]`), `notes?`
 
+#### Dashboard — `/dashboard`
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/dashboard/stats` | Car and item totals, services and spend in the last 30 / 365 days |
+
+Service counts exclude the automatic "Initial component installation" records; their cost still counts toward spend.
+
 ### Switching to PostgreSQL / MySQL
 
 1. Install the driver:
@@ -475,9 +579,11 @@ All list endpoints return a paginated envelope:
      password: 'password',
      database: 'car_maintenance',
      autoLoadEntities: true,
-     synchronize: true,
+     migrationsRun: true,
    }),
    ```
+
+3. The existing migrations contain SQLite SQL: delete them and generate a new baseline for the new database (`npm run migration:generate`).
 
 Entities, services, and controllers stay the same.
 
@@ -493,7 +599,6 @@ Entities, services, and controllers stay the same.
 | Angular | 19.2 | Standalone components, routing, forms |
 | TypeScript | 5.7 | Strict mode enabled |
 | Tailwind CSS | 3.4 | Utility-first styling |
-| DaisyUI | 4.12 | UI component plugin (themes disabled; custom palette) |
 | PostCSS + Autoprefixer | — | CSS processing |
 | `@tailwindcss/typography` | 0.5 | Prose/typography utilities |
 | Karma + Jasmine | — | Unit tests |
@@ -505,7 +610,7 @@ Entities, services, and controllers stay the same.
 | ---- | ------- |
 | `angular.json` | Build/serve/test targets; output to `dist/frontend` |
 | `tsconfig.json` | Strict TS + Angular compiler options (`ES2022`, bundler resolution) |
-| `tailwind.config.js` | Custom color palette, Inter/Montserrat fonts, DaisyUI plugin, dark mode via `class` |
+| `tailwind.config.js` | Custom color palette, Inter/Montserrat fonts, dark mode via `class` |
 | `postcss.config.js` | Tailwind + Autoprefixer pipeline |
 | `.editorconfig` | Editor formatting defaults |
 
@@ -605,7 +710,7 @@ These TypeScript interfaces mirror the backend schema:
 - [x] Quick odometer update modal with real-time schedule recalculation
 - [x] Header notification bell with real-time pending badges and quick service actions
 - [x] Full car maintenance import & export system (JSON format with nested items & events)
-- [ ] JWT authentication
+- [x] JWT authentication & per-user data
 - [ ] Cost analytics charts & reports
 - [ ] Export records as CSV/PDF
 - [x] Docker support

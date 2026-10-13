@@ -1,0 +1,79 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-10">
+  <div class="w-full max-w-sm">
+    <div class="flex flex-col items-center mb-6">
+      <img src="favicon.svg" alt="" class="w-12 h-12 mb-3" />
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Create an account</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Car Maintenance Tracker</p>
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      novalidate
+      class="p-6 space-y-4 bg-white rounded-xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700"
+    >
+      <div *ngIf="formError" class="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/30 dark:text-red-300 dark:border-red-800" role="alert">
+        {{ formError }}
+      </div>
+
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Username</label>
+        <input
+          id="username"
+          formControlName="username"
+          type="text"
+          autocomplete="username"
+          class="block w-full px-3.5 sm:px-4 py-2 text-sm bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+          [ngClass]="showError('username') ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-gray-300 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400'"
+          [attr.aria-invalid]="!!showError('username')"
+          [attr.aria-describedby]="showError('username') ? 'username-error' : null"
+        />
+        <p *ngIf="showError('username')" id="username-error" class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{{ showError('username') }}</p>
+        <p *ngIf="!showError('username') && hints.username" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ hints.username }}</p>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Password</label>
+        <input
+          id="password"
+          formControlName="password"
+          type="password"
+          autocomplete="new-password"
+          class="block w-full px-3.5 sm:px-4 py-2 text-sm bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+          [ngClass]="showError('password') ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-gray-300 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400'"
+          [attr.aria-invalid]="!!showError('password')"
+          [attr.aria-describedby]="showError('password') ? 'password-error' : null"
+        />
+        <p *ngIf="showError('password')" id="password-error" class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{{ showError('password') }}</p>
+        <p *ngIf="!showError('password') && hints.password" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ hints.password }}</p>
+      </div>
+
+      <div>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Confirm password</label>
+        <input
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          type="password"
+          autocomplete="new-password"
+          class="block w-full px-3.5 sm:px-4 py-2 text-sm bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 dark:bg-gray-700 dark:text-gray-300 transition-colors"
+          [ngClass]="confirmError ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-gray-300 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400'"
+          [attr.aria-invalid]="!!confirmError"
+          [attr.aria-describedby]="confirmError ? 'confirmPassword-error' : null"
+        />
+        <p *ngIf="confirmError" id="confirmPassword-error" class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{{ confirmError }}</p>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="submitting"
+        class="w-full px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+      >
+        {{ submitting ? 'Creating account…' : 'Create account' }}
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
+      Already have an account? <a routerLink="/login" class="font-medium text-purple-600 hover:underline dark:text-purple-400">Log in</a>
+    </p>
+  </div>
+</div>

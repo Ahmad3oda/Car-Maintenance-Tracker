@@ -39,7 +39,7 @@ export class PageOptionsDto {
   @IsString()
   @IsOptional()
   readonly search?: string;
-  
+
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()

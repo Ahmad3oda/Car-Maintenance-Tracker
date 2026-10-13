@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { Car } from '../../cars/entities/car.entity';
 import { MaintenanceRecord } from '../../maintenance-records/entities/maintenance-record.entity';
 
@@ -51,13 +60,14 @@ export class Item {
   @Column({ type: 'datetime', nullable: true })
   nextMaintenanceDate: Date | null;
 
-
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => MaintenanceRecord, (record) => record.item, { cascade: true })
+  @OneToMany(() => MaintenanceRecord, (record) => record.item, {
+    cascade: true,
+  })
   maintenanceRecords: MaintenanceRecord[];
 }

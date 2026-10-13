@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -31,8 +32,11 @@ import { QueryUpcomingItemDto } from './dtos/query-upcoming-item.dto';
 import { ItemSerializer } from './serializers/item.serializer';
 import { UpcomingItemSerializer } from './serializers/upcoming-item.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
-import { createMulterStorage } from '../../common/utils/multer.util';
+import { createImageUploadOptions } from '../../common/utils/multer.util';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user';
 
+@ApiBearerAuth()
 @ApiTags('Items')
 @Controller('items')
 export class ItemsController {
@@ -52,11 +56,12 @@ export class ItemsController {
         { name: 'photoPath', maxCount: 1 },
         { name: 'photo', maxCount: 1 },
       ],
-      { storage: createMulterStorage('items') },
+      createImageUploadOptions('items'),
     ),
   )
   @SerializeOptions({ type: ItemSerializer })
   create(
+    @CurrentUser() user: AuthUser,
     @Body() createItemDto: CreateItemDto,
     @UploadedFiles()
     files?: {
@@ -65,7 +70,7 @@ export class ItemsController {
     },
   ): Promise<ItemSerializer> {
     const photo = files?.photoPath?.[0] || files?.photo?.[0];
-    return this.itemsService.create(createItemDto, photo?.filename);
+    return this.itemsService.create(user.id, createItemDto, photo?.filename);
   }
 
   @Get()
@@ -89,8 +94,11 @@ export class ItemsController {
     },
   })
   @SerializeOptions({ type: PageDto<ItemSerializer> })
-  findAll(@Query() query: QueryItemDto): Promise<PageDto<ItemSerializer>> {
-    return this.itemsService.findAll(query);
+  findAll(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryItemDto,
+  ): Promise<PageDto<ItemSerializer>> {
+    return this.itemsService.findAll(user.id, query);
   }
 
   @Get('upcoming')
@@ -115,9 +123,10 @@ export class ItemsController {
   })
   @SerializeOptions({ type: PageDto<UpcomingItemSerializer> })
   getUpcoming(
+    @CurrentUser() user: AuthUser,
     @Query() query: QueryUpcomingItemDto,
   ): Promise<PageDto<UpcomingItemSerializer>> {
-    return this.itemsService.getUpcoming(query);
+    return this.itemsService.getUpcoming(user.id, query);
   }
 
   @Get(':id')
@@ -125,8 +134,11 @@ export class ItemsController {
   @ApiResponse({ status: 200, description: 'The item.', type: ItemSerializer })
   @ApiResponse({ status: 404, description: 'Item not found.' })
   @SerializeOptions({ type: ItemSerializer })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<ItemSerializer> {
-    return this.itemsService.findOne(id);
+  findOne(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ItemSerializer> {
+    return this.itemsService.findOne(user.id, id);
   }
 
   @Patch(':id')
@@ -144,11 +156,12 @@ export class ItemsController {
         { name: 'photoPath', maxCount: 1 },
         { name: 'photo', maxCount: 1 },
       ],
-      { storage: createMulterStorage('items') },
+      createImageUploadOptions('items'),
     ),
   )
   @SerializeOptions({ type: ItemSerializer })
   update(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateItemDto: UpdateItemDto,
     @UploadedFiles()
@@ -158,7 +171,12 @@ export class ItemsController {
     },
   ): Promise<ItemSerializer> {
     const photo = files?.photoPath?.[0] || files?.photo?.[0];
-    return this.itemsService.update(id, updateItemDto, photo?.filename);
+    return this.itemsService.update(
+      user.id,
+      id,
+      updateItemDto,
+      photo?.filename,
+    );
   }
 
   @Delete(':id')
@@ -169,7 +187,10 @@ export class ItemsController {
     description: 'The item has been successfully deleted.',
   })
   @ApiResponse({ status: 404, description: 'Item not found.' })
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.itemsService.remove(id);
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.itemsService.remove(user.id, id);
   }
 }

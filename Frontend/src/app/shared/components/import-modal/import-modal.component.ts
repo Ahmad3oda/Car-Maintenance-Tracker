@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { CarService } from '../../../core/services/car.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ImportCarDataDto, ImportResultDto } from '../../../shared/models/api.models';
+import { WheelSpinnerComponent } from '../wheel-spinner/wheel-spinner.component';
 
 @Component({
   selector: 'app-import-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [WheelSpinnerComponent, CommonModule, FormsModule],
   templateUrl: './import-modal.component.html',
 })
 export class ImportModalComponent {

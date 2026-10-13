@@ -6,11 +6,14 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { CarDto } from '../../../shared/models/api.models';
 
 import { NotificationService } from '../../../core/services/notification.service';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { PlateComponent } from '../../../shared/components/plate/plate.component';
 
 @Component({
   selector: 'app-car-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, EmptyStateComponent],
+  imports: [PlateComponent, IconComponent, AuthImagePipe, CommonModule, RouterModule, EmptyStateComponent],
   templateUrl: './car-list.component.html',
 })
 export class CarListComponent implements OnInit {

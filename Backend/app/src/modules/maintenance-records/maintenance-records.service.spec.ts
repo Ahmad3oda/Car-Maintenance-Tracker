@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MaintenanceRecordsService } from './maintenance-records.service';
 import { MaintenanceRecordsRepository } from './maintenance-records.repository';
 import { ItemsRepository } from '../items/items.repository';
-import { CarsRepository } from '../cars/cars.repository';
+import { OdometerService } from '../cars/odometer.service';
 
 describe('MaintenanceRecordsService', () => {
   let service: MaintenanceRecordsService;
@@ -29,9 +29,9 @@ describe('MaintenanceRecordsService', () => {
           },
         },
         {
-          provide: CarsRepository,
+          provide: OdometerService,
           useValue: {
-            findOne: jest.fn(),
+            sync: jest.fn(),
           },
         },
       ],

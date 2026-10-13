@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { CarDto } from '../../models/api.models';
 import { CarService } from '../../../core/services/car.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { IconComponent } from '../icon/icon.component';
+import { WheelSpinnerComponent } from '../wheel-spinner/wheel-spinner.component';
 
 @Component({
   selector: 'app-odometer-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [WheelSpinnerComponent, IconComponent, CommonModule, FormsModule],
   template: `
     <div
       *ngIf="isOpen"
@@ -29,11 +31,7 @@ import { NotificationService } from '../../../core/services/notification.service
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/80 bg-gray-50/70 dark:bg-gray-800/90">
           <div class="flex items-center space-x-3">
             <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400">
-              <img
-                src="assets/icons/odometer-purple.png"
-                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-                alt="ODOMETER"
-              />
+              <app-icon name="odometer" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1"></app-icon>
             </div>
             <div>
               <h3 class="text-base font-bold text-gray-900 dark:text-white">Quick Odometer Update</h3>
@@ -121,10 +119,7 @@ import { NotificationService } from '../../../core/services/notification.service
               [disabled]="isUpdating || newKm === null || newKm === undefined || newKm < 0"
               class="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 rounded-xl transition-all shadow-sm focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg *ngIf="isUpdating" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
+              <app-wheel-spinner *ngIf="isUpdating" class="-ml-1 mr-2 h-4 w-4 text-white"></app-wheel-spinner>
               <span>{{ isUpdating ? 'Updating...' : 'Update & Recalculate' }}</span>
             </button>
           </div>

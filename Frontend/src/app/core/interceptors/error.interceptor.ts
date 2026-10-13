@@ -1,13 +1,43 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpContextToken,
+  HttpErrorResponse,
+  HttpInterceptorFn,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
+
+/** Requests that handle their own failures (e.g. photos) skip the toast. */
+export const SILENT_ERRORS = new HttpContextToken<boolean>(() => false);
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notifications = inject(NotificationService);
+  const auth = inject(AuthService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      const isAuthForm = /\/auth\/(login|register)$/.test(req.url);
+
+      // The login/register pages show these next to the fields.
+      if (isAuthForm && [400, 401, 409].includes(error.status)) {
+        return throwError(() => error);
+      }
+
+      // Expired or revoked session: back to login.
+      if (error.status === 401 && !isAuthForm) {
+        // Parallel requests all fail; only the first one acts.
+        if (auth.user()) {
+          notifications.showWarning('Your session has expired. Please log in again.');
+          auth.logout('expired');
+        }
+        return throwError(() => error);
+      }
+
+      if (req.context.get(SILENT_ERRORS)) {
+        return throwError(() => error);
+      }
+
       let message = '';
 
       // 1. Connection / Network errors (status 0)

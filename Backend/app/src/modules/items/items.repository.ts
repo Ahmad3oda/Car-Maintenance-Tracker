@@ -15,7 +15,9 @@ export class ItemsRepository {
     return this.repo.save(newItem);
   }
 
+  /** Items belong to a user through their car. */
   async findAll(
+    userId: number,
     page: number = 1,
     limit: number = 10,
     search?: string,
@@ -26,7 +28,8 @@ export class ItemsRepository {
     const query = this.repo
       .createQueryBuilder('item')
       .leftJoinAndSelect('item.car', 'car')
-      .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords');
+      .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords')
+      .where('car.userId = :userId', { userId });
 
     if (carId) {
       query.andWhere('item.carId = :carId', { carId });
@@ -47,9 +50,13 @@ export class ItemsRepository {
     if (sortBy === 'name') {
       query.orderBy('item.name', sortOrder);
     } else if (sortBy === 'installedKm') {
-      query.orderBy('item.installedKm', sortOrder).addOrderBy('item.id', 'DESC');
+      query
+        .orderBy('item.installedKm', sortOrder)
+        .addOrderBy('item.id', 'DESC');
     } else if (sortBy === 'nextMaintenanceKm') {
-      query.orderBy('item.nextMaintenanceKm', sortOrder).addOrderBy('item.id', 'DESC');
+      query
+        .orderBy('item.nextMaintenanceKm', sortOrder)
+        .addOrderBy('item.id', 'DESC');
     } else if (
       sortBy === 'lastInstallment' ||
       sortBy === 'lastMaintenanceDate' ||
@@ -72,18 +79,19 @@ export class ItemsRepository {
     return query.getManyAndCount();
   }
 
-  async findOne(id: number): Promise<Item | null> {
+  async findOne(id: number, userId: number): Promise<Item | null> {
     return this.repo.findOne({
-      where: { id },
+      where: { id, car: { userId } },
       relations: ['car', 'maintenanceRecords'],
     });
   }
 
-  async update(id: number, item: Partial<Item>): Promise<Item | null> {
+  /** Callers must have checked ownership (findOne) first. */
+  async update(id: number, item: Partial<Item>): Promise<void> {
     await this.repo.update(id, item);
-    return this.findOne(id);
   }
 
+  /** Callers must have checked ownership (findOne) first. */
   async remove(id: number): Promise<void> {
     await this.repo.delete(id);
   }
@@ -93,6 +101,7 @@ export class ItemsRepository {
   }
 
   async findUpcomingCandidates(
+    userId: number,
     carId?: number,
     search?: string,
   ): Promise<Item[]> {
@@ -100,7 +109,8 @@ export class ItemsRepository {
       .createQueryBuilder('item')
       .leftJoinAndSelect('item.car', 'car')
       .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords')
-      .where(
+      .where('car.userId = :userId', { userId })
+      .andWhere(
         '(item.nextMaintenanceKm IS NOT NULL OR item.nextMaintenanceDate IS NOT NULL)',
       );
 

@@ -15,6 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -34,8 +35,11 @@ import {
 import { CarSerializer } from './serializers/car.serializer';
 import { PageDto } from '../../common/dtos/page.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createMulterStorage } from '../../common/utils/multer.util';
+import { createImageUploadOptions } from '../../common/utils/multer.util';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user';
 
+@ApiBearerAuth()
 @ApiTags('Cars')
 @Controller('cars')
 export class CarsController {
@@ -50,16 +54,15 @@ export class CarsController {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
-    FileInterceptor('photoPath', {
-      storage: createMulterStorage('cars'),
-    }),
+    FileInterceptor('photoPath', createImageUploadOptions('cars')),
   )
   @SerializeOptions({ type: CarSerializer })
   create(
+    @CurrentUser() user: AuthUser,
     @Body() createCarDto: CreateCarDto,
     @UploadedFile() photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    return this.carsService.create(createCarDto, photo);
+    return this.carsService.create(user.id, createCarDto, photo);
   }
 
   @Get()
@@ -83,8 +86,11 @@ export class CarsController {
     },
   })
   @SerializeOptions({ type: PageDto<CarSerializer> })
-  findAll(@Query() query: QueryCarDto): Promise<PageDto<CarSerializer>> {
-    return this.carsService.findAll(query);
+  findAll(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryCarDto,
+  ): Promise<PageDto<CarSerializer>> {
+    return this.carsService.findAll(user.id, query);
   }
 
   @Get(':id')
@@ -92,8 +98,11 @@ export class CarsController {
   @ApiResponse({ status: 200, description: 'The car.', type: CarSerializer })
   @ApiResponse({ status: 404, description: 'Car not found.' })
   @SerializeOptions({ type: CarSerializer })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<CarSerializer> {
-    return this.carsService.findOne(id);
+  findOne(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CarSerializer> {
+    return this.carsService.findOne(user.id, id);
   }
 
   @Patch(':id')
@@ -105,22 +114,23 @@ export class CarsController {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
-    FileInterceptor('photoPath', {
-      storage: createMulterStorage('cars'),
-    }),
+    FileInterceptor('photoPath', createImageUploadOptions('cars')),
   )
   @ApiResponse({ status: 404, description: 'Car not found.' })
   @SerializeOptions({ type: CarSerializer })
   update(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDto,
     @UploadedFile() photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    return this.carsService.update(id, updateCarDto, photo);
+    return this.carsService.update(user.id, id, updateCarDto, photo);
   }
 
   @Get(':id/export')
-  @ApiOperation({ summary: 'Export full car maintenance data (items + events)' })
+  @ApiOperation({
+    summary: 'Export full car maintenance data (items + events)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Exported car data bundle in JSON format.',
@@ -128,9 +138,10 @@ export class CarsController {
   })
   @ApiResponse({ status: 404, description: 'Car not found.' })
   exportData(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ExportCarDataDto> {
-    return this.carsService.exportCarData(id);
+    return this.carsService.exportCarData(user.id, id);
   }
 
   @Post(':id/import')
@@ -143,10 +154,11 @@ export class CarsController {
   @ApiResponse({ status: 400, description: 'Invalid import data payload.' })
   @ApiResponse({ status: 404, description: 'Car not found.' })
   importData(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ImportCarDataDto,
   ): Promise<ImportResultDto> {
-    return this.carsService.importCarData(id, dto);
+    return this.carsService.importCarData(user.id, id, dto);
   }
 
   @Delete(':id')
@@ -157,7 +169,10 @@ export class CarsController {
     description: 'The car has been successfully deleted.',
   })
   @ApiResponse({ status: 404, description: 'Car not found.' })
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.carsService.remove(id);
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.carsService.remove(user.id, id);
   }
 }
