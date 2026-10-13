@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OdometerComponent } from '../odometer/odometer.component';
 
 @Component({
   selector: 'app-stat-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, OdometerComponent],
   template: `
     <div class="flex items-center p-4 sm:p-5 h-full min-h-[96px] sm:min-h-[105px] bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700/70 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
       <div [ngClass]="iconContainerClass" class="p-2.5 sm:p-3 mr-3 sm:mr-4 rounded-xl flex-shrink-0 flex items-center justify-center">
@@ -15,7 +16,7 @@ import { CommonModule } from '@angular/common';
           {{ title }}
         </p>
         <p class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-100 tracking-tight truncate">
-          {{ value }}
+          <app-odometer [value]="value"></app-odometer>
         </p>
       </div>
     </div>

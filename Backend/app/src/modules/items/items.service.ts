@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ItemsRepository } from './items.repository';
 import { CarsRepository } from '../cars/cars.repository';
+import { OdometerService } from '../cars/odometer.service';
 import { CreateItemDto } from './dtos/create-item.dto';
 import { UpdateItemDto } from './dtos/update-item.dto';
 import { QueryItemDto } from './dtos/query-item.dto';
 import {
   QueryUpcomingItemDto,
   UpcomingScope,
+  UpcomingSortField,
 } from './dtos/query-upcoming-item.dto';
 import { ItemSerializer } from './serializers/item.serializer';
 import {
@@ -17,19 +19,27 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
-
-import { MaintenanceRecordsRepository } from '../maintenance-records/maintenance-records.repository';
+import { computeMaintenanceSchedule } from './maintenance-schedule.util';
+import { DataSource } from 'typeorm';
+import { Item } from './entities/item.entity';
+import { MaintenanceRecord } from '../maintenance-records/entities/maintenance-record.entity';
+import { INITIAL_INSTALLATION_NOTE } from '../maintenance-records/maintenance-records.constants';
 
 @Injectable()
 export class ItemsService {
   constructor(
     private readonly itemsRepo: ItemsRepository,
     private readonly carsRepo: CarsRepository,
-    private readonly recordsRepo: MaintenanceRecordsRepository,
+    private readonly dataSource: DataSource,
+    private readonly odometer: OdometerService,
   ) {}
 
-  async create(dto: CreateItemDto, photo?: string): Promise<ItemSerializer> {
-    const car = await this.carsRepo.findOne(dto.carId);
+  async create(
+    userId: number,
+    dto: CreateItemDto,
+    photo?: string,
+  ): Promise<ItemSerializer> {
+    const car = await this.carsRepo.findOne(dto.carId, userId);
     if (!car) {
       if (photo) {
         await deleteUploadedFile('items', photo);
@@ -46,50 +56,55 @@ export class ItemsService {
       ? new Date(dto.installedDate)
       : new Date();
 
-    let nextMaintenanceKm: number | null = null;
-    if (dto.expectedMaintenanceKm) {
-      nextMaintenanceKm = installedKm + Number(dto.expectedMaintenanceKm);
-    }
+    // Item, its initial installation record and the schedule are written
+    // together so a failure never leaves an item without a baseline record.
+    const itemId = await this.dataSource
+      .transaction(async (manager) => {
+        const savedItem = await manager.save(
+          manager.create(Item, {
+            ...dto,
+            installedKm,
+            installedDate,
+            photoPath: photo ?? null,
+          }),
+        );
+        const initialRecord = await manager.save(
+          manager.create(MaintenanceRecord, {
+            carId: car.id,
+            itemId: savedItem.id,
+            maintenanceDate: installedDate,
+            kmCounter: installedKm,
+            itemCost: 0,
+            notes: INITIAL_INSTALLATION_NOTE,
+          }),
+        );
+        await manager.update(
+          Item,
+          savedItem.id,
+          computeMaintenanceSchedule(savedItem, [initialRecord]),
+        );
+        return savedItem.id;
+      })
+      .catch(async (error: unknown) => {
+        if (photo) {
+          await deleteUploadedFile('items', photo);
+        }
+        throw error;
+      });
+    await this.odometer.sync(car.id);
 
-    let nextMaintenanceDate: Date | null = null;
-    if (dto.expectedMaintenanceMonths) {
-      const d = new Date(installedDate);
-      d.setMonth(d.getMonth() + Number(dto.expectedMaintenanceMonths));
-      nextMaintenanceDate = d;
-    }
-
-    // 1. Create the item record
-    const itemData = {
-      ...dto,
-      installedKm,
-      installedDate,
-      nextMaintenanceKm,
-      nextMaintenanceDate,
-      photoPath: photo ?? null,
-    };
-    const savedItem = await this.itemsRepo.create(itemData);
-
-    // 2. Automatically create the first maintenance event (Initial Installation)
-    const initialRecord = await this.recordsRepo.create({
-      carId: dto.carId,
-      itemId: savedItem.id,
-      maintenanceDate: installedDate,
-      kmCounter: installedKm,
-      itemCost: 0,
-      notes: 'Initial component installation',
-    });
-
-    // 3. Link item to the newly created initial maintenance event
-    const updatedItem = await this.itemsRepo.update(savedItem.id, {
-      lastMaintenanceId: initialRecord.id,
-      lastMaintenanceDate: installedDate,
-    });
-
-    return plainToInstance(ItemSerializer, updatedItem || savedItem);
+    return plainToInstance(
+      ItemSerializer,
+      await this.itemsRepo.findOne(itemId, userId),
+    );
   }
 
-  async findAll(query: QueryItemDto): Promise<PageDto<ItemSerializer>> {
+  async findAll(
+    userId: number,
+    query: QueryItemDto,
+  ): Promise<PageDto<ItemSerializer>> {
     const [items, itemCount] = await this.itemsRepo.findAll(
+      userId,
       query.page,
       query.limit,
       query.search,
@@ -106,8 +121,8 @@ export class ItemsService {
     return new PageDto(serializedItems, pageMetaDto);
   }
 
-  async findOne(id: number): Promise<ItemSerializer> {
-    const item = await this.itemsRepo.findOne(id);
+  async findOne(userId: number, id: number): Promise<ItemSerializer> {
+    const item = await this.itemsRepo.findOne(id, userId);
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
@@ -115,11 +130,12 @@ export class ItemsService {
   }
 
   async update(
+    userId: number,
     id: number,
     dto: UpdateItemDto,
     photo?: string,
   ): Promise<ItemSerializer> {
-    const item = await this.itemsRepo.findOne(id);
+    const item = await this.itemsRepo.findOne(id, userId);
     if (!item) {
       if (photo) {
         await deleteUploadedFile('items', photo);
@@ -129,7 +145,7 @@ export class ItemsService {
 
     let targetCar = item.car;
     if (dto.carId && dto.carId !== item.carId) {
-      const car = await this.carsRepo.findOne(dto.carId);
+      const car = await this.carsRepo.findOne(dto.carId, userId);
       if (!car) {
         if (photo) {
           await deleteUploadedFile('items', photo);
@@ -139,7 +155,7 @@ export class ItemsService {
       targetCar = car;
     }
 
-    const updateData: Partial<any> = { ...dto };
+    const updateData: Partial<Item> = { ...dto };
     if (photo) {
       if (item.photoPath) {
         await deleteUploadedFile('items', item.photoPath);
@@ -147,74 +163,60 @@ export class ItemsService {
       updateData.photoPath = photo;
     }
 
-    // Recalculate nextMaintenanceKm and nextMaintenanceDate based on updated values
-    const records = item.maintenanceRecords || [];
-    const sortedRecords = [...records].sort(
-      (a, b) =>
-        new Date(b.maintenanceDate).getTime() -
-        new Date(a.maintenanceDate).getTime(),
-    );
-    const latestRecord = sortedRecords[0];
-
-    // Determine expectedMaintenanceKm
     const expectedKm =
       dto.expectedMaintenanceKm !== undefined
         ? dto.expectedMaintenanceKm
         : item.expectedMaintenanceKm;
-
-    if (expectedKm === null || expectedKm === undefined || Number(expectedKm) <= 0) {
-      updateData.expectedMaintenanceKm = null;
-      updateData.nextMaintenanceKm = null;
-    } else {
-      updateData.expectedMaintenanceKm = Number(expectedKm);
-      if (latestRecord) {
-        updateData.nextMaintenanceKm =
-          Number(latestRecord.kmCounter) + Number(expectedKm);
-      } else {
-        const installedKm =
-          dto.installedKm !== undefined && dto.installedKm !== null
-            ? dto.installedKm
-            : item.installedKm;
-        const baseKm =
-          installedKm !== undefined && installedKm !== null
-            ? Number(installedKm)
-            : Number(targetCar?.currentKm || 0);
-        updateData.nextMaintenanceKm = baseKm + Number(expectedKm);
-      }
-    }
-
-    // Determine expectedMaintenanceMonths
     const expectedMonths =
       dto.expectedMaintenanceMonths !== undefined
         ? dto.expectedMaintenanceMonths
         : item.expectedMaintenanceMonths;
+    const intervalKm =
+      expectedKm && Number(expectedKm) > 0 ? Number(expectedKm) : null;
+    const intervalMonths =
+      expectedMonths && Number(expectedMonths) > 0
+        ? Number(expectedMonths)
+        : null;
+    updateData.expectedMaintenanceKm = intervalKm;
+    updateData.expectedMaintenanceMonths = intervalMonths;
 
-    if (expectedMonths === null || expectedMonths === undefined || Number(expectedMonths) <= 0) {
-      updateData.expectedMaintenanceMonths = null;
-      updateData.nextMaintenanceDate = null;
-    } else {
-      updateData.expectedMaintenanceMonths = Number(expectedMonths);
-      if (latestRecord) {
-        const d = new Date(latestRecord.maintenanceDate);
-        d.setMonth(d.getMonth() + Number(expectedMonths));
-        updateData.nextMaintenanceDate = d;
-      } else {
-        const installedDate =
-          dto.installedDate !== undefined && dto.installedDate !== null
-            ? dto.installedDate
-            : item.installedDate;
-        const d = installedDate ? new Date(installedDate) : new Date();
-        d.setMonth(d.getMonth() + Number(expectedMonths));
-        updateData.nextMaintenanceDate = d;
+    const installedKm = dto.installedKm ?? item.installedKm;
+    Object.assign(
+      updateData,
+      computeMaintenanceSchedule(
+        {
+          installedKm: installedKm ?? Number(targetCar?.currentKm || 0),
+          installedDate: dto.installedDate ?? item.installedDate ?? new Date(),
+          expectedMaintenanceKm: intervalKm,
+          expectedMaintenanceMonths: intervalMonths,
+        },
+        item.maintenanceRecords,
+      ),
+    );
+
+    // Records follow their item, so moving the item moves its history too.
+    await this.dataSource.transaction(async (manager) => {
+      await manager.update(Item, id, updateData);
+      if (targetCar.id !== item.carId) {
+        await manager.update(
+          MaintenanceRecord,
+          { itemId: id },
+          { carId: targetCar.id },
+        );
       }
+    });
+
+    if (targetCar.id !== item.carId) {
+      await this.odometer.sync(targetCar.id);
+      await this.odometer.sync(item.carId, highestKm(item.maintenanceRecords));
     }
 
-    const updatedItem = await this.itemsRepo.update(id, updateData);
+    const updatedItem = await this.itemsRepo.findOne(id, userId);
     return plainToInstance(ItemSerializer, updatedItem);
   }
 
-  async remove(id: number): Promise<void> {
-    const item = await this.itemsRepo.findOne(id);
+  async remove(userId: number, id: number): Promise<void> {
+    const item = await this.itemsRepo.findOne(id, userId);
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
@@ -224,12 +226,15 @@ export class ItemsService {
     }
 
     await this.itemsRepo.remove(id);
+    await this.odometer.sync(item.carId, highestKm(item.maintenanceRecords));
   }
 
   async getUpcoming(
+    userId: number,
     query: QueryUpcomingItemDto,
   ): Promise<PageDto<UpcomingItemSerializer>> {
     const candidates = await this.itemsRepo.findUpcomingCandidates(
+      userId,
       query.carId,
       query.search,
     );
@@ -336,13 +341,6 @@ export class ItemsService {
     }
 
     // Sort evaluated list
-    const statusWeight: Record<string, number> = {
-      OVERDUE: 1,
-      DUE_SOON: 2,
-      UPCOMING: 3,
-      OK: 4,
-    };
-
     const order =
       query.order && query.order.toString().toUpperCase() === 'DESC'
         ? 'DESC'
@@ -350,16 +348,9 @@ export class ItemsService {
 
     evaluatedList.sort((a, b) => {
       if (query.sortBy) {
-        let valA: any = (a as any)[query.sortBy];
-        let valB: any = (b as any)[query.sortBy];
-
-        if (query.sortBy === 'car') {
-          valA = a.car?.brand || '';
-          valB = b.car?.brand || '';
-        }
-
-        if (valA === null || valA === undefined) valA = 9999999;
-        if (valB === null || valB === undefined) valB = 9999999;
+        // Missing values sort as largest, as before.
+        const valA = sortValue(a, query.sortBy) ?? Infinity;
+        const valB = sortValue(b, query.sortBy) ?? Infinity;
 
         if (valA < valB) return order === 'ASC' ? -1 : 1;
         if (valA > valB) return order === 'ASC' ? 1 : -1;
@@ -367,8 +358,8 @@ export class ItemsService {
       }
 
       // Default sorting: Urgency first (OVERDUE -> DUE_SOON -> UPCOMING -> OK)
-      const weightA = statusWeight[a.status] || 5;
-      const weightB = statusWeight[b.status] || 5;
+      const weightA = STATUS_URGENCY[a.status] || 5;
+      const weightB = STATUS_URGENCY[b.status] || 5;
 
       if (weightA !== weightB) {
         return weightA - weightB;
@@ -412,5 +403,36 @@ export class ItemsService {
     });
 
     return new PageDto(paged, pageMetaDto);
+  }
+}
+
+function highestKm(records: { kmCounter: number }[] | undefined) {
+  return records?.length
+    ? Math.max(...records.map((r) => Number(r.kmCounter)))
+    : undefined;
+}
+
+const STATUS_URGENCY: Record<string, number> = {
+  OVERDUE: 1,
+  DUE_SOON: 2,
+  UPCOMING: 3,
+  OK: 4,
+};
+
+function sortValue(
+  item: UpcomingItemSerializer,
+  field: UpcomingSortField,
+): string | number | null | undefined {
+  switch (field) {
+    case 'car':
+      return item.car?.brand || '';
+    case 'status':
+      return STATUS_URGENCY[item.status];
+    case 'nextMaintenanceDate':
+      return item.nextMaintenanceDate
+        ? new Date(item.nextMaintenanceDate).getTime()
+        : null;
+    default:
+      return item[field];
   }
 }

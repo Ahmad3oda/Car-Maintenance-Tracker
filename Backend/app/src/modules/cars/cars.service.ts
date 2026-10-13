@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CarsRepository } from './cars.repository';
+import { OdometerService } from './odometer.service';
 import { CreateCarDto } from './dtos/create-car.dto';
 import { UpdateCarDto } from './dtos/update-car.dto';
 import { QueryCarDto } from './dtos/query-car.dto';
@@ -20,37 +21,45 @@ import { PageDto } from '../../common/dtos/page.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { plainToInstance } from 'class-transformer';
 import { deleteUploadedFile } from '../../common/utils/multer.util';
+import { addMonthsUtc } from '../../common/utils/date.util';
+import { computeMaintenanceSchedule } from '../items/maintenance-schedule.util';
+import { INITIAL_INSTALLATION_NOTE } from '../maintenance-records/maintenance-records.constants';
 
 @Injectable()
 export class CarsService {
   constructor(
     private readonly carsRepo: CarsRepository,
     private readonly dataSource: DataSource,
+    private readonly odometer: OdometerService,
   ) {}
 
   async create(
+    userId: number,
     dto: CreateCarDto,
     photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber);
+    const dbCar = await this.carsRepo.findOneByPlate(dto.plateNumber, userId);
     if (dbCar) {
       if (photo) {
         await deleteUploadedFile('cars', photo.filename);
       }
-      throw new BadRequestException(
-        `Car with plate number ${dto.plateNumber} is already registered`,
-      );
+      throw this.plateTaken(dto.plateNumber);
     }
 
     const car = await this.carsRepo.create({
       ...dto,
+      userId,
       photoPath: photo?.filename ?? null,
     });
     return car;
   }
 
-  async findAll(query: QueryCarDto): Promise<PageDto<CarSerializer>> {
+  async findAll(
+    userId: number,
+    query: QueryCarDto,
+  ): Promise<PageDto<CarSerializer>> {
     const [cars, itemCount] = await this.carsRepo.findAll(
+      userId,
       query.page,
       query.limit,
       query.search,
@@ -66,8 +75,8 @@ export class CarsService {
     return new PageDto(serializedCars, pageMetaDto);
   }
 
-  async findOne(id: number): Promise<CarSerializer> {
-    const car = await this.carsRepo.findOne(id);
+  async findOne(userId: number, id: number): Promise<CarSerializer> {
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
@@ -75,16 +84,37 @@ export class CarsService {
   }
 
   async update(
+    userId: number,
     id: number,
     dto: UpdateCarDto,
     photo?: Express.Multer.File,
   ): Promise<CarSerializer> {
-    const car = await this.carsRepo.findOne(id);
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       if (photo) {
         await deleteUploadedFile('cars', photo.filename);
       }
       throw new NotFoundException(`Car with ID ${id} not found`);
+    }
+
+    if (dto.plateNumber && dto.plateNumber !== car.plateNumber) {
+      if (await this.carsRepo.findOneByPlate(dto.plateNumber, userId)) {
+        if (photo) {
+          await deleteUploadedFile('cars', photo.filename);
+        }
+        throw this.plateTaken(dto.plateNumber);
+      }
+    }
+
+    if (dto.currentKm !== undefined) {
+      try {
+        await this.odometer.assertNotBelowRecords(id, dto.currentKm);
+      } catch (error) {
+        if (photo) {
+          await deleteUploadedFile('cars', photo.filename);
+        }
+        throw error;
+      }
     }
 
     const updateData: Partial<any> = { ...dto };
@@ -95,7 +125,7 @@ export class CarsService {
       updateData.photoPath = photo.filename;
     }
 
-    const updatedCar = await this.carsRepo.update(id, updateData);
+    const updatedCar = await this.carsRepo.update(id, userId, updateData);
 
     if (!updatedCar) {
       throw new BadRequestException(`Failed to update car with ID ${id}`);
@@ -103,19 +133,19 @@ export class CarsService {
     return updatedCar;
   }
 
-  async remove(id: number): Promise<void> {
-    const car = await this.carsRepo.findOne(id);
+  async remove(userId: number, id: number): Promise<void> {
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
     if (car.photoPath) {
       await deleteUploadedFile('cars', car.photoPath);
     }
-    await this.carsRepo.remove(id);
+    await this.carsRepo.remove(id, userId);
   }
 
-  async exportCarData(id: number): Promise<ExportCarDataDto> {
-    const car = await this.carsRepo.findOne(id);
+  async exportCarData(userId: number, id: number): Promise<ExportCarDataDto> {
+    const car = await this.carsRepo.findOne(id, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${id} not found`);
     }
@@ -166,10 +196,11 @@ export class CarsService {
   }
 
   async importCarData(
+    userId: number,
     carId: number,
     dto: ImportCarDataDto,
   ): Promise<ImportResultDto> {
-    const car = await this.carsRepo.findOne(carId);
+    const car = await this.carsRepo.findOne(carId, userId);
     if (!car) {
       throw new NotFoundException(`Car with ID ${carId} not found`);
     }
@@ -196,14 +227,16 @@ export class CarsService {
 
         let nextMaintenanceKm: number | null = null;
         if (itemDto.expectedMaintenanceKm) {
-          nextMaintenanceKm = installedKm + Number(itemDto.expectedMaintenanceKm);
+          nextMaintenanceKm =
+            installedKm + Number(itemDto.expectedMaintenanceKm);
         }
 
         let nextMaintenanceDate: Date | null = null;
         if (itemDto.expectedMaintenanceMonths) {
-          const d = new Date(installedDate);
-          d.setMonth(d.getMonth() + Number(itemDto.expectedMaintenanceMonths));
-          nextMaintenanceDate = d;
+          nextMaintenanceDate = addMonthsUtc(
+            installedDate,
+            Number(itemDto.expectedMaintenanceMonths),
+          );
         }
 
         const itemEntity = manager.getRepository(Item).create({
@@ -234,7 +267,7 @@ export class CarsService {
               new Date(b.maintenanceDate).getTime(),
           );
 
-          let lastRecord: MaintenanceRecord | null = null;
+          const savedRecords: MaintenanceRecord[] = [];
 
           for (const eventDto of sortedEvents) {
             const eventDate = new Date(eventDto.maintenanceDate);
@@ -253,33 +286,17 @@ export class CarsService {
                 notes: eventDto.notes || undefined,
               });
 
-            lastRecord = await manager.save(MaintenanceRecord, recordEntity);
+            savedRecords.push(
+              await manager.save(MaintenanceRecord, recordEntity),
+            );
             totalEventsCount++;
           }
 
-          if (lastRecord) {
-            let finalNextKm: number | null = null;
-            if (savedItem.expectedMaintenanceKm) {
-              finalNextKm =
-                lastRecord.kmCounter + Number(savedItem.expectedMaintenanceKm);
-            }
-
-            let finalNextDate: Date | null = null;
-            if (savedItem.expectedMaintenanceMonths) {
-              const d = new Date(lastRecord.maintenanceDate);
-              d.setMonth(
-                d.getMonth() + Number(savedItem.expectedMaintenanceMonths),
-              );
-              finalNextDate = d;
-            }
-
-            await manager.update(Item, savedItem.id, {
-              lastMaintenanceId: lastRecord.id,
-              lastMaintenanceDate: lastRecord.maintenanceDate,
-              nextMaintenanceKm: finalNextKm,
-              nextMaintenanceDate: finalNextDate,
-            });
-          }
+          await manager.update(
+            Item,
+            savedItem.id,
+            computeMaintenanceSchedule(savedItem, savedRecords),
+          );
         } else {
           const initialRecord = manager
             .getRepository(MaintenanceRecord)
@@ -289,7 +306,7 @@ export class CarsService {
               maintenanceDate: installedDate,
               kmCounter: installedKm,
               itemCost: 0,
-              notes: 'Initial component installation',
+              notes: INITIAL_INSTALLATION_NOTE,
             });
           const savedInitial = await manager.save(
             MaintenanceRecord,
@@ -305,11 +322,20 @@ export class CarsService {
       }
     });
 
+    await this.odometer.sync(carId);
+
     return {
       success: true,
       importedItems: totalItemsCount,
       importedEvents: totalEventsCount,
       message: `Successfully imported ${totalItemsCount} item${totalItemsCount === 1 ? '' : 's'} and ${totalEventsCount} maintenance record${totalEventsCount === 1 ? '' : 's'}.`,
     };
+  }
+
+  /** Plates are unique within one user's cars. */
+  private plateTaken(plateNumber: string) {
+    return new BadRequestException(
+      `You already have a car with plate number ${plateNumber}`,
+    );
   }
 }

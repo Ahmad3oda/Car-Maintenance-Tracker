@@ -10,11 +10,12 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ItemService } from '../../../core/services/item.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ItemDto } from '../../../shared/models/api.models';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 
 @Component({
   selector: 'app-item-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [AuthImagePipe, CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './item-form.component.html',
 })
 export class ItemFormComponent implements OnInit {

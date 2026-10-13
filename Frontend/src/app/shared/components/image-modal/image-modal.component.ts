@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthImagePipe } from '../../pipes/auth-image.pipe';
 
 @Component({
   selector: 'app-image-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [AuthImagePipe, CommonModule],
   template: `
     <div
       *ngIf="isOpen"
@@ -44,7 +45,7 @@ import { CommonModule } from '@angular/common';
         <!-- Image Container -->
         <div class="relative flex-1 flex items-center justify-center p-2 sm:p-4 bg-black/60 overflow-auto min-h-[220px] max-h-[78vh]">
           <img
-            [src]="imageUrl"
+            [src]="imageUrl | authImage | async"
             [alt]="title || 'Preview'"
             class="max-w-full max-h-[75vh] object-contain rounded-lg shadow-lg select-none"
           />

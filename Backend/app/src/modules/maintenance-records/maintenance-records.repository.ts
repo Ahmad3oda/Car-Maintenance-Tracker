@@ -15,7 +15,9 @@ export class MaintenanceRecordsRepository {
     return this.repo.save(newRecord);
   }
 
+  /** Records belong to a user through their car. */
   async findAll(
+    userId: number,
     page: number = 1,
     limit: number = 10,
     search?: string,
@@ -29,7 +31,8 @@ export class MaintenanceRecordsRepository {
     const query = this.repo
       .createQueryBuilder('record')
       .leftJoinAndSelect('record.car', 'car')
-      .leftJoinAndSelect('record.item', 'item');
+      .leftJoinAndSelect('record.item', 'item')
+      .where('car.userId = :userId', { userId });
 
     if (carId) {
       query.andWhere('record.carId = :carId', { carId });
@@ -62,15 +65,27 @@ export class MaintenanceRecordsRepository {
       order && order.toString().toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     if (sortBy === 'totalCost' || sortBy === 'itemCost') {
-      query.orderBy('record.itemCost', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.itemCost', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else if (sortBy === 'date' || sortBy === 'maintenanceDate') {
-      query.orderBy('record.maintenanceDate', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.maintenanceDate', sortOrder)
+        .addOrderBy('record.kmCounter', sortOrder)
+        .addOrderBy('record.id', sortOrder);
     } else if (sortBy === 'kmCounter') {
-      query.orderBy('record.kmCounter', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.kmCounter', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else if (sortBy === 'updatedAt') {
-      query.orderBy('record.updatedAt', sortOrder).addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.updatedAt', sortOrder)
+        .addOrderBy('record.id', 'DESC');
     } else {
-      query.orderBy('record.maintenanceDate', 'DESC').addOrderBy('record.id', 'DESC');
+      query
+        .orderBy('record.maintenanceDate', 'DESC')
+        .addOrderBy('record.kmCounter', 'DESC')
+        .addOrderBy('record.id', 'DESC');
     }
 
     query.skip((page - 1) * limit).take(limit);
@@ -78,18 +93,19 @@ export class MaintenanceRecordsRepository {
     return query.getManyAndCount();
   }
 
-  async findOne(id: number): Promise<MaintenanceRecord | null> {
+  async findOne(id: number, userId: number): Promise<MaintenanceRecord | null> {
     return this.repo.findOne({
-      where: { id },
+      where: { id, car: { userId } },
       relations: ['car', 'item'],
     });
   }
 
-  async update(id: number, record: Partial<MaintenanceRecord>): Promise<MaintenanceRecord | null> {
+  /** Callers must have checked ownership (findOne) first. */
+  async update(id: number, record: Partial<MaintenanceRecord>): Promise<void> {
     await this.repo.update(id, record);
-    return this.findOne(id);
   }
 
+  /** Callers must have checked ownership (findOne) first. */
   async remove(id: number): Promise<void> {
     await this.repo.delete(id);
   }

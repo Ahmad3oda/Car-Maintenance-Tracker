@@ -5,6 +5,7 @@ import { MaintenanceService } from '../../../core/services/maintenance.service';
 import { CarService } from '../../../core/services/car.service';
 import { CarDto, MaintenanceRecordDto } from '../../models/api.models';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
+import { WheelSpinnerComponent } from '../wheel-spinner/wheel-spinner.component';
 
 export type ChartPeriod = 'lifetime' | 'day' | 'week' | 'month' | 'year';
 
@@ -21,7 +22,7 @@ export interface ChartPoint {
 @Component({
   selector: 'app-expenses-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, EmptyStateComponent],
+  imports: [WheelSpinnerComponent, CommonModule, FormsModule, EmptyStateComponent],
   templateUrl: './expenses-chart.component.html',
 })
 export class ExpensesChartComponent implements OnInit, OnChanges {

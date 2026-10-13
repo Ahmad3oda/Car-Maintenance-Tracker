@@ -1,43 +1,186 @@
-@import '@fontsource/fira-mono';
+/* Fonts are bundled (no external requests). Latin subsets: the UI is English. */
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+@import '@fontsource/inter/latin-800.css';
+@import '@fontsource/fira-mono/latin-500.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.bg-blog {
-  @apply bg-blue-500;
+/*
+ * Design tokens. Every colour in the app comes from here.
+ * Scales are "R G B" so Tailwind opacity modifiers work
+ * (tailwind.config.js: gray -> neutral, purple -> brand).
+ * Semantic tokens below switch with the theme.
+ */
+:root {
+  --brand-50: 239 252 252;
+  --brand-100: 211 244 245;
+  --brand-200: 168 231 234;
+  --brand-300: 111 209 215;
+  --brand-400: 47 179 189;
+  --brand-500: 15 147 158;
+  --brand-600: 13 118 128;
+  --brand-700: 15 95 104;
+  --brand-800: 18 77 85;
+  --brand-900: 18 63 71;
+  --neutral-50: 248 249 250;
+  --neutral-100: 241 243 244;
+  --neutral-200: 227 230 232;
+  --neutral-300: 207 212 215;
+  --neutral-400: 154 161 166;
+  --neutral-500: 107 115 120;
+  --neutral-600: 74 82 87;
+  --neutral-700: 35 40 44;
+  --neutral-800: 25 29 32;
+  --neutral-900: 16 19 21;
+  --white: 255 255 255;
+  --black: 0 0 0;
+  --red-50: 253 242 242;
+  --red-100: 253 232 232;
+  --red-200: 251 213 213;
+  --red-300: 248 180 180;
+  --red-400: 249 128 128;
+  --red-500: 240 82 82;
+  --red-600: 224 36 36;
+  --red-700: 200 30 30;
+  --red-800: 155 28 28;
+  --red-900: 119 29 29;
+  --orange-50: 255 248 241;
+  --orange-100: 254 236 220;
+  --orange-200: 252 217 189;
+  --orange-300: 253 186 140;
+  --orange-400: 255 138 76;
+  --orange-500: 255 90 31;
+  --orange-600: 208 56 1;
+  --orange-700: 180 52 3;
+  --orange-800: 138 44 13;
+  --orange-900: 119 29 29;
+  --amber-50: 255 251 235;
+  --amber-100: 254 243 199;
+  --amber-200: 253 230 138;
+  --amber-300: 252 211 77;
+  --amber-400: 251 191 36;
+  --amber-500: 245 158 11;
+  --amber-600: 217 119 6;
+  --amber-700: 180 83 9;
+  --amber-800: 146 64 14;
+  --amber-900: 120 53 15;
+  --yellow-50: 253 253 234;
+  --yellow-100: 253 246 178;
+  --yellow-200: 252 233 106;
+  --yellow-300: 250 202 21;
+  --yellow-400: 227 160 8;
+  --yellow-500: 194 120 3;
+  --yellow-600: 159 88 10;
+  --yellow-700: 142 75 16;
+  --yellow-800: 114 59 19;
+  --yellow-900: 99 49 18;
+  --green-50: 243 250 247;
+  --green-100: 222 247 236;
+  --green-200: 188 240 218;
+  --green-300: 132 225 188;
+  --green-400: 49 196 141;
+  --green-500: 14 159 110;
+  --green-600: 5 122 85;
+  --green-700: 4 108 78;
+  --green-800: 3 84 63;
+  --green-900: 1 71 55;
+  --teal-50: 237 250 250;
+  --teal-100: 213 245 246;
+  --teal-200: 175 236 239;
+  --teal-300: 126 220 226;
+  --teal-400: 22 189 202;
+  --teal-500: 6 148 162;
+  --teal-600: 4 116 129;
+  --teal-700: 3 102 114;
+  --teal-800: 5 80 92;
+  --teal-900: 1 68 81;
+  --blue-50: 235 245 255;
+  --blue-100: 225 239 254;
+  --blue-200: 195 221 253;
+  --blue-300: 164 202 254;
+  --blue-400: 118 169 250;
+  --blue-500: 63 131 248;
+  --blue-600: 28 100 242;
+  --blue-700: 26 86 219;
+  --blue-800: 30 66 159;
+  --blue-900: 35 56 118;
+  --indigo-50: 240 245 255;
+  --indigo-100: 229 237 255;
+  --indigo-200: 205 219 254;
+  --indigo-300: 180 198 252;
+  --indigo-400: 141 162 251;
+  --indigo-500: 104 117 245;
+  --indigo-600: 88 80 236;
+  --indigo-700: 81 69 205;
+  --indigo-800: 66 56 157;
+  --indigo-900: 54 47 120;
+
+  /* Semantic tokens: light theme */
+  --page: var(--neutral-50);
+  --surface: var(--white);
+  --surface-muted: var(--neutral-100);
+  --border: var(--neutral-200);
+  --text: var(--neutral-900);
+  --text-muted: var(--neutral-500);
+  --accent: var(--brand-600);
+  --accent-strong: var(--brand-700);
+  --accent-contrast: var(--white);
+
+  /* Status, like dashboard warning lights. fg on bg >= 6.4:1. */
+  --status-overdue-fg: var(--red-800);
+  --status-overdue-bg: var(--red-100);
+  --status-overdue-light: var(--red-500);
+  --status-soon-fg: var(--yellow-800);
+  --status-soon-bg: var(--yellow-100);
+  --status-soon-light: var(--yellow-400);
+  --status-upcoming-fg: var(--blue-800);
+  --status-upcoming-bg: var(--blue-100);
+  --status-upcoming-light: var(--blue-500);
+  --status-ok-fg: var(--green-800);
+  --status-ok-bg: var(--green-100);
+  --status-ok-light: var(--green-500);
+  --status-bg-alpha: 1;
+
+  --skeleton: var(--neutral-200);
+  --skeleton-shine: var(--neutral-100);
+
+  color-scheme: light;
 }
 
-.primary {
-  @apply text-purple-100 bg-purple-600;
-}
+html.dark {
+  --page: var(--neutral-900);
+  --surface: var(--neutral-800);
+  --surface-muted: var(--neutral-700);
+  --border: var(--neutral-700);
+  --text: var(--neutral-100);
+  --text-muted: var(--neutral-400);
+  --accent: var(--brand-400);
+  --accent-strong: var(--brand-300);
+  --accent-contrast: var(--neutral-900);
 
-.secondary {
-  @apply text-gray-100 bg-gray-500;
-}
+  --status-overdue-fg: var(--red-200);
+  --status-overdue-bg: var(--red-900);
+  --status-overdue-light: var(--red-400);
+  --status-soon-fg: var(--yellow-200);
+  --status-soon-bg: var(--yellow-900);
+  --status-soon-light: var(--yellow-300);
+  --status-upcoming-fg: var(--blue-200);
+  --status-upcoming-bg: var(--blue-900);
+  --status-upcoming-light: var(--blue-400);
+  --status-ok-fg: var(--green-200);
+  --status-ok-bg: var(--green-900);
+  --status-ok-light: var(--green-400);
+  --status-bg-alpha: 0.4;
 
-.success {
-  @apply text-green-100 bg-green-600;
-}
+  --skeleton: var(--neutral-700);
+  --skeleton-shine: var(--neutral-600);
 
-.danger {
-  @apply text-red-100 bg-red-600;
-}
-
-.warning {
-  @apply text-orange-100 bg-orange-600;
-}
-
-.info {
-  @apply text-blue-100 bg-blue-600;
-}
-
-.light {
-  @apply text-gray-700 bg-white;
-}
-
-.dark {
-  @apply text-gray-100 bg-gray-700;
+  color-scheme: dark;
 }
 
 html,
@@ -48,20 +191,35 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f9fafb;
-  color: #1a1c23;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-html.dark,
-html.dark body {
-  background-color: #121317;
-  color: #f3f4f6;
-  color-scheme: dark;
+  background-color: rgb(var(--page));
+  color: rgb(var(--text));
 }
 
 body {
   min-height: 100vh;
+}
+
+/* Smooth theme switching: ThemeService adds this class for one switch only,
+   so ordinary hovers and page loads are not slowed down. */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: background-color 300ms ease, border-color 300ms ease,
+    color 300ms ease, fill 300ms ease, stroke 300ms ease !important;
+}
+
+/* Kept from daisyUI's base styles when it was removed. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  scrollbar-color: color-mix(in oklch, currentColor 35%, transparent) transparent;
+}
+
+*:hover {
+  scrollbar-color: color-mix(in oklch, currentColor 60%, transparent) transparent;
 }
 
 input,
@@ -75,3 +233,142 @@ button:focus:not(:focus-visible) {
   outline: none;
 }
 
+/* ---------------------------------------------------------------------
+ * Motion. Calm and short; all of it is switched off for users who ask
+ * for reduced motion (bottom of this file).
+ * ------------------------------------------------------------------- */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Page transitions (Angular withViewTransitions): only the page content
+   moves; header and sidebar stay still. */
+.page-transition {
+  view-transition-name: page;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 150ms;
+}
+
+::view-transition-old(page) {
+  animation: 120ms ease-in both fade-out;
+}
+
+::view-transition-new(page) {
+  animation: 260ms var(--ease-out) both fade-up;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@layer components {
+  /* Clickable cards rise slightly on hover. */
+  .hover-lift {
+    transition: transform 200ms var(--ease-out), box-shadow 200ms ease,
+      border-color 200ms ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px rgb(var(--black) / 0.25);
+  }
+
+  /* Children fade in one after another (first 12 staggered). */
+  .stagger > * {
+    animation: fade-up 320ms var(--ease-out) both;
+  }
+  .stagger > :nth-child(2) { animation-delay: 40ms; }
+  .stagger > :nth-child(3) { animation-delay: 80ms; }
+  .stagger > :nth-child(4) { animation-delay: 120ms; }
+  .stagger > :nth-child(5) { animation-delay: 160ms; }
+  .stagger > :nth-child(6) { animation-delay: 200ms; }
+  .stagger > :nth-child(7) { animation-delay: 240ms; }
+  .stagger > :nth-child(8) { animation-delay: 280ms; }
+  .stagger > :nth-child(9) { animation-delay: 320ms; }
+  .stagger > :nth-child(10) { animation-delay: 360ms; }
+  .stagger > :nth-child(11) { animation-delay: 400ms; }
+  .stagger > :nth-child(n + 12) { animation-delay: 440ms; }
+
+  /* Placeholder shapes while data loads. */
+  .skeleton {
+    border-radius: 0.5rem;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(var(--skeleton-shine) / 0.8) 50%,
+        transparent 100%
+      )
+      rgb(var(--skeleton));
+    background-size: 200% 100%;
+    animation: skeleton-shine 1.4s ease-in-out infinite;
+  }
+
+  /* Shows a loading state only if loading takes longer than a blink,
+     so fast responses do not flicker. */
+  .appear-delayed {
+    animation: fade-in 200ms ease 150ms both;
+  }
+}
+
+@keyframes skeleton-shine {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Buttons: gentle lift on hover for filled buttons, and a press on click. */
+:is(button, a)[class*='bg-purple-600'] {
+  transition: transform 150ms var(--ease-out), box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+:is(button, a)[class*='bg-purple-600']:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -6px rgb(var(--brand-600) / 0.55);
+}
+:is(button, a):not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .hover-lift:hover,
+  :is(button, a):hover,
+  :is(button, a):active {
+    transform: none !important;
+  }
+}

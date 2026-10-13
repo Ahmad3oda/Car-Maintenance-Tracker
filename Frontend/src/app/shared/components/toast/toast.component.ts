@@ -114,29 +114,30 @@ import { Observable } from 'rxjs';
     .toast-item {
       animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    /* 700 shades: white text >= 5:1 (WCAG AA). */
     .toast-success {
-      background-color:rgb(93, 215, 103) !important;
-      border-color:rgb(5, 150, 17) !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4), 0 8px 10px -6px rgba(16, 185, 129, 0.3) !important;
+      background-color: rgb(var(--green-700)) !important;
+      border-color: rgb(var(--green-800)) !important;
+      color: rgb(var(--white)) !important;
+      box-shadow: 0 10px 25px -5px rgb(var(--green-700) / 0.4), 0 8px 10px -6px rgb(var(--green-700) / 0.3) !important;
     }
     .toast-error {
-      background-color: #ef4444 !important;
-      border-color: #dc2626 !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4), 0 8px 10px -6px rgba(239, 68, 68, 0.3) !important;
+      background-color: rgb(var(--red-700)) !important;
+      border-color: rgb(var(--red-800)) !important;
+      color: rgb(var(--white)) !important;
+      box-shadow: 0 10px 25px -5px rgb(var(--red-700) / 0.4), 0 8px 10px -6px rgb(var(--red-700) / 0.3) !important;
     }
     .toast-info {
-      background-color: #0284c7 !important;
-      border-color: #0369a1 !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.4), 0 8px 10px -6px rgba(2, 132, 199, 0.3) !important;
+      background-color: rgb(var(--blue-700)) !important;
+      border-color: rgb(var(--blue-800)) !important;
+      color: rgb(var(--white)) !important;
+      box-shadow: 0 10px 25px -5px rgb(var(--blue-700) / 0.4), 0 8px 10px -6px rgb(var(--blue-700) / 0.3) !important;
     }
     .toast-warning {
-      background-color: #f59e0b !important;
-      border-color: #d97706 !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4), 0 8px 10px -6px rgba(245, 158, 11, 0.3) !important;
+      background-color: rgb(var(--amber-700)) !important;
+      border-color: rgb(var(--amber-800)) !important;
+      color: rgb(var(--white)) !important;
+      box-shadow: 0 10px 25px -5px rgb(var(--amber-700) / 0.4), 0 8px 10px -6px rgb(var(--amber-700) / 0.3) !important;
     }
     @keyframes toastSlideUp {
       from {

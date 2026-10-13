@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
+import { pickLatestRecord, ScheduleRecord } from '../maintenance-schedule.util';
 
 @Exclude()
 export class ItemSerializer {
@@ -45,7 +46,7 @@ export class ItemSerializer {
 
   @ApiPropertyOptional()
   @Expose()
-  maintenanceRecords?: any[];
+  maintenanceRecords?: ScheduleRecord[];
 
   @ApiPropertyOptional()
   @Expose()
@@ -62,19 +63,9 @@ export class ItemSerializer {
   @ApiPropertyOptional()
   @Expose()
   get lastInstallment(): Date | null {
-    if (
-      this.maintenanceRecords &&
-      Array.isArray(this.maintenanceRecords) &&
-      this.maintenanceRecords.length > 0
-    ) {
-      const sorted = [...this.maintenanceRecords].sort(
-        (a, b) =>
-          new Date(b.maintenanceDate).getTime() -
-          new Date(a.maintenanceDate).getTime(),
-      );
-      if (sorted[0]?.maintenanceDate) {
-        return sorted[0].maintenanceDate;
-      }
+    const latest = pickLatestRecord(this.maintenanceRecords);
+    if (latest?.maintenanceDate) {
+      return new Date(latest.maintenanceDate);
     }
     if (this.lastMaintenanceDate) {
       return this.lastMaintenanceDate;

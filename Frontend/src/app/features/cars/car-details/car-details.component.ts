@@ -10,11 +10,17 @@ import { DataTableComponent } from '../../../shared/components/table/data-table.
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { ImportModalComponent } from '../../../shared/components/import-modal/import-modal.component';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
+import { DetailSkeletonComponent } from '../../../shared/components/detail-skeleton/detail-skeleton.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { PlateComponent } from '../../../shared/components/plate/plate.component';
+import { ServiceGaugeComponent } from '../../../shared/components/service-gauge/service-gauge.component';
+import { WheelSpinnerComponent } from '../../../shared/components/wheel-spinner/wheel-spinner.component';
 
 @Component({
   selector: 'app-car-details',
   standalone: true,
-  imports: [
+  imports: [WheelSpinnerComponent, ServiceGaugeComponent, PlateComponent, IconComponent, DetailSkeletonComponent, AuthImagePipe, 
     CommonModule,
     RouterModule,
     ImageModalComponent,
@@ -126,6 +132,20 @@ export class CarDetailsComponent implements OnInit {
   closeImageModal() {
     this.isImageModalOpen = false;
     this.modalImageUrl = null;
+  }
+
+  /** Distance to the next service, for the service gauge. */
+  remainingKm(item: ItemDto): number | null {
+    return item.nextMaintenanceKm != null && this.car
+      ? item.nextMaintenanceKm - this.car.currentKm
+      : null;
+  }
+
+  /** Days to the next service, for the service gauge. */
+  remainingDays(item: ItemDto): number | null {
+    return item.nextMaintenanceDate
+      ? Math.ceil((new Date(item.nextMaintenanceDate).getTime() - Date.now()) / 86_400_000)
+      : null;
   }
 
   getLastInstallmentDate(item: ItemDto): string | Date | null {

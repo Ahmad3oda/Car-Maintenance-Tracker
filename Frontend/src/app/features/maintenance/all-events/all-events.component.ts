@@ -10,13 +10,14 @@ import { DataTableComponent } from '../../../shared/components/table/data-table.
 import { SortHeaderComponent } from '../../../shared/components/table/sort-header.component';
 import { TableTextComponent } from '../../../shared/components/table/table-text.component';
 import { ImageModalComponent } from '../../../shared/components/image-modal/image-modal.component';
+import { PlateComponent } from '../../../shared/components/plate/plate.component';
 
 export type TimePeriod = 'lifetime' | 'day' | 'week' | 'month' | 'year';
 
 @Component({
   selector: 'app-all-events',
   standalone: true,
-  imports: [
+  imports: [PlateComponent, 
     CommonModule,
     FormsModule,
     RouterModule,

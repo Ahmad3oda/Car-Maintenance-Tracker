@@ -10,7 +10,7 @@
       <div>
         <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
           <span>Expenses Timeline</span>
-          <span *ngIf="loading" class="inline-block w-3 h-3 rounded-full border-2 border-purple-600 border-t-transparent animate-spin"></span>
+          <app-wheel-spinner *ngIf="loading" class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400"></app-wheel-spinner>
         </h3>
       </div>
     </div>
@@ -132,14 +132,15 @@
 
     <!-- Chart Canvas / SVG -->
     <ng-container *ngIf="chartPoints.length > 0; else noChartData">
+      <!-- currentColor = brand colour for the line, area and points. -->
       <svg
         [attr.viewBox]="'0 0 ' + svgWidth + ' ' + svgHeight"
-        class="w-full h-full overflow-visible"
+        class="w-full h-full overflow-visible text-purple-600 dark:text-purple-400"
       >
         <defs>
           <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.35" />
-            <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.0" />
+            <stop offset="0%" stop-color="currentColor" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="currentColor" stop-opacity="0.0" />
           </linearGradient>
         </defs>
 
@@ -164,7 +165,7 @@
           *ngIf="pathD"
           [attr.d]="pathD"
           fill="none"
-          stroke="#7C3AED"
+          stroke="currentColor"
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -193,7 +194,7 @@
             [attr.cx]="pt.x"
             [attr.cy]="pt.y"
             r="9"
-            fill="#8B5CF6"
+            fill="currentColor"
             fill-opacity="0.35"
             pointer-events="none"
             class="animate-pulse"
@@ -204,11 +205,10 @@
             [attr.cx]="pt.x"
             [attr.cy]="pt.y"
             [attr.r]="activePoint === pt ? 5 : 3.5"
-            fill="#7C3AED"
-            stroke="#FFFFFF"
+            fill="currentColor"
             stroke-width="1.5"
             pointer-events="none"
-            class="transition-all duration-150"
+            class="stroke-white dark:stroke-gray-800 transition-all duration-150"
           />
 
           <!-- Large Invisible Mouse Hit Target for Smooth Hover -->

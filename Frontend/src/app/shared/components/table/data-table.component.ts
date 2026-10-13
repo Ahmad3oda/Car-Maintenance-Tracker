@@ -23,17 +23,18 @@ import { PageMeta } from '../../models/api.models';
 
       <!-- Table Scrollable Container -->
       <div class="w-full min-w-0 max-w-full overflow-x-auto relative scroll-smooth overscroll-x-contain">
-        <!-- Loading overlay -->
+        <!-- Loading: skeleton rows (only if loading takes longer than a blink) -->
         <div
           *ngIf="loading"
-          class="absolute inset-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xs z-20 flex items-center justify-center min-h-[160px]"
+          class="appear-delayed absolute inset-0 z-20 min-h-[160px] bg-white dark:bg-gray-800 px-4 py-4 space-y-4"
+          role="status"
+          aria-label="Loading data"
         >
-          <div class="flex items-center space-x-2 text-purple-600 dark:text-purple-400">
-            <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="text-sm font-medium">Loading data...</span>
+          <div *ngFor="let row of skeletonRows" class="flex items-center gap-4">
+            <div class="skeleton h-9 w-9 shrink-0"></div>
+            <div class="skeleton h-3 flex-1"></div>
+            <div class="skeleton h-3 w-1/5"></div>
+            <div class="skeleton hidden sm:block h-3 w-1/6"></div>
           </div>
         </div>
 
@@ -43,7 +44,7 @@ import { PageMeta } from '../../models/api.models';
               <ng-content select="[table-head]"></ng-content>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-700/80 bg-white dark:bg-gray-800">
+          <tbody class="stagger divide-y divide-gray-100 dark:divide-gray-700/80 bg-white dark:bg-gray-800">
             <ng-content select="[table-body]"></ng-content>
           </tbody>
         </table>
@@ -75,6 +76,8 @@ export class DataTableComponent {
   @Input() meta?: PageMeta;
   @Input() loading = false;
   @Input() pageSizeOptions = [5, 10, 20, 50];
+
+  readonly skeletonRows = [1, 2, 3, 4];
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() limitChange = new EventEmitter<number>();

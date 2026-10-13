@@ -13,11 +13,7 @@
     <div class="flex flex-wrap items-center gap-2 sm:gap-3" *ngIf="stats">
       <span
         class="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
-        <img
-            src="assets/icons/car-purple.png"
-            class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-            alt="ODOMETER"
-          />
+        <app-icon name="car" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1"></app-icon>
         {{ stats.totalCars }} Vehicles
       </span>
       <span
@@ -32,8 +28,17 @@
     </div>
   </div>
 
-  <!-- Primary Metrics Cards -->
-  <div class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch" *ngIf="stats">
+  <!-- Primary Metrics Cards (placeholders while loading) -->
+  <div *ngIf="!stats" class="grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" role="status" aria-label="Loading statistics">
+    <div *ngFor="let n of [1, 2, 3, 4]" class="flex items-center p-4 sm:p-5 min-h-[96px] sm:min-h-[105px] bg-white rounded-2xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700/70">
+      <div class="skeleton w-11 h-11 sm:w-12 sm:h-12 mr-3 sm:mr-4 rounded-xl shrink-0"></div>
+      <div class="flex-1 space-y-2">
+        <div class="skeleton h-3 w-3/4"></div>
+        <div class="skeleton h-6 w-1/2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stagger grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch" *ngIf="stats">
     <!-- Items Replaced Last Month -->
     <app-stat-card title="Items Replaced (Last Month)" [value]="stats.itemsReplacedLastMonth" color="orange">
       <svg icon class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,11 +119,7 @@
           <!-- Quick Update Odometer Button -->
           <button (click)="openOdometerModal()"
             class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 shadow-sm hover:shadow-md transition-all duration-200">
-            <img
-                src="assets/icons/odometer-white.png"
-                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-                alt="ODOMETER"
-              />
+            <app-icon name="odometer" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1"></app-icon>
             Update Odometer
           </button>
         </div>
@@ -174,10 +175,7 @@
                     ? item.car.brand + " " + item.car.model
                     : "Car #" + item.carId
                     }}</span>
-                  <span *ngIf="item.car?.plateNumber"
-                    class="text-3xs font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                    {{ item.car?.plateNumber }}
-                  </span>
+                  <app-plate *ngIf="item.car?.plateNumber" [number]="item.car!.plateNumber" size="sm"></app-plate>
                 </a>
               </td>
 
@@ -267,7 +265,12 @@
 
               <!-- Urgency Status Badge (Simple, sleek status pills) -->
               <td class="px-6 py-4 text-sm">
-                <app-urgency-badge [status]="item.status"></app-urgency-badge>
+                <div class="flex flex-col items-start gap-1.5">
+                  <app-urgency-badge [status]="item.status"></app-urgency-badge>
+                  <app-service-gauge [remainingKm]="item.remainingKm" [intervalKm]="item.expectedMaintenanceKm"
+                    [remainingDays]="item.remainingDays" [intervalMonths]="item.expectedMaintenanceMonths"
+                    [status]="item.status"></app-service-gauge>
+                </div>
               </td>
 
               <!-- Quick Action: Log Service -->
@@ -371,10 +374,7 @@
                     ? event.car.brand + " " + event.car.model
                     : "Car #" + event.carId
                     }}</span>
-                  <span *ngIf="event.car?.plateNumber"
-                    class="text-3xs font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                    {{ event.car?.plateNumber }}
-                  </span>
+                  <app-plate *ngIf="event.car?.plateNumber" [number]="event.car!.plateNumber" size="sm"></app-plate>
                 </a>
               </td>
               <td class="px-6 py-4 text-sm font-semibold text-purple-600 dark:text-purple-400 max-w-[12rem]">

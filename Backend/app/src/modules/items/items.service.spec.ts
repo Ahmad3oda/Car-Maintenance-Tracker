@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ItemsService } from './items.service';
 import { ItemsRepository } from './items.repository';
 import { CarsRepository } from '../cars/cars.repository';
+import { OdometerService } from '../cars/odometer.service';
+import { DataSource } from 'typeorm';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -25,6 +27,18 @@ describe('ItemsService', () => {
           provide: CarsRepository,
           useValue: {
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: DataSource,
+          useValue: {
+            transaction: jest.fn(),
+          },
+        },
+        {
+          provide: OdometerService,
+          useValue: {
+            sync: jest.fn(),
           },
         },
       ],

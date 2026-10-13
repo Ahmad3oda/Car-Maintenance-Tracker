@@ -1,3 +1,4 @@
+<app-detail-skeleton *ngIf="!car"></app-detail-skeleton>
 <div class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto min-w-0" *ngIf="car">
   <!-- Header -->
   <div class="flex items-center my-4 sm:my-6 space-x-3 sm:space-x-4">
@@ -19,7 +20,7 @@
       class="relative w-full sm:w-48 md:w-56 h-40 sm:h-36 md:h-40 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700/60 shrink-0 border border-gray-200/80 dark:border-gray-600/80 group">
       <img *ngIf="car.photoPath"
         class="object-cover w-full h-full cursor-pointer group-hover:scale-105 transition-transform duration-300"
-        [src]="getCarPhotoUrl(car.photoPath)" [alt]="car.brand + ' ' + car.model"
+        [src]="getCarPhotoUrl(car.photoPath) | authImage | async" [alt]="car.brand + ' ' + car.model"
         (click)="openImageModal(getCarPhotoUrl(car.photoPath), car.brand + ' ' + car.model)" />
       <div *ngIf="!car.photoPath"
         class="flex items-center justify-center w-full h-full bg-gray-100 rounded-xl dark:bg-gray-700 text-gray-400">
@@ -43,21 +44,10 @@
           car.model }}</h3>
         <p class="text-gray-500 dark:text-gray-400 font-medium mb-2.5 sm:mb-3 text-xs sm:text-sm">{{ car.year }}</p>
         <div class="flex flex-wrap gap-2 sm:gap-3">
-          <span
-            class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-blue-700 bg-blue-100 rounded-md dark:text-blue-100 dark:bg-blue-700">
-            <svg class="w-3.5 h-3.5 mr-1.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-            </svg>
-            {{ car.plateNumber }}
-          </span>
+          <app-plate [number]="car.plateNumber"></app-plate>
           <span
             class="inline-flex items-center px-2.5 py-1 text-xs sm:text-sm font-semibold text-gray-700 bg-gray-100 rounded-md dark:text-gray-300 dark:bg-gray-700">
-            <img
-                src="assets/icons/odometer-black.png"
-                class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 opacity-100"
-                alt="ODOMETER"
-              />
+            <app-icon name="odometer" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1"></app-icon>
             {{ car.currentKm | number }} KM
           </span>
         </div>
@@ -102,10 +92,7 @@
         [disabled]="isExporting"
         class="inline-flex items-center justify-center px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium leading-5 text-gray-700 bg-white hover:bg-gray-50 dark:text-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm disabled:opacity-50"
       >
-        <svg *ngIf="isExporting" class="animate-spin w-4 h-4 mr-1.5 text-purple-600" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-        </svg>
+        <app-wheel-spinner *ngIf="isExporting" class="w-4 h-4 mr-1.5 text-purple-600"></app-wheel-spinner>
         <svg *ngIf="!isExporting" class="w-4 h-4 mr-1.5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
@@ -165,7 +152,7 @@
             <div
               class="relative w-14 h-11 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group border border-gray-200/60 dark:border-gray-600">
               <img *ngIf="item.photoPath" class="object-cover w-full h-full rounded-lg shadow-xs"
-                [src]="getItemPhotoUrl(item.photoPath)" alt="" loading="lazy"
+                [src]="getItemPhotoUrl(item.photoPath) | authImage | async" alt="" loading="lazy"
                 (click)="$event.stopPropagation(); openImageModal(getItemPhotoUrl(item.photoPath), item.name)" />
               <div *ngIf="!item.photoPath" class="flex items-center justify-center w-full h-full text-gray-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,6 +183,10 @@
               [ngClass]="item.nextMaintenanceKm && (car && car.currentKm >= item.nextMaintenanceKm) ? 'text-red-700 bg-red-100 dark:text-red-100 dark:bg-red-700' : 'text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-700'">
               {{ item.nextMaintenanceKm ? (item.nextMaintenanceKm | number) : '-' }}
             </span>
+            <div class="mt-1.5">
+              <app-service-gauge [remainingKm]="remainingKm(item)" [intervalKm]="item.expectedMaintenanceKm"
+                [remainingDays]="remainingDays(item)" [intervalMonths]="item.expectedMaintenanceMonths"></app-service-gauge>
+            </div>
           </td>
           <td class="px-5 py-4 text-sm text-right">
             <div class="flex items-center justify-end space-x-2">

@@ -10,11 +10,12 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../../../core/services/car.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CarDto } from '../../../shared/models/api.models';
+import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 
 @Component({
   selector: 'app-car-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [AuthImagePipe, CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './car-form.component.html',
 })
 export class CarFormComponent implements OnInit {
@@ -37,7 +38,11 @@ export class CarFormComponent implements OnInit {
       model: ['', Validators.required],
       year: [
         '',
-        [Validators.required, Validators.min(1886), Validators.max(2100)],
+        [
+          Validators.required,
+          Validators.min(1900),
+          Validators.max(new Date().getFullYear() + 1),
+        ],
       ],
       currentKm: ['', [Validators.required, Validators.min(0)]],
     });

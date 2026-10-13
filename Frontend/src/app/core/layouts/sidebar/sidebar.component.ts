@@ -2,19 +2,20 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { IconComponent, IconName } from '../../../shared/components/icon/icon.component';
 
 interface SidebarLink {
   name: string;
   url: string;
   svg?: string[];
   fill?: boolean;
-  icon?: string;
+  icon?: IconName;
 }
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, IconComponent],
   templateUrl: './sidebar.component.html',
   styles: [`
     :host {
@@ -31,14 +32,13 @@ export class SidebarComponent {
     {
       name: 'Dashboard',
       url: '/dashboard',
-      icon: 'assets/icons/dashboard.png'
-
+      icon: 'dashboard',
     },
     {
       name: 'Cars',
       url: '/cars',
       fill: true,
-      icon: 'assets/icons/car-white.png'
+      icon: 'car'
     },
     {
       name: 'Maintenance Logs',
