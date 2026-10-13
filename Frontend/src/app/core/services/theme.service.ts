@@ -29,14 +29,37 @@ export class ThemeService {
     });
   }
 
-  toggleTheme(): void {
+  /**
+   * With an origin (viewport px), the new theme spreads from that point
+   * as a growing circle; otherwise colours cross-fade.
+   */
+  toggleTheme(origin?: { x: number; y: number }): void {
     const next: Theme = this.isDark() ? 'light' : 'dark';
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch {
       // Storage unavailable: the choice lasts until the page is closed.
     }
-    this.animate(() => this.apply(next));
+
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (!origin || reduceMotion || !document.startViewTransition) {
+      this.animate(() => this.apply(next));
+      return;
+    }
+
+    // Radius that reaches the farthest corner from the origin.
+    const radius = Math.hypot(
+      Math.max(origin.x, window.innerWidth - origin.x),
+      Math.max(origin.y, window.innerHeight - origin.y),
+    );
+    const root = document.documentElement;
+    root.style.setProperty('--reveal-x', `${origin.x}px`);
+    root.style.setProperty('--reveal-y', `${origin.y}px`);
+    root.style.setProperty('--reveal-r', `${radius}px`);
+    root.classList.add('theme-reveal');
+    document
+      .startViewTransition(() => this.apply(next))
+      .finished.finally(() => root.classList.remove('theme-reveal'));
   }
 
   private apply(theme: Theme): void {

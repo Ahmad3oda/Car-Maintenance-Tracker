@@ -265,8 +265,13 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  toggleTheme() {
-    this.themeService.toggleTheme();
+  toggleTheme(event: MouseEvent) {
+    // Button centre, so keyboard activation reveals from the same spot.
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.themeService.toggleTheme({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
   }
 
   closeMenus() {

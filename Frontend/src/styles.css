@@ -281,6 +281,32 @@ button:focus:not(:focus-visible) {
   animation: 260ms var(--ease-out) both fade-up;
 }
 
+/* Theme switch: the new theme grows as a circle from the toggle
+   (ThemeService sets --reveal-*). Page keeps no separate layer so the
+   whole screen is revealed together. */
+html.theme-reveal .page-transition {
+  view-transition-name: none;
+}
+html.theme-reveal::view-transition-old(root),
+html.theme-reveal::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+html.theme-reveal::view-transition-old(root) {
+  animation: none;
+}
+html.theme-reveal::view-transition-new(root) {
+  animation: theme-reveal 650ms var(--ease-out) both;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--reveal-x) var(--reveal-y));
+  }
+  to {
+    clip-path: circle(var(--reveal-r) at var(--reveal-x) var(--reveal-y));
+  }
+}
+
 @keyframes fade-out {
   to {
     opacity: 0;
