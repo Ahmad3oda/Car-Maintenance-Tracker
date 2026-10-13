@@ -32,7 +32,7 @@
     <!-- Cards grid -->
     <div class="stagger grid gap-4 sm:gap-6 mb-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
       <div *ngFor="let car of cars"
-        class="hover-lift relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800">
+        class="hover-lift spotlight relative group block min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:bg-gray-800">
 
         <!-- Make the entire card clickable to navigate to Car Details -->
         <a [routerLink]="['/cars', car.id]" class="block absolute inset-0 z-10" aria-label="View Car Details"></a>

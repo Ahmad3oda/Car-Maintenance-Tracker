@@ -486,3 +486,47 @@ button:focus:not(:focus-visible) {
 .glass.glass-dense {
   --glass-alpha: 0.85;
 }
+
+/* Spotlight: a soft light and a lit border follow the cursor across
+   cards. AppComponent writes --mx/--my on the hovered card. */
+.spotlight {
+  position: relative;
+}
+.spotlight::before,
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.spotlight::before {
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--brand-400) / 0.1),
+    transparent 65%
+  );
+}
+.spotlight::after {
+  padding: 1px;
+  background: radial-gradient(
+    180px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--brand-400) / 0.7),
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.spotlight:hover::before,
+.spotlight:hover::after {
+  opacity: 1;
+}
+@media (hover: none) {
+  .spotlight::before,
+  .spotlight::after {
+    display: none;
+  }
+}
