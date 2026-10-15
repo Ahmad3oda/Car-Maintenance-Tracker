@@ -102,7 +102,11 @@ export class ItemsController {
   }
 
   @Get('upcoming')
-  @ApiOperation({ summary: 'Get upcoming and overdue maintenance items' })
+  @ApiOperation({
+    summary: 'Get maintenance items by urgency status',
+    description:
+      'Statuses: OVERDUE (past due km or date), DUE_SOON (within 1,000 km or 30 days), UPCOMING (future within 3,000 km or 90 days), HEALTHY (schedule with nothing approaching).',
+  })
   @ApiExtraModels(PageDto, UpcomingItemSerializer)
   @ApiResponse({
     status: 200,

@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
   upcomingSortBy = '';
   upcomingOrder: 'ASC' | 'DESC' = 'ASC';
   selectedCarFilter: number | null = null;
-  selectedScopeFilter: 'due_soon_or_overdue' | 'overdue_only' | 'within_1k_km' | 'within_30_days' | 'all' = 'due_soon_or_overdue';
+  selectedScopeFilter: UpcomingScope = 'due_soon_or_overdue';
 
   // --- Quick Odometer Update Modal State ---
   isOdometerModalOpen = false;
@@ -145,7 +145,7 @@ export class DashboardComponent implements OnInit {
     this.loadUpcomingItems();
   }
 
-  onScopeFilterChange(scope: any) {
+  onScopeFilterChange(scope: UpcomingScope) {
     this.selectedScopeFilter = scope;
     this.upcomingPage = 1;
     this.loadUpcomingItems();

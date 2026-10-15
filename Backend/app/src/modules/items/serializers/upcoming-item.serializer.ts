@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
+import { MaintenanceStatus } from '../maintenance-status';
 
 export class UpcomingCarSummarySerializer {
   @ApiProperty()
@@ -90,11 +91,13 @@ export class UpcomingItemSerializer {
   remainingDays?: number | null;
 
   @ApiProperty({
-    enum: ['OVERDUE', 'DUE_SOON', 'UPCOMING', 'OK'],
-    example: 'DUE_SOON',
+    enum: MaintenanceStatus,
+    example: MaintenanceStatus.DUE_SOON,
+    description:
+      'OVERDUE: past due km or date. DUE_SOON: within 1,000 km or 30 days. UPCOMING: future due exists outside that window. HEALTHY: schedule in place with nothing approaching.',
   })
   @Expose()
-  status: 'OVERDUE' | 'DUE_SOON' | 'UPCOMING' | 'OK';
+  status: MaintenanceStatus;
 
   @ApiPropertyOptional({ type: UpcomingCarSummarySerializer })
   @Expose()
