@@ -16,6 +16,14 @@ export const IMAGE_EXTENSIONS: Record<string, string> = {
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
+/** Names the upload code produces: UUID + an accepted image extension. */
+export const PHOTO_NAME =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z]+$/;
+
+/** True only for names this server generated; rules out paths like "../x". */
+export const isUploadedPhotoName = (name: unknown): name is string =>
+  typeof name === 'string' && PHOTO_NAME.test(name);
+
 export const createMulterStorage = (subfolder: string) => {
   const destination = join(getUploadDir(), subfolder);
   if (!existsSync(destination)) {
@@ -62,7 +70,8 @@ export const deleteUploadedFile = async (
   subfolder: string,
   filename?: string | null,
 ): Promise<void> => {
-  if (!filename) return;
+  // Never unlink anything but a file name this server generated.
+  if (!isUploadedPhotoName(filename)) return;
   try {
     const filePath = join(getUploadDir(), subfolder, filename);
     await fs.unlink(filePath);

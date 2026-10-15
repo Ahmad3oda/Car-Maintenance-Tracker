@@ -6,14 +6,13 @@ import { Car } from '../cars/entities/car.entity';
 import { Item } from '../items/entities/item.entity';
 import { MaintenanceRecord } from '../maintenance-records/entities/maintenance-record.entity';
 import { getUploadDir } from '../../common/utils/paths.util';
-import { IMAGE_EXTENSIONS } from '../../common/utils/multer.util';
+import {
+  IMAGE_EXTENSIONS,
+  isUploadedPhotoName,
+} from '../../common/utils/multer.util';
 
 export const PHOTO_FOLDERS = ['cars', 'items', 'maintenance-records'] as const;
 export type PhotoFolder = (typeof PHOTO_FOLDERS)[number];
-
-/** Names the upload code produces: UUID + an accepted image extension. */
-const PHOTO_NAME =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z]+$/;
 
 const MIME_BY_EXTENSION: Record<string, string> = Object.fromEntries(
   Object.entries(IMAGE_EXTENSIONS).map(([mime, ext]) => [ext, mime]),
@@ -41,7 +40,7 @@ export class PhotosService {
     // The name check also rules out path traversal ("../").
     if (
       !PHOTO_FOLDERS.includes(folder as PhotoFolder) ||
-      !PHOTO_NAME.test(filename) ||
+      !isUploadedPhotoName(filename) ||
       !contentType ||
       !(await this.isOwned(userId, folder as PhotoFolder, filename))
     ) {

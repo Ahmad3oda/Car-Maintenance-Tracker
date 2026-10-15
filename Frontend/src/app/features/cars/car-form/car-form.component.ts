@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -18,7 +18,7 @@ import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
   imports: [AuthImagePipe, CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './car-form.component.html',
 })
-export class CarFormComponent implements OnInit {
+export class CarFormComponent implements OnInit, OnDestroy {
   carForm: FormGroup;
   photoPreview: string | null = null;
   selectedFile: File | null = null;
@@ -80,7 +80,19 @@ export class CarFormComponent implements OnInit {
     const file = target.files?.[0];
     if (file) {
       this.selectedFile = file;
+      this.revokePreview();
       this.photoPreview = URL.createObjectURL(file);
+    }
+  }
+
+  ngOnDestroy() {
+    this.revokePreview();
+  }
+
+  /** Frees a local preview made by handlePhotoSelect; server URLs are left alone. */
+  private revokePreview() {
+    if (this.photoPreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.photoPreview);
     }
   }
 

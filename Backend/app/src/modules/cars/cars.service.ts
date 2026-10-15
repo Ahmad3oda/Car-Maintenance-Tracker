@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { Car } from './entities/car.entity';
 import { CarsRepository } from './cars.repository';
 import { OdometerService } from './odometer.service';
 import { CreateCarDto } from './dtos/create-car.dto';
@@ -117,7 +118,9 @@ export class CarsService {
       }
     }
 
-    const updateData: Partial<any> = { ...dto };
+    const updateData: Partial<Car> = { ...dto };
+    // photoPath is set only from an uploaded file, never from the body.
+    delete updateData.photoPath;
     if (photo) {
       if (car.photoPath) {
         await deleteUploadedFile('cars', car.photoPath);

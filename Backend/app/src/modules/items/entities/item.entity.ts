@@ -36,7 +36,6 @@ export class Item {
   photoPath: string | null;
 
   @Column({ type: 'datetime', nullable: true })
-  @Column({ type: 'datetime', nullable: true })
   installedDate: Date | null;
 
   @Column({ type: 'int', nullable: true })
