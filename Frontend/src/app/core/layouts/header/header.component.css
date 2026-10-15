@@ -1,0 +1,21 @@
+/* Three bars that morph into an X while the drawer is open. */
+.hamburger {
+  position: relative;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.hamburger > span {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 400ms var(--ease-out), opacity 200ms ease, top 400ms var(--ease-out);
+}
+.hamburger > span:nth-child(1) { top: calc(50% - 7px); }
+.hamburger > span:nth-child(2) { top: calc(50% - 1px); }
+.hamburger > span:nth-child(3) { top: calc(50% + 5px); }
+.hamburger.is-open > span:nth-child(1) { top: calc(50% - 1px); transform: rotate(45deg); }
+.hamburger.is-open > span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+.hamburger.is-open > span:nth-child(3) { top: calc(50% - 1px); transform: rotate(-45deg); }

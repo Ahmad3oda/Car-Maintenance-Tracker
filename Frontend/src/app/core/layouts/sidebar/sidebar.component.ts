@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -21,10 +21,28 @@ interface SidebarLink {
     :host {
       display: block;
       width: 100%;
+      height: 100%;
+    }
+    /* Labels slide and fade instead of popping when the rail collapses. */
+    .nav-label {
+      transition: opacity 200ms ease 80ms, transform 300ms var(--ease-out);
+    }
+    /* Springs past the target slightly, then settles. */
+    .nav-pill {
+      transition: transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nav-label.is-hidden {
+      opacity: 0;
+      transform: translateX(-8px);
+      pointer-events: none;
+      transition-delay: 0ms;
     }
   `]
 })
 export class SidebarComponent {
+  /** Icon-only rail (desktop). */
+  @Input() collapsed = false;
+
   appName = 'Car Maintenance';
   activeUrl = '';
 
@@ -55,6 +73,11 @@ export class SidebarComponent {
     ).subscribe((event: any) => {
       this.activeUrl = event.urlAfterRedirects;
     });
+  }
+
+  /** Row of the active link (rows are h-11 + space-y-1 = 48px apart). */
+  get activeIndex(): number {
+    return this.links.findIndex(link => this.isMainLink(link.url));
   }
 
   isMainLink(url: string): boolean {

@@ -149,6 +149,20 @@
   --skeleton: var(--neutral-200);
   --skeleton-shine: var(--neutral-100);
 
+<<<<<<< HEAD
+=======
+  /* Frosted glass surfaces (sidebar, header, menus). */
+  --glass-bg: 255 255 255;
+  --glass-alpha: 0.62;
+  --glass-border: 255 255 255;
+  --glass-border-alpha: 0.7;
+  --glass-shadow: 0 8px 32px -12px rgb(var(--brand-900) / 0.18);
+  --aurora-1: var(--brand-300);
+  --aurora-2: var(--indigo-300);
+  --aurora-3: var(--teal-200);
+  --aurora-alpha: 0.45;
+
+>>>>>>> main
   color-scheme: light;
 }
 
@@ -180,6 +194,19 @@ html.dark {
   --skeleton: var(--neutral-700);
   --skeleton-shine: var(--neutral-600);
 
+<<<<<<< HEAD
+=======
+  --glass-bg: var(--neutral-800);
+  --glass-alpha: 0.55;
+  --glass-border: 255 255 255;
+  --glass-border-alpha: 0.08;
+  --glass-shadow: 0 8px 32px -12px rgb(var(--black) / 0.6);
+  --aurora-1: var(--brand-700);
+  --aurora-2: var(--indigo-800);
+  --aurora-3: var(--teal-800);
+  --aurora-alpha: 0.35;
+
+>>>>>>> main
   color-scheme: dark;
 }
 
@@ -260,6 +287,35 @@ button:focus:not(:focus-visible) {
   animation: 260ms var(--ease-out) both fade-up;
 }
 
+<<<<<<< HEAD
+=======
+/* Theme switch: the new theme grows as a circle from the toggle
+   (ThemeService sets --reveal-*). Page keeps no separate layer so the
+   whole screen is revealed together. */
+html.theme-reveal .page-transition {
+  view-transition-name: none;
+}
+html.theme-reveal::view-transition-old(root),
+html.theme-reveal::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+html.theme-reveal::view-transition-old(root) {
+  animation: none;
+}
+html.theme-reveal::view-transition-new(root) {
+  animation: theme-reveal 650ms var(--ease-out) both;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--reveal-x) var(--reveal-y));
+  }
+  to {
+    clip-path: circle(var(--reveal-r) at var(--reveal-x) var(--reveal-y));
+  }
+}
+
+>>>>>>> main
 @keyframes fade-out {
   to {
     opacity: 0;
@@ -319,6 +375,66 @@ button:focus:not(:focus-visible) {
   .appear-delayed {
     animation: fade-in 200ms ease 150ms both;
   }
+<<<<<<< HEAD
+=======
+
+  /* Frosted glass: translucent fill, blur, a light top edge like a lens. */
+  .glass {
+    background: rgb(var(--glass-bg) / var(--glass-alpha));
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: blur(18px) saturate(170%);
+    border-color: rgb(var(--glass-border) / var(--glass-border-alpha));
+    box-shadow: var(--glass-shadow),
+      inset 0 1px 0 0 rgb(var(--glass-border) / calc(var(--glass-border-alpha) * 0.9));
+  }
+
+  /* Slow drifting colour blobs behind the app, so the glass has
+     something to blur. Fixed and non-interactive. */
+  .aurora {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .aurora > span {
+    position: absolute;
+    width: 42vmax;
+    height: 42vmax;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: var(--aurora-alpha);
+    will-change: transform;
+  }
+  .aurora > span:nth-child(1) {
+    top: -12vmax;
+    left: -8vmax;
+    background: rgb(var(--aurora-1));
+    animation: aurora-drift-1 26s ease-in-out infinite alternate;
+  }
+  .aurora > span:nth-child(2) {
+    top: 20%;
+    right: -14vmax;
+    background: rgb(var(--aurora-2));
+    animation: aurora-drift-2 32s ease-in-out infinite alternate;
+  }
+  .aurora > span:nth-child(3) {
+    bottom: -18vmax;
+    left: 30%;
+    background: rgb(var(--aurora-3));
+    animation: aurora-drift-3 38s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes aurora-drift-1 {
+  to { transform: translate(14vmax, 10vmax) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  to { transform: translate(-12vmax, 8vmax) scale(0.9); }
+}
+@keyframes aurora-drift-3 {
+  to { transform: translate(-10vmax, -12vmax) scale(1.2); }
+>>>>>>> main
 }
 
 @keyframes skeleton-shine {
@@ -372,3 +488,102 @@ button:focus:not(:focus-visible) {
     transform: none !important;
   }
 }
+<<<<<<< HEAD
+=======
+
+/* Menus and popovers open from their anchor with a soft blur-in. */
+.pop-in {
+  animation: pop-in 260ms var(--ease-out) both;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+    filter: blur(4px);
+  }
+}
+
+/* Glass whose blur lives on a pseudo-element, so menus inside it can
+   still blur the page (a backdrop-filter on the parent would block that). */
+.glass-host {
+  isolation: isolate;
+  border-color: rgb(var(--glass-border) / var(--glass-border-alpha));
+  box-shadow: var(--glass-shadow),
+    inset 0 1px 0 0 rgb(var(--glass-border) / calc(var(--glass-border-alpha) * 0.9));
+}
+.glass-host::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(var(--glass-bg) / var(--glass-alpha));
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+}
+
+/* Denser glass for menus so text over busy content stays readable. */
+.glass.glass-dense {
+  --glass-alpha: 0.85;
+}
+
+/* Spotlight: a soft light and a lit border follow the cursor across
+   cards. AppComponent writes --mx/--my on the hovered card. */
+.spotlight {
+  position: relative;
+}
+.spotlight::before,
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.spotlight::before {
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--brand-400) / 0.1),
+    transparent 65%
+  );
+}
+.spotlight::after {
+  padding: 1px;
+  background: radial-gradient(
+    180px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--brand-400) / 0.7),
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.spotlight:hover::before,
+.spotlight:hover::after {
+  opacity: 1;
+}
+@media (hover: none) {
+  .spotlight::before,
+  .spotlight::after {
+    display: none;
+  }
+}
+
+/* tailwindcss-animate style classes used by modals (the plugin is not
+   installed, so they did nothing before). */
+.animate-in {
+  animation: fade-in 200ms var(--ease-out) both;
+}
+.animate-in.zoom-in-95 {
+  animation-name: zoom-in;
+  animation-duration: 320ms;
+}
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+}
+>>>>>>> main

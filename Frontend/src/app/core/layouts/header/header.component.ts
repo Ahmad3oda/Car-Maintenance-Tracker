@@ -3,6 +3,7 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
+  Input,
   OnInit,
   Output,
   inject,
@@ -27,8 +28,11 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
   standalone: true,
   imports: [IconComponent, WheelSpinnerComponent, CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
   templateUrl: './header.component.html',
+  styleUrl: './header.component.css',
 })
 export class HeaderComponent implements OnInit {
+  /** Mobile drawer state, drives the hamburger-to-X morph. */
+  @Input() menuOpen = false;
   @Output() menuClick = new EventEmitter<void>();
 
   private themeService = inject(ThemeService);
@@ -261,8 +265,13 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  toggleTheme() {
-    this.themeService.toggleTheme();
+  toggleTheme(event: MouseEvent) {
+    // Button centre, so keyboard activation reveals from the same spot.
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.themeService.toggleTheme({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
   }
 
   closeMenus() {

@@ -1,13 +1,33 @@
 <div class="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden w-full max-w-full" [ngClass]="{'overflow-hidden': isSideMenuOpen}">
-  <!-- Desktop sidebar -->
-  <aside class="z-20 hidden w-64 overflow-y-auto bg-gradient-to-b from-purple-900 to-purple-800 dark:from-gray-900 dark:to-gray-800 md:block flex-shrink-0 shadow-lg border-r border-purple-700/50 dark:border-gray-800">
-    <app-sidebar></app-sidebar>
-  </aside>
+  <!-- Ambient background the glass panels blur -->
+  <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <!-- Desktop sidebar: floating glass panel that collapses to an icon rail -->
+  <div class="relative z-20 hidden md:block flex-shrink-0 p-3 pr-0">
+    <aside
+      class="sidebar-panel glass relative h-full rounded-2xl border overflow-hidden"
+      [class.is-collapsed]="isSidebarCollapsed"
+    >
+      <app-sidebar [collapsed]="isSidebarCollapsed"></app-sidebar>
+    </aside>
+
+    <button
+      type="button"
+      (click)="toggleSidebarCollapsed()"
+      class="glass absolute top-7 -right-3 z-30 flex items-center justify-center w-6 h-6 rounded-full border text-gray-500 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-300 hover:scale-110 transition-transform duration-200"
+      [attr.aria-label]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-expanded]="!isSidebarCollapsed"
+    >
+      <svg class="w-3.5 h-3.5 transition-transform duration-300" [class.rotate-180]="isSidebarCollapsed" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+  </div>
 
   <!-- Mobile sidebar -->
   <!-- Backdrop -->
-  <div 
-    class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out" 
+  <div
+    class="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out"
     [ngClass]="{
       'opacity-100 pointer-events-auto': isSideMenuOpen,
       'opacity-0 pointer-events-none': !isSideMenuOpen
@@ -17,31 +37,31 @@
   ></div>
 
   <!-- Mobile Sidebar Drawer -->
-  <aside 
-    class="fixed inset-y-0 left-0 z-50 flex flex-col w-64 overflow-y-auto bg-gradient-to-b from-purple-900 to-purple-800 dark:from-gray-900 dark:to-gray-800 md:hidden shadow-2xl border-r border-purple-700/50 dark:border-gray-800 transform transition-transform duration-300 ease-in-out"
-    [ngClass]="{
-      'translate-x-0': isSideMenuOpen,
-      '-translate-x-full': !isSideMenuOpen
-    }"
+  <aside
+    class="mobile-drawer glass fixed top-3 bottom-3 left-3 z-50 flex flex-col w-64 overflow-y-auto rounded-2xl border md:hidden"
+    [class.is-open]="isSideMenuOpen"
     [attr.aria-hidden]="!isSideMenuOpen"
+    [attr.inert]="isSideMenuOpen ? null : ''"
   >
-    <div class="flex items-center justify-between px-6 pt-4 pb-2">
-      <span class="text-sm font-semibold text-purple-200 uppercase tracking-wider">Navigation</span>
-      <button 
-        (click)="closeSideMenu()" 
-        class="p-1 rounded-lg text-purple-200 hover:text-white hover:bg-purple-700/50 focus:outline-none transition-colors"
-        aria-label="Close sidebar"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
+    <button
+      (click)="closeSideMenu()"
+      class="absolute top-4 right-3 p-1.5 rounded-lg text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 focus:outline-none transition-colors"
+      aria-label="Close sidebar"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
     <app-sidebar></app-sidebar>
   </aside>
 
+<<<<<<< HEAD
   <div class="flex flex-col flex-1 w-full min-w-0 max-w-full overflow-x-hidden">
     <app-header (menuClick)="toggleSideMenu()"></app-header>
+=======
+  <div class="relative z-10 flex flex-col flex-1 w-full min-w-0 max-w-full overflow-x-hidden">
+    <app-header [menuOpen]="isSideMenuOpen" (menuClick)="toggleSideMenu()"></app-header>
+>>>>>>> main
     <main class="page-transition h-full overflow-y-auto overflow-x-hidden w-full min-w-0 max-w-full">
       <router-outlet></router-outlet>
     </main>
