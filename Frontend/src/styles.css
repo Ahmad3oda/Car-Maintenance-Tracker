@@ -149,8 +149,6 @@
   --skeleton: var(--neutral-200);
   --skeleton-shine: var(--neutral-100);
 
-<<<<<<< HEAD
-=======
   /* Frosted glass surfaces (sidebar, header, menus). */
   --glass-bg: 255 255 255;
   --glass-alpha: 0.62;
@@ -162,7 +160,6 @@
   --aurora-3: var(--teal-200);
   --aurora-alpha: 0.45;
 
->>>>>>> main
   color-scheme: light;
 }
 
@@ -194,8 +191,6 @@ html.dark {
   --skeleton: var(--neutral-700);
   --skeleton-shine: var(--neutral-600);
 
-<<<<<<< HEAD
-=======
   --glass-bg: var(--neutral-800);
   --glass-alpha: 0.55;
   --glass-border: 255 255 255;
@@ -206,7 +201,6 @@ html.dark {
   --aurora-3: var(--teal-800);
   --aurora-alpha: 0.35;
 
->>>>>>> main
   color-scheme: dark;
 }
 
@@ -287,8 +281,6 @@ button:focus:not(:focus-visible) {
   animation: 260ms var(--ease-out) both fade-up;
 }
 
-<<<<<<< HEAD
-=======
 /* Theme switch: the new theme grows as a circle from the toggle
    (ThemeService sets --reveal-*). Page keeps no separate layer so the
    whole screen is revealed together. */
@@ -315,7 +307,6 @@ html.theme-reveal::view-transition-new(root) {
   }
 }
 
->>>>>>> main
 @keyframes fade-out {
   to {
     opacity: 0;
@@ -375,8 +366,6 @@ html.theme-reveal::view-transition-new(root) {
   .appear-delayed {
     animation: fade-in 200ms ease 150ms both;
   }
-<<<<<<< HEAD
-=======
 
   /* Frosted glass: translucent fill, blur, a light top edge like a lens. */
   .glass {
@@ -434,7 +423,6 @@ html.theme-reveal::view-transition-new(root) {
 }
 @keyframes aurora-drift-3 {
   to { transform: translate(-10vmax, -12vmax) scale(1.2); }
->>>>>>> main
 }
 
 @keyframes skeleton-shine {
@@ -488,8 +476,6 @@ html.theme-reveal::view-transition-new(root) {
     transform: none !important;
   }
 }
-<<<<<<< HEAD
-=======
 
 /* Menus and popovers open from their anchor with a soft blur-in. */
 .pop-in {
@@ -586,4 +572,3 @@ html.theme-reveal::view-transition-new(root) {
     transform: translateY(8px) scale(0.95);
   }
 }
->>>>>>> main

@@ -29,28 +29,17 @@ export class ThemeService {
     });
   }
 
-<<<<<<< HEAD
-  toggleTheme(): void {
-=======
   /**
    * With an origin (viewport px), the new theme spreads from that point
    * as a growing circle; otherwise colours cross-fade.
    */
   toggleTheme(origin?: { x: number; y: number }): void {
->>>>>>> main
     const next: Theme = this.isDark() ? 'light' : 'dark';
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch {
       // Storage unavailable: the choice lasts until the page is closed.
     }
-<<<<<<< HEAD
-    this.animate(() => this.apply(next));
-  }
-
-  private apply(theme: Theme): void {
-    const root = document.documentElement;
-=======
 
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (!origin || reduceMotion || !document.startViewTransition) {
@@ -75,7 +64,6 @@ export class ThemeService {
 
   private apply(theme: Theme): void {
     const root = document.documentElement;
->>>>>>> main
     root.classList.toggle('dark', theme === 'dark');
     root.setAttribute('data-theme', theme);
     this.isDark.set(theme === 'dark');
