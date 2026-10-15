@@ -5,7 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -26,6 +28,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @UseGuards(ThrottlerGuard)
   @Post('register')
   @ApiOperation({ summary: 'Create an account and log in' })
   @ApiResponse({ status: 201, type: AuthResponseDto })
@@ -34,16 +37,25 @@ export class AuthController {
     description: 'Username or password breaks the rules.',
   })
   @ApiResponse({ status: 409, description: 'Username is already taken.' })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many attempts; wait a minute.',
+  })
   register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
     return this.authService.register(dto);
   }
 
   @Public()
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log in and get an access token' })
   @ApiResponse({ status: 200, type: AuthResponseDto })
   @ApiResponse({ status: 401, description: 'Invalid username or password.' })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many attempts; wait a minute.',
+  })
   login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(dto);
   }

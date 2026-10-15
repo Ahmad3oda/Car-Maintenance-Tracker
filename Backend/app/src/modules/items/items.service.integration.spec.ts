@@ -132,4 +132,61 @@ describe('ItemsService (in-memory DB)', () => {
       'OK',
     ]);
   });
+
+  it('moves the installation record when the install date or km is edited', async () => {
+    const item = await items.create(userId, {
+      carId,
+      name: 'Battery',
+      installedDate: new Date('2026-01-01T00:00:00.000Z'),
+      installedKm: 40000,
+      expectedMaintenanceKm: 30000,
+      expectedMaintenanceMonths: 24,
+    });
+
+    const updated = await items.update(userId, item.id, {
+      installedDate: new Date('2026-02-01T00:00:00.000Z'),
+      installedKm: 42000,
+    });
+
+    const baseline = updated.maintenanceRecords!;
+    expect(baseline).toHaveLength(1);
+    expect(new Date(baseline[0].maintenanceDate).toISOString()).toBe(
+      '2026-02-01T00:00:00.000Z',
+    );
+    expect(baseline[0].kmCounter).toBe(42000);
+    expect(updated.nextMaintenanceKm).toBe(72000);
+    expect(new Date(updated.nextMaintenanceDate!).toISOString()).toBe(
+      '2028-02-01T00:00:00.000Z',
+    );
+  });
+
+  it('leaves service records alone when the install date is edited', async () => {
+    const item = await items.create(userId, {
+      carId,
+      name: 'Oil',
+      installedDate: new Date('2026-01-01T00:00:00.000Z'),
+      installedKm: 45000,
+      expectedMaintenanceKm: 5000,
+    });
+    await records.create(userId, {
+      carId,
+      itemId: item.id,
+      maintenanceDate: new Date('2026-03-01T00:00:00.000Z'),
+      kmCounter: 50000,
+      itemCost: 30,
+    });
+
+    const updated = await items.update(userId, item.id, {
+      installedDate: new Date('2025-12-01T00:00:00.000Z'),
+    });
+
+    const dates = updated
+      .maintenanceRecords!.map((r) => new Date(r.maintenanceDate).toISOString())
+      .sort();
+    expect(dates).toEqual([
+      '2025-12-01T00:00:00.000Z',
+      '2026-03-01T00:00:00.000Z',
+    ]);
+    expect(updated.nextMaintenanceKm).toBe(55000);
+  });
 });

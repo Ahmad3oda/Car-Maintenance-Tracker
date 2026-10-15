@@ -95,6 +95,18 @@
         </div>
       </div>
     </div>
+
+    <div *ngIf="meta && meta.totalItems > pageSizeOptions[0]" class="mb-8 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+      <app-pagination
+        [page]="meta.page"
+        [limit]="meta.limit"
+        [totalItems]="meta.totalItems"
+        [totalPages]="meta.totalPages"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+        (limitChange)="onLimitChange($event)"
+      ></app-pagination>
+    </div>
   </ng-container>
 
   <ng-template #emptyState>

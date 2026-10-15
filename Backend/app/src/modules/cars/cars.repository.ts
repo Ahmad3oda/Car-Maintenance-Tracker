@@ -63,10 +63,8 @@ export class CarsRepository {
   }
 
   async findOne(id: number, userId: number): Promise<Car | null> {
-    return this.repo.findOne({
-      where: { id, userId },
-      relations: ['items', 'maintenanceRecords'],
-    });
+    // No relations: callers need the car row only (ownership, odometer).
+    return this.repo.findOne({ where: { id, userId } });
   }
 
   /** Plates are unique within one user's cars. */

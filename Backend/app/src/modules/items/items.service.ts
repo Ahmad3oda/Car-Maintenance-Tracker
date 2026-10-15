@@ -156,6 +156,8 @@ export class ItemsService {
     }
 
     const updateData: Partial<Item> = { ...dto };
+    // photoPath is set only from an uploaded file, never from the body.
+    delete updateData.photoPath;
     if (photo) {
       if (item.photoPath) {
         await deleteUploadedFile('items', item.photoPath);
@@ -181,6 +183,18 @@ export class ItemsService {
     updateData.expectedMaintenanceMonths = intervalMonths;
 
     const installedKm = dto.installedKm ?? item.installedKm;
+
+    // The auto-created installation record mirrors the install date and km,
+    // so editing those moves the baseline (and the schedule built on it).
+    const baseline = item.maintenanceRecords?.find(
+      (record) => record.notes === INITIAL_INSTALLATION_NOTE,
+    );
+    const baselinePatch = baseline
+      ? installationChanges(baseline, dto.installedDate, installedKm)
+      : null;
+    const replacedBaselineKm = baseline?.kmCounter;
+    if (baseline && baselinePatch) Object.assign(baseline, baselinePatch);
+
     Object.assign(
       updateData,
       computeMaintenanceSchedule(
@@ -197,6 +211,9 @@ export class ItemsService {
     // Records follow their item, so moving the item moves its history too.
     await this.dataSource.transaction(async (manager) => {
       await manager.update(Item, id, updateData);
+      if (baseline && baselinePatch) {
+        await manager.update(MaintenanceRecord, baseline.id, baselinePatch);
+      }
       if (targetCar.id !== item.carId) {
         await manager.update(
           MaintenanceRecord,
@@ -209,6 +226,8 @@ export class ItemsService {
     if (targetCar.id !== item.carId) {
       await this.odometer.sync(targetCar.id);
       await this.odometer.sync(item.carId, highestKm(item.maintenanceRecords));
+    } else if (baselinePatch?.kmCounter !== undefined) {
+      await this.odometer.sync(item.carId, replacedBaselineKm);
     }
 
     const updatedItem = await this.itemsRepo.findOne(id, userId);
@@ -404,6 +423,32 @@ export class ItemsService {
 
     return new PageDto(paged, pageMetaDto);
   }
+}
+
+/** Fields of the installation record that differ from the new install values. */
+function installationChanges(
+  baseline: MaintenanceRecord,
+  installedDate: Date | undefined,
+  installedKm: number | null | undefined,
+): Partial<Pick<MaintenanceRecord, 'maintenanceDate' | 'kmCounter'>> | null {
+  const patch: Partial<
+    Pick<MaintenanceRecord, 'maintenanceDate' | 'kmCounter'>
+  > = {};
+  if (
+    installedDate &&
+    new Date(installedDate).getTime() !==
+      new Date(baseline.maintenanceDate).getTime()
+  ) {
+    patch.maintenanceDate = new Date(installedDate);
+  }
+  if (
+    installedKm !== null &&
+    installedKm !== undefined &&
+    Number(installedKm) !== Number(baseline.kmCounter)
+  ) {
+    patch.kmCounter = Number(installedKm);
+  }
+  return Object.keys(patch).length ? patch : null;
 }
 
 function highestKm(records: { kmCounter: number }[] | undefined) {

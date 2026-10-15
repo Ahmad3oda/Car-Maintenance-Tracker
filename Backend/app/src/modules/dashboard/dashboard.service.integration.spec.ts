@@ -84,5 +84,6 @@ describe('DashboardService (in-memory DB)', () => {
     }
     const stats = await dashboard.getStats(userId, now);
     expect(stats.itemsReplacedLastMonth).toBe(510);
-  });
+    // 510 sequential inserts outrun Jest's 5 s default on slower machines.
+  }, 60_000);
 });
