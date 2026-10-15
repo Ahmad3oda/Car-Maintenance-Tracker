@@ -7,9 +7,9 @@
         <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
       <!-- Logo mark; on wider screens the sidebar shows it. -->
-      <a routerLink="/dashboard" class="md:hidden flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-purple-600 text-white shrink-0" aria-label="Dashboard">
+      <!-- <a routerLink="/dashboard" class="md:hidden flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-purple-600 text-white shrink-0" aria-label="Dashboard">
         <app-icon name="car" class="w-full h-full"></app-icon>
-      </a>
+      </a> -->
     </div>
     
     <!-- Center: Search Input & Floating Suggestions Dropdown -->
@@ -99,7 +99,7 @@
                       {{ car.brand }} {{ car.model }}
                     </div>
                     <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5">
-                      <span class="font-mono px-1 py-0.2 bg-gray-100 dark:bg-gray-700 rounded text-3xs font-semibold text-gray-700 dark:text-gray-300">
+                      <span class="font-mono px-1 py-0.2 bg-gray-100 dark:bg-gray-700 rounded text-3xs text-gray-700 dark:text-gray-300">
                         {{ car.plateNumber }}
                       </span>
                       <span>{{ car.year }}</span>
@@ -153,9 +153,6 @@
                   <div class="min-w-0">
                     <div class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center gap-2">
                       <span class="truncate">{{ item.name }}</span>
-                      <span *ngIf="item.manufacturer" class="text-3xs px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
-                        {{ item.manufacturer }}
-                      </span>
                     </div>
                     <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5 truncate">
                       <span class="font-medium text-purple-700 dark:text-purple-300">

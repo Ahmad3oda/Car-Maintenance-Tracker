@@ -6,8 +6,10 @@ import { PageOptionsDto } from '../../../common/dtos/page-options.dto';
 export enum UpcomingScope {
   DUE_SOON_OR_OVERDUE = 'due_soon_or_overdue',
   OVERDUE_ONLY = 'overdue_only',
-  WITHIN_1K_KM = 'within_1k_km',
-  WITHIN_30_DAYS = 'within_30_days',
+  DUE_SOON_ONLY = 'due_soon_only',
+  UPCOMING_ONLY = 'upcoming_only',
+  HEALTHY_ONLY = 'healthy_only',
+  NO_SCHEDULE = 'no_schedule',
   ALL = 'all',
 }
 
@@ -37,7 +39,8 @@ export class QueryUpcomingItemDto extends PageOptionsDto {
   @ApiPropertyOptional({
     enum: UpcomingScope,
     default: UpcomingScope.DUE_SOON_OR_OVERDUE,
-    description: 'Filter scope for upcoming items',
+    description:
+      'Filter by urgency: overdue, due soon (1,000 km / 30 days), upcoming  (3,000 km / 90 days), healthy, or no schedule.',
   })
   @IsEnum(UpcomingScope)
   @IsOptional()

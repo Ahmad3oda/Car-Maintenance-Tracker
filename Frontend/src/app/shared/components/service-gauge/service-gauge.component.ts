@@ -2,7 +2,13 @@ import { Component, Input } from '@angular/core';
 
 const DAYS_PER_MONTH = 30.44;
 
-type GaugeStatus = 'OVERDUE' | 'DUE_SOON' | 'UPCOMING' | 'OK';
+type GaugeStatus =
+  | 'OVERDUE'
+  | 'DUE_SOON'
+  | 'UPCOMING'
+  | 'HEALTHY'
+  | 'NO_SCHEDULE'
+  | 'OK';
 
 /**
  * Fuel-gauge style bar: full right after a service, empty when it is due.
@@ -92,6 +98,8 @@ export class ServiceGaugeComponent {
       OVERDUE: 'overdue',
       DUE_SOON: 'soon',
       UPCOMING: 'upcoming',
+      HEALTHY: 'ok',
+      NO_SCHEDULE: 'ok',
       OK: 'ok',
     };
     const known = this.status && byStatus[this.status as GaugeStatus];

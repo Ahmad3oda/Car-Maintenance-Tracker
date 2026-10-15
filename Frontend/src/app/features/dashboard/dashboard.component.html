@@ -110,10 +110,11 @@
           <select [ngModel]="selectedScopeFilter" (ngModelChange)="onScopeFilterChange($event)"
             class="text-xs sm:text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-xs font-medium">
             <option value="due_soon_or_overdue">Due Soon or Overdue</option>
-            <option value="overdue_only">Overdue Only</option>
-            <option value="within_1k_km">Within 1,000 KM</option>
-            <option value="within_30_days">Within 30 Days</option>
-            <option value="all">All Monitored Items</option>
+            <option value="overdue_only">Overdue</option>
+            <option value="due_soon_only">Due Soon</option>
+            <option value="upcoming_only">Upcoming</option>
+            <option value="healthy_only">Healthy</option>
+            <option value="all">All Items</option>
           </select>
 
           <!-- Quick Update Odometer Button -->

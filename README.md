@@ -1,4 +1,4 @@
-# Car Maintenance Tracker <img src="Frontend/public/favicon.svg" width="35" height="35" alt="Car Maintenance Tracker Logo">
+# Car Maintenance Tracker <img src="Frontend/public/logo.png" width="35" height="35" alt="Car Maintenance Tracker Logo">
 
 A full-stack application for tracking cars, their maintenance items (parts/services), and service history. Built with **NestJS** + **TypeORM** + **SQLite** on the backend and **Angular 19** on the frontend.
 
@@ -15,7 +15,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 
 - **Multi-car support** — Register and manage multiple vehicles
 - **Items management & automated baselines** — Track parts/services per car (oil, brake pads, tires, etc.) with required installation date that automatically registers the component's initial maintenance event
-- **Upcoming maintenance calculation engine** — Calculates remaining mileage, days left, and urgency status (`OVERDUE`, `DUE_SOON`, `UPCOMING`, `HEALTHY`) based on car odometer readings and maintenance intervals
+- **Upcoming maintenance calculation engine** — Calculates remaining mileage and days until maintenance, classifying items into four urgency levels: `OVERDUE`, `DUE_SOON`, `UPCOMING`, and `HEALTHY`, with a separate `NO_SCHEDULE` state for items without a configured maintenance schedule. Classification considers both mileage and time thresholds, prioritizing whichever requirement is more urgent.
 - **Maintenance records** — Log every service event with date, mileage, item cost, extra costs, and notes
 - **Photo upload** — Attach a photo to cars and items (stored locally in `/uploads`)
 - **Search, filter & pagination** — Paginated list endpoints with search, urgency scope filtering, and multi-column sorting
@@ -27,7 +27,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 
 ### Frontend
 
-- **Dashboard** — Summary metrics, upcoming/due maintenance alerts table with urgency filters, and recent maintenance activity with sorting
+- **Dashboard** — Summary metrics, recent maintenance activity, and a maintenance overview with urgency filters for overdue, due soon, upcoming, healthy, and unscheduled items.
 - **Quick Odometer Update Modal** — Update any vehicle's mileage directly from the dashboard to instantly trigger maintenance deadline recalculations
 - **Global Search with Floating Suggestions** — Real-time search across vehicles and installed items with category indicators, car badges, custom icons, and instant navigation
 - **Header Notification System** — Interactive notification bell showing real-time pending alert counts and quick links to log maintenance records
@@ -45,59 +45,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Full API integration** — Angular services connected to NestJS backend via `HttpClient`
 
 ---
-## UI
 
-The application provides a clean dashboard and structured views for managing vehicles, their maintenance items, and complete service history.
-
-### Dashboard
-
-A quick overview of the vehicle fleet, maintenance activity, upcoming maintenance, and recent service records.
-
-<p align="center">
-    <img width="1918" height="1036" alt="image" src="https://github.com/user-attachments/assets/18ef1696-98bd-45ea-9c7b-0acbc4d7e315" />
-</p>
-
----
-
-### Cars
-
-Manage all registered vehicles and quickly access their maintenance information.
-
-<p align="center">
-    <img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/1d8a45b9-4f64-4cac-aa14-442c1865a661" />
-</p>
-
----
-
-### Items
-
-Each vehicle has its own maintenance items, such as engine oil, filters, brake pads, tires, batteries, and other serviceable components.
-
-<p align="center">
-    <img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/6255e741-e1b3-4406-86cf-0b46f4a58e14" />
-</p>
-
----
-
-### Maintenance History
-
-Track every maintenance event per specific item with its date, mileage, item cost, additional expenses, and notes.
-
-<p align="center">
-    <img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/c12fa0ea-aabc-4cfd-b509-2bd767c9e8ec" />
-</p>
-
----
-
-### Maintenance Log
-
-List tracking all maintenance events for better general tracking.
-
-<p align="center">
-    <img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/3e0fd48c-3906-4374-923a-c9a1f8f54ba9" />
-</p>
-
----
 
 ## Tech Stack
 
@@ -177,19 +125,6 @@ cd car-maintenance-tracker
 | `backend` (`nest-backend`) | `./Backend/app` | **3000** → 3000 | NestJS API, SQLite, uploads |
 | `frontend` (`angular-frontend`) | `./Frontend` | **4200** → 80 | Angular app served by nginx |
 
-<<<<<<< HEAD
-The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are stored in two named Docker volumes, so they survive `docker compose down` and rebuilds. No setup is needed before the first start.
-
-| Volume | Mounted at | Contents |
-| ------ | ---------- | -------- |
-| `sqlite_data` | `/app/data` | `data.sqlite` |
-| `uploads_data` | `/app/uploads` | Car, item and record photos |
-
-Create a `.env` file in the **repository root** with the JWT signing secret (Compose refuses to start without it; `.env` is git-ignored):
-
-```bash
-echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
-=======
 The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are bind-mounted into the backend container so they survive `docker compose down`.
 
 **Create the bind-mount targets before the first start** (Docker will create a *directory* named `data.sqlite` if the file is missing):
@@ -206,7 +141,6 @@ New-Item -ItemType Directory -Force Backend/app/uploads | Out-Null
 if (-not (Test-Path Backend/app/data.sqlite)) {
   New-Item -ItemType File Backend/app/data.sqlite | Out-Null
 }
->>>>>>> origin/main
 ```
 
 From the **repository root**:
@@ -220,21 +154,14 @@ Then open:
 - App: `http://localhost:4200`
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
-<<<<<<< HEAD
 - Photos: `http://localhost:3000/uploads/<folder>/<file>` (login required)
 
 Stop the stack (data is kept):
-=======
-- Uploads: `http://localhost:3000/uploads/<filename>`
-
-Stop the stack:
->>>>>>> origin/main
 
 ```bash
 docker compose down
 ```
 
-<<<<<<< HEAD
 Stop and **delete all data** (removes both volumes):
 
 ```bash
@@ -247,8 +174,6 @@ Back up the database:
 docker compose cp backend:/app/data/data.sqlite ./data.sqlite.bak
 ```
 
-=======
->>>>>>> origin/main
 Rebuild after code changes:
 
 ```bash
@@ -263,11 +188,7 @@ docker compose logs -f backend  # API only
 docker compose ps
 ```
 
-<<<<<<< HEAD
 The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `JWT_SECRET` from `.env`, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
-=======
-The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `DB_PATH=/app/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Those paths match the volumes in `docker-compose.yml`.
->>>>>>> origin/main
 
 ### 3. Local development without Docker
 
@@ -280,18 +201,13 @@ cd Backend/app
 npm install
 ```
 
-<<<<<<< HEAD
 Create `.env` in `Backend/app/` (copy from `.env.example` and adjust). `JWT_SECRET` is required; the other values are the local defaults:
-=======
-Optional `.env` in `Backend/app/` (copy from `.env.example` and adjust). Local defaults:
->>>>>>> origin/main
 
 ```env
 PORT=3000
 DB_PATH=data.sqlite
 UPLOAD_DIR=uploads
 FRONTEND_URL=http://localhost:4200
-<<<<<<< HEAD
 JWT_SECRET=<output of: openssl rand -hex 32>
 ```
 
@@ -303,10 +219,6 @@ JWT_SECRET=<output of: openssl rand -hex 32>
 | `FRONTEND_URL` | no | Allowed CORS origin(s), comma-separated |
 | `PORT` | no | Default `3000` |
 
-=======
-```
-
->>>>>>> origin/main
 ```bash
 npm run start:dev
 ```
@@ -531,7 +443,7 @@ Every endpoint needs an `Authorization: Bearer <token>` header except `POST /aut
 | DELETE | `/items/:id` | Delete item (cascades records) |
 
 **Extra query params for `/items`:** `carId` — filter items by car  
-**Extra query params for `/items/upcoming`:** `carId`, `scope` (`due_soon_or_overdue`, `overdue_only`, `within_1k_km`, `within_30_days`, `all`)
+**Extra query params for `GET /items/upcoming`:** `carId`, `scope` (`due_soon_or_overdue`, `overdue_only`, `due_soon_only`, `upcoming_only`, `healthy_only`, `no_schedule`, `within_1k_km`, `within_30_days`, `all`).
 
 **Create body:** `carId`, `name`, `description?`, `serialNumber?`, `installedDate?`, `installedKm?`, `expectedMaintenanceKm?`, `expectedMaintenanceMonths?`
 
@@ -716,5 +628,3 @@ These TypeScript interfaces mirror the backend schema:
 - [x] Docker support
 - [ ] Cloud storage for photos (S3 / Cloudinary)
 - [ ] Environment-based API URL configuration
-
-
