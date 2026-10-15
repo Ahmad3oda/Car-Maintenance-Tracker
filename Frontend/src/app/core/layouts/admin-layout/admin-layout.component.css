@@ -1,0 +1,19 @@
+/* Desktop panel width springs between full and icon rail. */
+.sidebar-panel {
+  width: 15rem;
+  transition: width 420ms var(--ease-out);
+}
+.sidebar-panel.is-collapsed {
+  width: 4.25rem;
+}
+
+/* Mobile drawer: slides in with a slight scale, like a lens sliding over. */
+.mobile-drawer {
+  transform: translateX(calc(-100% - 1rem)) scale(0.96);
+  opacity: 0;
+  transition: transform 450ms var(--ease-out), opacity 250ms ease;
+}
+.mobile-drawer.is-open {
+  transform: none;
+  opacity: 1;
+}

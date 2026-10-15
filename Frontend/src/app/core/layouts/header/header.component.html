@@ -1,12 +1,10 @@
-<header class="z-30 py-3.5 sm:py-4 bg-white shadow-[0_4px_6px_-1px_rgb(var(--black)/0.05)] dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 w-full min-w-0 max-w-full relative">
+<header class="glass-host z-30 py-2.5 sm:py-3 mx-3 mt-3 rounded-2xl border min-w-0 relative">
   <div class="w-full max-w-7xl flex items-center justify-between h-full px-4 sm:px-6 lg:px-8 mx-auto text-purple-600 dark:text-purple-300 min-w-0 font-sans">
     
     <!-- Left: Mobile Hamburger -->
     <div class="flex items-center">
-      <button (click)="onMenuClick()" class="p-1.5 mr-2 sm:mr-4 rounded-lg md:hidden hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none transition-colors" aria-label="Menu">
-        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-        </svg>
+      <button (click)="onMenuClick()" class="hamburger p-2 mr-2 sm:mr-4 rounded-lg md:hidden hover:bg-white/50 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 focus:outline-none transition-colors" [class.is-open]="menuOpen" [attr.aria-expanded]="menuOpen" aria-label="Menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
       <!-- Logo mark; on wider screens the sidebar shows it. -->
       <a routerLink="/dashboard" class="md:hidden flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-purple-600 text-white shrink-0" aria-label="Dashboard">
@@ -33,7 +31,7 @@
           (keydown)="onSearchKeyDown($event)"
           placeholder="Search cars or items..."
           aria-label="Search"
-          class="w-full pl-9 sm:pl-10 pr-9 sm:pr-10 py-2 text-xs sm:text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-gray-50 dark:bg-gray-700/70 border border-gray-200/80 dark:border-gray-600 rounded-full focus:bg-white dark:focus:bg-gray-700 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-150 shadow-xs"
+          class="w-full pl-9 sm:pl-10 pr-9 sm:pr-10 py-2 text-xs sm:text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white/50 dark:bg-white/5 border border-white/70 dark:border-white/10 rounded-full focus:bg-white/80 dark:focus:bg-white/10 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-150 shadow-xs"
         />
 
         <!-- Loading spinner or Clear button -->
@@ -55,7 +53,7 @@
       <!-- Floating Suggestions Popover -->
       <div
         *ngIf="showSearchDropdown"
-        class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden max-h-96 overflow-y-auto font-sans animate-in fade-in zoom-in-95 duration-100"
+        class="glass glass-dense pop-in absolute left-0 right-0 top-full mt-2 rounded-2xl border z-50 overflow-hidden max-h-96 overflow-y-auto font-sans"
       >
         <!-- Searching state skeleton/spinner -->
         <div *ngIf="isSearching" class="p-4 text-center text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
@@ -195,7 +193,7 @@
       <ul class="flex justify-end items-center flex-shrink-0 space-x-3 sm:space-x-5">
         <!-- Theme toggler -->
         <li class="flex">
-          <button class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-purple-600 dark:hover:text-purple-300 focus:outline-none transition-colors" (click)="toggleTheme()" aria-label="Toggle color mode" title="Toggle dark mode">
+          <button class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-purple-600 dark:hover:text-purple-300 focus:outline-none transition-colors" (click)="toggleTheme($event)" aria-label="Toggle color mode" title="Toggle dark mode">
             <ng-container *ngIf="!isDark">
               <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
@@ -234,7 +232,7 @@
           <!-- Notifications Dropdown -->
           <div
             *ngIf="isNotificationsMenuOpen"
-            class="absolute right-0 mt-2 w-80 sm:w-88 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden font-sans"
+            class="glass glass-dense pop-in origin-top-right absolute right-0 mt-3 w-80 sm:w-88 rounded-2xl border z-50 overflow-hidden font-sans"
           >
             <!-- Dropdown Header -->
             <div class="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
@@ -315,7 +313,7 @@
           </button>
           <div
             *ngIf="isProfileMenuOpen"
-            class="absolute right-0 z-30 w-48 mt-2 py-1 bg-white border border-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700"
+            class="glass glass-dense pop-in origin-top-right absolute right-0 z-30 w-48 mt-3 py-1 border rounded-xl"
             role="menu"
           >
             <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
