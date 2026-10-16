@@ -1,9 +1,15 @@
 import { Component, Input } from '@angular/core';
 
-export type UrgencyStatus = 'OVERDUE' | 'DUE_SOON' | 'UPCOMING' | 'HEALTHY' | 'OK';
+export type UrgencyStatus =
+  | 'OVERDUE'
+  | 'DUE_SOON'
+  | 'UPCOMING'
+  | 'HEALTHY'
+  | 'NO_SCHEDULE'
+  | 'OK';
 
 interface Light {
-  tone: 'overdue' | 'soon' | 'upcoming' | 'ok';
+  tone: 'overdue' | 'soon' | 'upcoming' | 'ok' | 'none';
   label: string;
 }
 
@@ -11,8 +17,11 @@ const LIGHTS: Record<string, Light> = {
   OVERDUE: { tone: 'overdue', label: 'Overdue' },
   DUE_SOON: { tone: 'soon', label: 'Due Soon' },
   UPCOMING: { tone: 'upcoming', label: 'Upcoming' },
+  HEALTHY: { tone: 'ok', label: 'Healthy' },
+  OK: { tone: 'ok', label: 'Healthy' },
+  NO_SCHEDULE: { tone: 'none', label: 'No schedule' },
 };
-const HEALTHY: Light = { tone: 'ok', label: 'Healthy' };
+const FALLBACK: Light = { tone: 'ok', label: 'Healthy' };
 
 /**
  * Status styled like a dashboard warning light: a lit lamp with a symbol,
@@ -34,6 +43,9 @@ const HEALTHY: Light = { tone: 'ok', label: 'Healthy' };
             }
             @case ('upcoming') {
               <path d="M3.5 6h5M6.5 4l2 2-2 2" />
+            }
+            @case ('none') {
+              <circle cx="6" cy="6" r="2.4" />
             }
             @default {
               <path d="M3.4 6.2l1.7 1.7 3.5-3.6" />
@@ -103,6 +115,11 @@ const HEALTHY: Light = { tone: 'ok', label: 'Healthy' };
         --tone-bg: var(--status-ok-bg);
         --tone-light: var(--status-ok-light);
       }
+      .tone-none {
+        --tone-fg: var(--status-none-fg);
+        --tone-bg: var(--status-none-bg);
+        --tone-light: var(--status-none-light);
+      }
       @keyframes lamp-glow {
         50% {
           box-shadow: 0 0 0 3px rgb(var(--tone-light) / 0.15),
@@ -116,6 +133,6 @@ export class UrgencyBadgeComponent {
   @Input() status: UrgencyStatus | string = 'HEALTHY';
 
   get light(): Light {
-    return LIGHTS[this.status] ?? HEALTHY;
+    return LIGHTS[this.status] ?? FALLBACK;
   }
 }

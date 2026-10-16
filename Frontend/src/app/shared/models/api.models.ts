@@ -138,7 +138,13 @@ export interface DashboardStats {
 
 // --- Upcoming & Due Maintenance Models ---
 
-export type MaintenanceUrgencyStatus = 'OVERDUE' | 'DUE_SOON' | 'UPCOMING' | 'OK';
+export type MaintenanceUrgencyStatus =
+  | 'OVERDUE'
+  | 'DUE_SOON'
+  | 'UPCOMING'
+  | 'HEALTHY'
+  | 'NO_SCHEDULE'
+  | 'OK';
 
 export interface UpcomingCarSummary {
   id: number;
@@ -169,7 +175,14 @@ export interface UpcomingItemDto {
   car?: UpcomingCarSummary;
 }
 
-export type UpcomingScope = 'due_soon_or_overdue' | 'overdue_only' | 'within_1k_km' | 'within_30_days' | 'all';
+export type UpcomingScope =
+  | 'due_soon_or_overdue'
+  | 'overdue_only'
+  | 'due_soon_only'
+  | 'upcoming_only'
+  | 'healthy_only'
+  | 'no_schedule'
+  | 'all';
 
 export interface UpcomingQueryDto extends PageQuery, Record<string, unknown> {
   scope?: UpcomingScope;

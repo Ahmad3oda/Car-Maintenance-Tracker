@@ -12,6 +12,11 @@ import {
 } from './dtos/query-upcoming-item.dto';
 import { ItemSerializer } from './serializers/item.serializer';
 import {
+  classifyMaintenanceStatus,
+  MaintenanceStatus,
+  STATUS_URGENCY,
+} from './maintenance-status';
+import {
   UpcomingItemSerializer,
   UpcomingCarSummarySerializer,
 } from './serializers/upcoming-item.serializer';
@@ -280,45 +285,35 @@ export class ItemsService {
         );
       }
 
-      let status: 'OVERDUE' | 'DUE_SOON' | 'UPCOMING' | 'OK' = 'OK';
-      const isOverdue =
-        (remainingKm !== null && remainingKm <= 0) ||
-        (remainingDays !== null && remainingDays <= 0);
-      const isDueSoon =
-        (remainingKm !== null && remainingKm <= 1000) ||
-        (remainingDays !== null && remainingDays <= 30);
-      const isUpcoming =
-        (remainingKm !== null && remainingKm <= 2500) ||
-        (remainingDays !== null && remainingDays <= 60);
+      const status = classifyMaintenanceStatus(remainingKm, remainingDays);
 
-      if (isOverdue) {
-        status = 'OVERDUE';
-      } else if (isDueSoon) {
-        status = 'DUE_SOON';
-      } else if (isUpcoming) {
-        status = 'UPCOMING';
-      }
-
-      // Filter based on scope
       const scope = query.scope || UpcomingScope.DUE_SOON_OR_OVERDUE;
       let matchesScope = false;
 
       switch (scope) {
         case UpcomingScope.OVERDUE_ONLY:
-          matchesScope = status === 'OVERDUE';
+          matchesScope = status === MaintenanceStatus.OVERDUE;
           break;
-        case UpcomingScope.WITHIN_1K_KM:
-          matchesScope = remainingKm !== null && remainingKm <= 1000;
+        case UpcomingScope.DUE_SOON_ONLY:
+          matchesScope = status === MaintenanceStatus.DUE_SOON;
           break;
-        case UpcomingScope.WITHIN_30_DAYS:
-          matchesScope = remainingDays !== null && remainingDays <= 30;
+        case UpcomingScope.UPCOMING_ONLY:
+          matchesScope = status === MaintenanceStatus.UPCOMING;
+          break;
+        case UpcomingScope.HEALTHY_ONLY:
+          matchesScope = status === MaintenanceStatus.HEALTHY;
+          break;
+        case UpcomingScope.NO_SCHEDULE:
+          matchesScope = status === MaintenanceStatus.NO_SCHEDULE;
           break;
         case UpcomingScope.ALL:
           matchesScope = true;
           break;
         case UpcomingScope.DUE_SOON_OR_OVERDUE:
         default:
-          matchesScope = status === 'OVERDUE' || status === 'DUE_SOON';
+          matchesScope =
+            status === MaintenanceStatus.OVERDUE ||
+            status === MaintenanceStatus.DUE_SOON;
           break;
       }
 
@@ -376,9 +371,9 @@ export class ItemsService {
         return 0;
       }
 
-      // Default sorting: Urgency first (OVERDUE -> DUE_SOON -> UPCOMING -> OK)
-      const weightA = STATUS_URGENCY[a.status] || 5;
-      const weightB = STATUS_URGENCY[b.status] || 5;
+      // Default: OVERDUE → DUE_SOON → UPCOMING → HEALTHY → NO_SCHEDULE
+      const weightA = STATUS_URGENCY[a.status] ?? 9;
+      const weightB = STATUS_URGENCY[b.status] ?? 9;
 
       if (weightA !== weightB) {
         return weightA - weightB;
@@ -456,13 +451,6 @@ function highestKm(records: { kmCounter: number }[] | undefined) {
     ? Math.max(...records.map((r) => Number(r.kmCounter)))
     : undefined;
 }
-
-const STATUS_URGENCY: Record<string, number> = {
-  OVERDUE: 1,
-  DUE_SOON: 2,
-  UPCOMING: 3,
-  OK: 4,
-};
 
 function sortValue(
   item: UpcomingItemSerializer,

@@ -24,7 +24,6 @@ import { ItemService } from '../../services/item.service';
 import { CarDto, ItemDto, UpcomingItemDto } from '../../../shared/models/api.models';
 import { UrgencyBadgeComponent } from '../../../shared/components/urgency-badge/urgency-badge.component';
 import { WheelSpinnerComponent } from '../../../shared/components/wheel-spinner/wheel-spinner.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 /** How often the bell reloads while the site is open. */
 export const ALERTS_REFRESH_MS = 60_000;
@@ -32,7 +31,7 @@ export const ALERTS_REFRESH_MS = 60_000;
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [IconComponent, WheelSpinnerComponent, CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
+  imports: [WheelSpinnerComponent, CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })

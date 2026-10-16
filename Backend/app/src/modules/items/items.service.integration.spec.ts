@@ -117,9 +117,15 @@ describe('ItemsService (in-memory DB)', () => {
         installedKm,
         expectedMaintenanceKm: 5000,
       });
-    await install('ok', 50000); // 5000 km left
-    await install('overdue', 40000); // -5000 km
-    await install('dueSoon', 45500); // 500 km left
+    await install('upcoming', 50000); // 5,000 km left → Upcoming
+    await install('overdue', 40000); // -5,000 km → Overdue
+    await install('dueSoon', 45500); // 500 km left → Due soon
+    await items.create(userId, {
+      carId,
+      name: 'noSchedule',
+      installedDate: new Date('2026-01-01T00:00:00.000Z'),
+      installedKm: 50000,
+    });
 
     const page = await items.getUpcoming(userId, {
       scope: UpcomingScope.ALL,
@@ -129,7 +135,8 @@ describe('ItemsService (in-memory DB)', () => {
     expect(page.data.map((i) => i.status)).toEqual([
       'OVERDUE',
       'DUE_SOON',
-      'OK',
+      'UPCOMING',
+      'NO_SCHEDULE',
     ]);
   });
 
