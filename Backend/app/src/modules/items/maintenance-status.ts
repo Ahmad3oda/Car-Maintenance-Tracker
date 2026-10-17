@@ -1,4 +1,3 @@
-
 /**
  * Warning window: not overdue, but due within this many km.
  */

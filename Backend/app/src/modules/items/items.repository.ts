@@ -108,11 +108,9 @@ export class ItemsRepository {
     const query = this.repo
       .createQueryBuilder('item')
       .leftJoinAndSelect('item.car', 'car')
-      .leftJoinAndSelect('item.maintenanceRecords', 'maintenanceRecords')
-      .where('car.userId = :userId', { userId })
-      .andWhere(
-        '(item.nextMaintenanceKm IS NOT NULL OR item.nextMaintenanceDate IS NOT NULL)',
-      );
+      // Items without a schedule are included too: they classify as
+      // NO_SCHEDULE and only appear in the "all" and "no schedule" scopes.
+      .where('car.userId = :userId', { userId });
 
     if (carId) {
       query.andWhere('item.carId = :carId', { carId });

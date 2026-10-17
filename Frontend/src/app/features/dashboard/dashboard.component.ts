@@ -25,6 +25,9 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 import { PlateComponent } from '../../shared/components/plate/plate.component';
 import { ServiceGaugeComponent } from '../../shared/components/service-gauge/service-gauge.component';
 
+/** Cars loaded for the dashboard's car pickers. */
+const CAR_PICKER_LIMIT = 100;
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -102,7 +105,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadCars() {
-    this.carService.getCarsList({ limit: 100 }).subscribe({
+    this.carService.getCarsList({ limit: CAR_PICKER_LIMIT }).subscribe({
       next: (cars) => {
         this.carsList = cars;
         if (cars.length > 0 && !this.odometerCarId) {
@@ -181,7 +184,10 @@ export class DashboardComponent implements OnInit {
   }
 
   onOdometerUpdated() {
-    this.carService.getCarsList().subscribe((cars) => (this.carsList = cars));
+    // Same page size as loadCars, so cars past the 10th stay in the dropdown.
+    this.carService
+      .getCarsList({ limit: CAR_PICKER_LIMIT })
+      .subscribe((cars) => (this.carsList = cars));
     this.loadUpcomingItems();
     this.loadStats();
   }

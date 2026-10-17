@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   HostListener,
@@ -8,12 +9,14 @@ import {
   Output,
   inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, forkJoin, of } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { Subject, forkJoin, interval, merge, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { ThemeService } from '../../services/theme.service';
+import { AlertsRefreshService } from '../../services/alerts-refresh.service';
 import { AuthService } from '../../services/auth.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CarService } from '../../services/car.service';
@@ -21,12 +24,14 @@ import { ItemService } from '../../services/item.service';
 import { CarDto, ItemDto, UpcomingItemDto } from '../../../shared/models/api.models';
 import { UrgencyBadgeComponent } from '../../../shared/components/urgency-badge/urgency-badge.component';
 import { WheelSpinnerComponent } from '../../../shared/components/wheel-spinner/wheel-spinner.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
+
+/** How often the bell reloads while the site is open. */
+export const ALERTS_REFRESH_MS = 60_000;
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [IconComponent, WheelSpinnerComponent, CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
+  imports: [WheelSpinnerComponent, CommonModule, RouterModule, FormsModule, UrgencyBadgeComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
@@ -42,6 +47,8 @@ export class HeaderComponent implements OnInit {
   private itemService = inject(ItemService);
   private router = inject(Router);
   private elementRef = inject(ElementRef);
+  private alertsRefresh = inject(AlertsRefreshService);
+  private destroyRef = inject(DestroyRef);
 
   isProfileMenuOpen = false;
   isNotificationsMenuOpen = false;
@@ -99,6 +106,15 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.loadDueAlerts();
+
+    // Keep the bell current: right after any save/delete, and every minute
+    // while the tab is visible (so date-based overdue items appear too).
+    merge(
+      this.alertsRefresh.changed$.pipe(debounceTime(300)),
+      interval(ALERTS_REFRESH_MS).pipe(filter(() => document.visibilityState === 'visible')),
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadDueAlerts());
 
     this.searchSubject
       .pipe(

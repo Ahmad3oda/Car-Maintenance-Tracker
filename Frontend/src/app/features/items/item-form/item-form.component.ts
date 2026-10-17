@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -12,13 +12,19 @@ import { NotificationService } from '../../../core/services/notification.service
 import { ItemDto } from '../../../shared/models/api.models';
 import { AuthImagePipe } from '../../../shared/pipes/auth-image.pipe';
 
+/** Today as YYYY-MM-DD in the user's time zone (toISOString would use UTC). */
+export function todayLocalIso(now = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 @Component({
   selector: 'app-item-form',
   standalone: true,
   imports: [AuthImagePipe, CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './item-form.component.html',
 })
-export class ItemFormComponent implements OnInit {
+export class ItemFormComponent implements OnInit, OnDestroy {
   itemForm: FormGroup;
   photoPreview: string | null = null;
   selectedFile: File | null = null;
@@ -37,7 +43,7 @@ export class ItemFormComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       manufacturer: [''],
-      installedDate: [new Date().toISOString().substring(0, 10), Validators.required],
+      installedDate: [todayLocalIso(), Validators.required],
       installedKm: ['', [Validators.min(0)]],
       expectedMaintenanceKm: ['', [Validators.min(0)]],
       expectedMaintenanceMonths: ['', [Validators.min(0)]],
@@ -82,7 +88,19 @@ export class ItemFormComponent implements OnInit {
     const file = target.files?.[0];
     if (file) {
       this.selectedFile = file;
+      this.revokePreview();
       this.photoPreview = URL.createObjectURL(file);
+    }
+  }
+
+  ngOnDestroy() {
+    this.revokePreview();
+  }
+
+  /** Frees a local preview made by handlePhotoSelect; server URLs are left alone. */
+  private revokePreview() {
+    if (this.photoPreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.photoPreview);
     }
   }
 
