@@ -3,7 +3,11 @@ FROM node:20-slim
 WORKDIR /app
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 make g++ \
+  && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    build-essential \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
@@ -15,6 +19,9 @@ COPY . .
 
 RUN npm run build \
   && npm prune --omit=dev
+
+# Create data directories
+RUN mkdir -p /app/data/uploads
 
 ENV NODE_ENV=production
 
