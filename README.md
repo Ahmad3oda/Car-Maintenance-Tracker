@@ -22,7 +22,7 @@ A full-stack application for tracking cars, their maintenance items (parts/servi
 - **Data Import & Export** — Export and import complete vehicle maintenance profiles (items + historical events) in standardized JSON format with atomic database transactions and automatic maintenance cycle recalculation
 - **User accounts** — Register / log in with username and password (bcrypt-hashed); JWT-protected API where each user only sees their own cars, items and records
 - **Validation** — Strong DTO validation with `class-validator`
-- **Swagger / OpenAPI** — Interactive API docs at `/api`
+- **Swagger / OpenAPI** — Interactive API docs at `/api` (on locally; off in production unless `SWAGGER_ENABLED=true`)
 - **CORS enabled** — Connected to the Angular frontend
 
 ### Frontend
@@ -125,22 +125,17 @@ cd car-maintenance-tracker
 | `backend` (`nest-backend`) | `./Backend/app` | **3000** → 3000 | NestJS API, SQLite, uploads |
 | `frontend` (`angular-frontend`) | `./Frontend` | **4200** → 80 | Angular app served by nginx |
 
-The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are bind-mounted into the backend container so they survive `docker compose down`.
+The frontend image is built with `--configuration docker` so the browser calls `http://localhost:3000` (the published backend port). SQLite and photos are stored in two named Docker volumes, so they survive `docker compose down` and rebuilds. No setup is needed before the first start.
 
-**Create the bind-mount targets before the first start** (Docker will create a *directory* named `data.sqlite` if the file is missing):
+| Volume | Mounted at | Contents |
+| ------ | ---------- | -------- |
+| `sqlite_data` | `/app/data` | `data.sqlite` |
+| `uploads_data` | `/app/uploads` | Car, item and record photos |
+
+Create a `.env` file in the **repository root** with the JWT signing secret (Compose refuses to start without it; `.env` is git-ignored):
 
 ```bash
-mkdir -p Backend/app/uploads
-touch Backend/app/data.sqlite
-```
-
-PowerShell:
-
-```powershell
-New-Item -ItemType Directory -Force Backend/app/uploads | Out-Null
-if (-not (Test-Path Backend/app/data.sqlite)) {
-  New-Item -ItemType File Backend/app/data.sqlite | Out-Null
-}
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
 ```
 
 From the **repository root**:
@@ -188,7 +183,7 @@ docker compose logs -f backend  # API only
 docker compose ps
 ```
 
-The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `JWT_SECRET` from `.env`, `DB_PATH=/app/data/data.sqlite`, and `UPLOAD_DIR=/app/uploads`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
+The compose file sets backend `FRONTEND_URL=http://localhost:4200` for CORS, `JWT_SECRET` from `.env`, `DB_PATH=/app/data/data.sqlite`, `UPLOAD_DIR=/app/uploads` and `SWAGGER_ENABLED=true`. Both paths are inside the volumes above; a database path outside `/app/data` would be lost when the container is recreated.
 
 ### 3. Local development without Docker
 
@@ -201,23 +196,25 @@ cd Backend/app
 npm install
 ```
 
-Create `.env` in `Backend/app/` (copy from `.env.example` and adjust). `JWT_SECRET` is required; the other values are the local defaults:
+Create `.env` in `Backend/app/` by copying `.env.example`. `JWT_SECRET` is required; the other values are the local defaults:
 
 ```env
 PORT=3000
-DB_PATH=data.sqlite
-UPLOAD_DIR=uploads
 FRONTEND_URL=http://localhost:4200
 JWT_SECRET=<output of: openssl rand -hex 32>
 ```
+
+Leave `DATA_DIR`, `DB_PATH` and `UPLOAD_DIR` unset locally so `data.sqlite` and `uploads/` stay in `Backend/app/`. The `/data/...` paths are for Railway's volume only.
 
 | Variable | Required | Description |
 | -------- | -------- | ----------- |
 | `JWT_SECRET` | **yes** | Signs login tokens. At least 32 characters; the API refuses to start without it. Keep it secret: anyone with it can log in as any user. Changing it logs everyone out. |
 | `DB_PATH` / `DATA_DIR` | no | SQLite file location (default `data.sqlite` in the working directory) |
 | `UPLOAD_DIR` | no | Photo folder (default `uploads`) |
-| `FRONTEND_URL` | no | Allowed CORS origin(s), comma-separated |
+| `FRONTEND_URL` | no | Allowed CORS origin(s), comma-separated. Unset allows every origin (a warning is logged in production) |
 | `PORT` | no | Default `3000` |
+| `AUTH_RATE_LIMIT` | no | Login/register attempts per IP per minute (default `10`); more get `429` |
+| `SWAGGER_ENABLED` | no | Swagger UI at `/api` is on locally and off when `NODE_ENV=production`; set `true` to keep it |
 
 ```bash
 npm run start:dev
@@ -308,12 +305,25 @@ A test fails if an entity changes without a migration. On SQLite, changing an ex
 #### Entity relationships
 
 ```
-cars (1) ──< items (many)
-cars (1) ──< maintenance_records (many)
+users (1) ──< cars (many)
+cars  (1) ──< items (many)
+cars  (1) ──< maintenance_records (many)
 items (1) ──< maintenance_records (many)
 ```
 
-Deleting a car cascades to its items and maintenance records. Deleting an item cascades to its maintenance records.
+Every foreign key cascades on delete: deleting a user removes their cars, deleting a car removes its items and records, and deleting an item removes its records.
+
+#### Table: `users`
+
+Defined in `Backend/app/src/modules/auth/entities/user.entity.ts`
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `id` | int | PK, auto-increment |
+| `username` | string | as typed at registration |
+| `usernameKey` | string | lower-cased username, unique (case-insensitive login) |
+| `passwordHash` | string | bcrypt hash, never returned by the API |
+| `createdAt` | datetime | auto |
 
 #### Table: `cars`
 
@@ -322,11 +332,13 @@ Defined in `Backend/app/src/modules/cars/entities/car.entity.ts`
 | Column | Type | Notes |
 | ------ | ---- | ----- |
 | `id` | int | PK, auto-increment |
-| `plateNumber` | string | required, unique |
+| `userId` | int | FK → `users.id` (CASCADE), indexed |
+| `plateNumber` | string | required, unique per user (`userId` + `plateNumber`) |
 | `brand` | string | required |
 | `model` | string | required |
-| `year` | int | required |
-| `currentKm` | int | default `0` |
+| `year` | int | required, 1900 to next year |
+| `currentKm` | int | default `0`; raised automatically by maintenance records |
+| `photoPath` | string | optional, file name in `uploads/cars/` |
 | `createdAt` | datetime | auto |
 | `updatedAt` | datetime | auto |
 
@@ -340,15 +352,16 @@ Defined in `Backend/app/src/modules/items/entities/item.entity.ts`
 | `carId` | int | FK → `cars.id` (CASCADE) |
 | `name` | string | required |
 | `description` | text | optional |
-| `serialNumber` | string | optional |
-| `photoPath` | string | filename in `/uploads` |
-| `installedDate` | datetime | optional |
-| `installedKm` | int | optional |
+| `manufacturer` | string | optional |
+| `photoPath` | string | optional, file name in `uploads/items/` |
+| `installedDate` | datetime | required when creating; editing it also moves the installation record |
+| `installedKm` | int | defaults to the car's `currentKm` |
 | `expectedMaintenanceKm` | int | optional — interval in km |
 | `expectedMaintenanceMonths` | int | optional — interval in months |
-| `lastMaintenanceId` | int | optional — FK to latest record |
-| `nextMaintenanceKm` | int | optional — computed |
-| `nextMaintenanceDate` | datetime | optional — computed |
+| `lastMaintenanceId` | int | computed — latest record (no FK constraint) |
+| `lastMaintenanceDate` | datetime | computed |
+| `nextMaintenanceKm` | int | computed — latest record km + interval |
+| `nextMaintenanceDate` | datetime | computed — latest record date + months |
 | `createdAt` | datetime | auto |
 | `updatedAt` | datetime | auto |
 
@@ -359,13 +372,14 @@ Defined in `Backend/app/src/modules/maintenance-records/entities/maintenance-rec
 | Column | Type | Notes |
 | ------ | ---- | ----- |
 | `id` | int | PK, auto-increment |
-| `carId` | int | FK → `cars.id` (CASCADE) |
+| `carId` | int | FK → `cars.id` (CASCADE); always the item's car |
 | `itemId` | int | FK → `items.id` (CASCADE) |
 | `maintenanceDate` | datetime | when the service happened |
 | `kmCounter` | int | car odometer reading |
 | `itemCost` | real | cost of the item/part |
 | `extraCosts` | JSON | optional array of `{ name, cost }` |
-| `notes` | text | optional |
+| `notes` | text | optional; `Initial component installation` marks the automatic baseline record |
+| `photoPath` | string | optional, file name in `uploads/maintenance-records/` |
 | `createdAt` | datetime | auto |
 | `updatedAt` | datetime | auto |
 
@@ -394,8 +408,8 @@ All list endpoints return a paginated envelope:
 | Param | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
 | `page` | int | `1` | Page number (min 1) |
-| `limit` | int | `10` | Items per page (1–50) |
-| `order` | `ASC` \| `DESC` | `ASC` | Sort direction |
+| `limit` | int | `10` | Items per page (1–1000) |
+| `order` | `ASC` \| `DESC` | `DESC` | Sort direction |
 | `search` | string | — | Full-text search |
 | `sortBy` | string | — | Field to sort by |
 
@@ -412,6 +426,7 @@ Every endpoint needs an `Authorization: Bearer <token>` header except `POST /aut
 - **Username:** 3–30 characters, starts with a letter, only English letters, digits and `_`. Unique ignoring case (`Ahmed` = `ahmed`); a taken name returns 409 `Username "x" is already taken`.
 - **Password:** 6–72 characters (bcrypt ignores anything past 72 bytes). Stored as a bcrypt hash only.
 - **Tokens** last 7 days. A missing, invalid or expired token returns 401.
+- **Rate limit:** login and register allow 10 attempts per minute per IP (`AUTH_RATE_LIMIT`); more return 429.
 
 **Per-user data:** cars belong to the user who created them; items and records belong to the user through their car. Lists, `/items/upcoming` and `/dashboard/stats` only include your own data, and another user's id returns the same 404 as an id that does not exist. Plate numbers are unique within one user's cars; different users can register the same plate.
 
@@ -530,43 +545,42 @@ Entities, services, and controllers stay the same.
 
 ```
 Frontend/src/app/
-├── app.config.ts              # Global config, HttpClient, ErrorInterceptor, Toast providers
-├── app.routes.ts              # Route definitions
+├── app.config.ts              # Router, HttpClient and interceptors
+├── app.routes.ts              # Lazy routes; login/register outside, app pages behind authGuard
 ├── core/
-│   ├── interceptors/          # ErrorInterceptor
+│   ├── guards/                # authGuard, guestGuard
+│   ├── interceptors/          # api (base URL), auth (Bearer token), error (toasts, 401 logout)
 │   ├── layouts/
 │   │   ├── admin-layout/      # Responsive shell (sidebar + header + router-outlet)
-│   │   ├── header/            # Global floating search, dark mode toggler, notification bell popover, user profile
-│   │   └── sidebar/           # Dashboard, Cars navigation
+│   │   ├── header/            # Global search, theme toggle, notification bell, profile menu
+│   │   └── sidebar/           # Dashboard, Cars and Maintenance log navigation
 │   └── services/
-│       ├── api-http.service.ts    # Centralized HTTP request client
-│       ├── car.service.ts         # Vehicle CRUD, odometer updater & photo upload
-│       ├── item.service.ts        # Part/component CRUD, upcoming items & photo upload
-│       ├── maintenance.service.ts # Service record CRUD & extra costs
-│       ├── dashboard.service.ts   # Summary stats, upcoming maintenance & recent event logs
-│       ├── theme.service.ts       # Reactive dark/light mode state & persistence
-│       └── notification.service.ts# Global toast notification dispatcher
+│       ├── auth.service.ts        # Login, register, session storage and expiry
+│       ├── car.service.ts         # Vehicle CRUD, odometer updater, import/export
+│       ├── item.service.ts        # Part/component CRUD and upcoming items
+│       ├── maintenance.service.ts # Service record CRUD and extra costs
+│       ├── dashboard.service.ts   # Stats, recent events and bell alert counts
+│       ├── photo.service.ts       # Loads login-protected photos as blob URLs
+│       ├── theme.service.ts       # Dark/light mode state and persistence
+│       └── notification.service.ts# Toast messages
 ├── features/
-│   ├── dashboard/             # Stats cards, upcoming/due maintenance table & quick odometer modal
+│   ├── auth/                  # Login and register pages, shared username/password rules
+│   ├── dashboard/             # Stats cards, expense chart, upcoming table, odometer modal
 │   ├── cars/
-│   │   ├── car-list/          # Vehicles list with grid view
+│   │   ├── car-list/          # Paginated vehicle cards
 │   │   ├── car-form/          # Add / edit vehicle with photo upload
-│   │   ├── car-details/       # Vehicle summary + installed items data table
-│   │   └── import-modal/      # Floating JSON import dialog (file drop + text paste)
+│   │   └── car-details/       # Vehicle summary, items table, import/export
 │   ├── items/
 │   │   └── item-form/         # Add / edit item with photo upload
 │   └── maintenance/
-│       ├── event-list/        # Service history data table per item
-│       └── event-form/        # Add / edit maintenance record with dynamic extra costs
+│       ├── all-events/        # Maintenance log with car, period and search filters
+│       ├── event-list/        # Service history per item
+│       └── event-form/        # Add / edit maintenance record with extra costs
 └── shared/
-    ├── models/                # Car, Item, UpcomingItemDto, MaintenanceEvent, PageMeta, ApiModels
-    └── components/
-        ├── stat-card/         # Metric summary card
-        ├── table/             # DataTableComponent & SortHeaderComponent
-        ├── pagination/        # Responsive PaginationComponent
-        ├── image-modal/       # Lightbox image preview modal
-        ├── toast/             # Toast notification container
-        └── empty-state/       # Empty placeholder component
+    ├── models/                # API DTOs and page metadata
+    ├── pipes/                 # authImage, truncate
+    └── components/            # data table, pagination, modals (image, import, odometer),
+                               # toast, stat card, urgency badge, gauges, skeletons, icons
 ```
 
 All components are **standalone** (no NgModules). Styling uses Tailwind utility classes and responsive breakpoints.
@@ -627,4 +641,6 @@ These TypeScript interfaces mirror the backend schema:
 - [ ] Export records as CSV/PDF
 - [x] Docker support
 - [ ] Cloud storage for photos (S3 / Cloudinary)
-- [ ] Environment-based API URL configuration
+- [x] Environment-based API URL configuration
+
+

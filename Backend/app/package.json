@@ -30,14 +30,16 @@
     "@nestjs/mapped-types": "^2.1.1",
     "@nestjs/platform-express": "^11.1.19",
     "@nestjs/swagger": "^11.4.5",
+    "@nestjs/throttler": "^6.7.1",
     "@nestjs/typeorm": "^11.0.1",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "helmet": "^8.3.0",
     "multer": "^2.1.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "sqlite3": "^5.1.7",
+    "sqlite3": "^6.0.1",
     "typeorm": "^0.3.28"
   },
   "devDependencies": {

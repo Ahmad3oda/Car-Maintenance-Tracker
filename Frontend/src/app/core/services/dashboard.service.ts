@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, of, catchError } from 'rxjs';
+import { map, Observable, of, catchError, forkJoin } from 'rxjs';
 import { ItemService } from './item.service';
 import { MaintenanceService } from './maintenance.service';
 import {
@@ -54,15 +54,19 @@ export class DashboardService {
     totalDue: number;
     items: import('../../shared/models/api.models').UpcomingItemDto[];
   }> {
-    return this.items.getUpcomingItems({ scope: 'due_soon_or_overdue', limit: 10 }).pipe(
-      map((page) => {
-        const items = page.data || [];
-        const overdue = items.filter((i) => i.status === 'OVERDUE').length;
-        const dueSoon = items.filter((i) => i.status === 'DUE_SOON').length;
+    // Counts come from each scope's total, not from the 10 items shown.
+    return forkJoin({
+      due: this.items.getUpcomingItems({ scope: 'due_soon_or_overdue', limit: 10 }),
+      overdue: this.items.getUpcomingItems({ scope: 'overdue_only', limit: 1 }),
+    }).pipe(
+      map(({ due, overdue }) => {
+        const items = due.data || [];
+        const totalDue = due.meta?.totalItems ?? items.length;
+        const overdueCount = overdue.meta?.totalItems ?? 0;
         return {
-          overdue,
-          dueSoon,
-          totalDue: page.meta?.totalItems ?? items.length,
+          overdue: overdueCount,
+          dueSoon: Math.max(totalDue - overdueCount, 0),
+          totalDue,
           items,
         };
       }),

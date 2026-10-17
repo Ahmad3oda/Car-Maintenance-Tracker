@@ -133,6 +133,8 @@ export class MaintenanceRecordsService {
       ...dto,
       carId: item.carId,
     };
+    // photoPath is set only from an uploaded file, never from the body.
+    delete updateData.photoPath;
     if (photo) {
       if (record.photoPath) {
         await deleteUploadedFile('maintenance-records', record.photoPath);

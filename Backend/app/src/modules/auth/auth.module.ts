@@ -1,7 +1,12 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import {
+  AUTH_THROTTLE_TTL_MS,
+  authThrottleLimit,
+} from './auth-throttle.config';
 import { User } from './entities/user.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -11,6 +16,12 @@ import { getJwtSecret, JWT_EXPIRES_IN_SECONDS } from './jwt.config';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    // Used only by the login/register routes (see AuthController).
+    ThrottlerModule.forRootAsync({
+      useFactory: () => [
+        { ttl: AUTH_THROTTLE_TTL_MS, limit: authThrottleLimit() },
+      ],
+    }),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: getJwtSecret(),

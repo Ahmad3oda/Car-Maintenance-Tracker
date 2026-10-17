@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -13,6 +15,9 @@ import { ImageModalComponent } from '../../../shared/components/image-modal/imag
 import { PlateComponent } from '../../../shared/components/plate/plate.component';
 
 export type TimePeriod = 'lifetime' | 'day' | 'week' | 'month' | 'year';
+
+/** Pause after the last keystroke before the event log searches. */
+export const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-all-events',
@@ -55,7 +60,35 @@ export class AllEventsComponent implements OnInit {
     private router: Router,
   ) {}
 
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly load$ = new Subject<void>();
+  private readonly search$ = new Subject<string>();
+
   ngOnInit() {
+    this.load$
+      .pipe(
+        switchMap(() => this.fetchEvents()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res: Page<MaintenanceRecordDto> | null) => {
+        if (res) {
+          this.events = res.data;
+          this.eventsMeta = res.meta;
+        }
+        this.loadingEvents = false;
+      });
+
+    this.search$
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.page = 1;
+        this.loadEvents();
+      });
+
     this.loadCars();
     this.loadEvents();
   }
@@ -71,10 +104,14 @@ export class AllEventsComponent implements OnInit {
 
   loadEvents() {
     this.loadingEvents = true;
+    this.load$.next();
+  }
 
+  /** One request per load; a newer load cancels a slower, older one. */
+  private fetchEvents() {
     const { startDate, endDate } = this.calculatePeriodDates(this.selectedPeriod);
 
-    this.maintenanceService
+    return this.maintenanceService
       .getAllEvents({
         page: this.page,
         limit: this.limit,
@@ -85,16 +122,7 @@ export class AllEventsComponent implements OnInit {
         startDate,
         endDate,
       })
-      .subscribe({
-        next: (res: Page<MaintenanceRecordDto>) => {
-          this.events = res.data;
-          this.eventsMeta = res.meta;
-          this.loadingEvents = false;
-        },
-        error: () => {
-          this.loadingEvents = false;
-        },
-      });
+      .pipe(catchError(() => of(null)));
   }
 
   calculatePeriodDates(period: TimePeriod): { startDate?: string; endDate?: string } {
@@ -144,10 +172,10 @@ export class AllEventsComponent implements OnInit {
     this.loadEvents();
   }
 
+  /** Searches once typing pauses, not on every keystroke. */
   onSearchInput(query: string) {
     this.searchQuery = query;
-    this.page = 1;
-    this.loadEvents();
+    this.search$.next(query);
   }
 
   onPageChange(newPage: number) {
