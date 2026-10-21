@@ -21,7 +21,7 @@ RUN npm run build \
   && npm prune --omit=dev
 
 # Create data directories
-RUN mkdir -p /app/data/uploads
+RUN mkdir -p /app/data/uploads /app/uploads
 
 ENV NODE_ENV=production
 
