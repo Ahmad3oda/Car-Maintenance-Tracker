@@ -13,7 +13,8 @@ RUN apt-get update \
 COPY package*.json ./
 
 # Include devDependencies so `nest build` can run even if NODE_ENV=production
-RUN npm ci --include=dev
+RUN npm ci --include=dev \
+  && npm rebuild sqlite3 --build-from-source
 
 COPY . .
 
