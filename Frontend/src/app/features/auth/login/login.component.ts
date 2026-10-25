@@ -8,13 +8,21 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { WheelSpinnerComponent } from '../../../shared/components/wheel-spinner/wheel-spinner.component';
+import { AuthShellComponent } from '../auth-shell/auth-shell.component';
 import { applyServerErrors, safeReturnUrl } from '../auth-errors';
 import { PASSWORD_MESSAGES, USERNAME_MESSAGES } from '../auth.rules';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    AuthShellComponent,
+    WheelSpinnerComponent,
+  ],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
@@ -37,6 +45,7 @@ export class LoginComponent {
   readonly sessionExpired =
     this.route.snapshot.queryParamMap.get('reason') === 'expired';
   submitting = false;
+  showPassword = false;
   formError: string | null = null;
 
   showError(field: 'username' | 'password'): string | null {

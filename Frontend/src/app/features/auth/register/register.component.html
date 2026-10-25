@@ -1,79 +1,97 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-10">
-  <div class="w-full max-w-sm">
-    <div class="flex flex-col items-center mb-6">
-      <img src="logo.png" alt="" class="w-12 h-12 mb-3" />
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Create an account</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Car Maintenance Tracker</p>
+<app-auth-shell title="Create your account" subtitle="Start tracking your cars' maintenance in a minute.">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+    <div *ngIf="formError" class="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl dark:bg-red-900/30 dark:text-red-300 dark:border-red-800" role="alert">
+      {{ formError }}
     </div>
 
-    <form
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-      novalidate
-      class="p-6 space-y-4 bg-white rounded-xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700"
-    >
-      <div *ngIf="formError" class="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/30 dark:text-red-300 dark:border-red-800" role="alert">
-        {{ formError }}
-      </div>
-
-      <div>
-        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Username</label>
+    <div>
+      <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1.5">Username</label>
+      <div class="relative">
+        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" />
+        </svg>
         <input
           id="username"
           formControlName="username"
           type="text"
           autocomplete="username"
-          class="block w-full px-3.5 sm:px-4 py-2 text-sm bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 dark:bg-gray-700 dark:text-gray-300 transition-colors"
-          [ngClass]="showError('username') ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-gray-300 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400'"
+          placeholder="your_username"
+          class="block w-full pl-10 pr-4 py-3 text-sm bg-white border rounded-xl shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-4 dark:bg-gray-800 dark:text-gray-200 transition-colors"
+          [ngClass]="showError('username') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : 'border-gray-300 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500/15'"
           [attr.aria-invalid]="!!showError('username')"
-          [attr.aria-describedby]="showError('username') ? 'username-error' : null"
+          [attr.aria-describedby]="showError('username') ? 'username-error' : 'username-hint'"
         />
-        <p *ngIf="showError('username')" id="username-error" class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{{ showError('username') }}</p>
-        <p *ngIf="!showError('username') && hints.username" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ hints.username }}</p>
       </div>
+      <p *ngIf="showError('username')" id="username-error" class="mt-1.5 text-xs text-red-600 dark:text-red-400" role="alert">{{ showError('username') }}</p>
+      <p *ngIf="!showError('username') && hints.username" id="username-hint" class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{{ hints.username }}</p>
+    </div>
 
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Password</label>
+    <div>
+      <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1.5">Password</label>
+      <div class="relative">
+        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+          <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
         <input
           id="password"
           formControlName="password"
-          type="password"
+          [type]="showPassword ? 'text' : 'password'"
           autocomplete="new-password"
-          class="block w-full px-3.5 sm:px-4 py-2 text-sm bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 dark:bg-gray-700 dark:text-gray-300 transition-colors"
-          [ngClass]="showError('password') ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-gray-300 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400'"
+          placeholder="••••••••"
+          class="block w-full pl-10 pr-11 py-3 text-sm bg-white border rounded-xl shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-4 dark:bg-gray-800 dark:text-gray-200 transition-colors"
+          [ngClass]="showError('password') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : 'border-gray-300 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500/15'"
           [attr.aria-invalid]="!!showError('password')"
-          [attr.aria-describedby]="showError('password') ? 'password-error' : null"
+          [attr.aria-describedby]="showError('password') ? 'password-error' : 'password-hint'"
         />
-        <p *ngIf="showError('password')" id="password-error" class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{{ showError('password') }}</p>
-        <p *ngIf="!showError('password') && hints.password" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ hints.password }}</p>
+        <button
+          type="button"
+          (click)="showPassword = !showPassword"
+          class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+          [attr.aria-label]="showPassword ? 'Hide passwords' : 'Show passwords'"
+          [attr.aria-pressed]="showPassword"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />
+            <path *ngIf="showPassword" d="M4 4l16 16" />
+          </svg>
+        </button>
       </div>
+      <p *ngIf="showError('password')" id="password-error" class="mt-1.5 text-xs text-red-600 dark:text-red-400" role="alert">{{ showError('password') }}</p>
+      <p *ngIf="!showError('password') && hints.password" id="password-hint" class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{{ hints.password }}</p>
+    </div>
 
-      <div>
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Confirm password</label>
+    <div>
+      <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1.5">Confirm password</label>
+      <div class="relative">
+        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3M9.5 15.5l1.7 1.7 3.3-3.4" />
+        </svg>
         <input
           id="confirmPassword"
           formControlName="confirmPassword"
-          type="password"
+          [type]="showPassword ? 'text' : 'password'"
           autocomplete="new-password"
-          class="block w-full px-3.5 sm:px-4 py-2 text-sm bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 dark:bg-gray-700 dark:text-gray-300 transition-colors"
-          [ngClass]="confirmError ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-gray-300 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400'"
+          placeholder="••••••••"
+          class="block w-full pl-10 pr-4 py-3 text-sm bg-white border rounded-xl shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-4 dark:bg-gray-800 dark:text-gray-200 transition-colors"
+          [ngClass]="confirmError ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : 'border-gray-300 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500/15'"
           [attr.aria-invalid]="!!confirmError"
           [attr.aria-describedby]="confirmError ? 'confirmPassword-error' : null"
         />
-        <p *ngIf="confirmError" id="confirmPassword-error" class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{{ confirmError }}</p>
       </div>
+      <p *ngIf="confirmError" id="confirmPassword-error" class="mt-1.5 text-xs text-red-600 dark:text-red-400" role="alert">{{ confirmError }}</p>
+    </div>
 
-      <button
-        type="submit"
-        [disabled]="submitting"
-        class="w-full px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-      >
-        {{ submitting ? 'Creating account…' : 'Create account' }}
-      </button>
-    </form>
+    <button
+      type="submit"
+      [disabled]="submitting"
+      class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+    >
+      <app-wheel-spinner *ngIf="submitting" class="w-4 h-4" label="Creating account"></app-wheel-spinner>
+      {{ submitting ? 'Creating account…' : 'Create account' }}
+    </button>
+  </form>
 
-    <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
-      Already have an account? <a routerLink="/login" class="font-medium text-purple-600 hover:underline dark:text-purple-400">Log in</a>
-    </p>
-  </div>
-</div>
+  <p class="mt-6 text-sm text-center text-gray-600 dark:text-gray-400">
+    Already have an account? <a routerLink="/login" class="font-semibold text-purple-600 hover:underline dark:text-purple-400">Log in</a>
+  </p>
+</app-auth-shell>
