@@ -9,6 +9,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { WheelSpinnerComponent } from '../../../shared/components/wheel-spinner/wheel-spinner.component';
+import { AuthShellComponent } from '../auth-shell/auth-shell.component';
 import { applyServerErrors } from '../auth-errors';
 import {
   PASSWORD_MESSAGES,
@@ -28,7 +30,13 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null =>
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    AuthShellComponent,
+    WheelSpinnerComponent,
+  ],
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
@@ -51,6 +59,7 @@ export class RegisterComponent {
   };
 
   submitting = false;
+  showPassword = false;
   formError: string | null = null;
 
   showError(field: 'username' | 'password'): string | null {
